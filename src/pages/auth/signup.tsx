@@ -57,7 +57,7 @@ const SignUp = ({
     setIsSubmitting(true);
 
     fetch("/api/create-user", { method: "POST", body: JSON.stringify(data) }).then(data => data.json())
-      .then((result) => {
+      .then((result: { status: string; }) => {
         if (result.status == "user added") {
           toast({
             title: "Account created.",
@@ -67,7 +67,7 @@ const SignUp = ({
             isClosable: true,
           });
           //if user was added successfully sign up with new use and redirect to new-user page
-          signIn("credentials", {
+          void signIn("credentials", {
             email: data.email,
             password: data.password,
             redirect: false,
@@ -104,7 +104,8 @@ const SignUp = ({
           });
           ;
         }
-      });
+      })
+      .catch(err => console.error(err));
   };
 
   const [show, setShow] = useState(false);
@@ -149,11 +150,11 @@ const SignUp = ({
                 })}
               />
               <FormErrorMessage>
-                {errors.email && errors.email.message}
+                {errors?.email?.message}
               </FormErrorMessage>
             </FormControl>
 
-            <FormControl mb={5} isInvalid={Boolean(errors.password)}>
+            <FormControl mb={5} isInvalid={Boolean(errors?.password)}>
               <FormLabel className="font-bold text-black" htmlFor="name">
                 Password
               </FormLabel>
@@ -173,7 +174,7 @@ const SignUp = ({
                 </InputRightElement>
               </InputGroup>{" "}
               <FormErrorMessage>
-                {errors.password && errors.password.message}
+                {errors?.password?.message}
               </FormErrorMessage>
             </FormControl>
             <Flex className="flex justify-between">

@@ -61,31 +61,32 @@ const SignIn = ({
       email: data.email,
       password: data.password,
       redirect: false,
-    }).then((res) => {
-      if (res?.ok) {
-        toast({
-          title: "Signed in",
-          description: "We've logged you in .",
-          status: "success",
-          duration: 9000,
-          isClosable: true,
-        });
+    })
+      .then(res => {
+        if (res?.ok) {
+          toast({
+            title: "Signed in",
+            description: "We've logged you in .",
+            status: "success",
+            duration: 9000,
+            isClosable: true,
+          });
 
 
-      }
-      if (res?.error) {
-        setIsSubmitting(false);
-        toast({
-          title: "Error Signing in",
-          description:
-            "Something went wrong, credentials used might be invalid or a server error might occured ",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      }
-      console.log({ authresponse: res }); //DEBUG remove debug logs
-    });
+        }
+        if (res?.error) {
+          setIsSubmitting(false);
+          toast({
+            title: "Error Signing in",
+            description:
+              "Something went wrong, credentials used might be invalid or a server error might occured ",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        }
+        console.log({ authresponse: res }); //DEBUG remove debug logs
+      }).catch(err => console.error(err));
 
   };
   return (
@@ -113,7 +114,7 @@ const SignIn = ({
                 })}
               />
               <FormErrorMessage>
-                {errors.email && errors.email.message}
+                {errors?.email?.message}
               </FormErrorMessage>
             </FormControl>
 
@@ -135,7 +136,8 @@ const SignIn = ({
                 </InputRightElement>
               </InputGroup>{" "}
               <FormErrorMessage>
-                {errors.password && errors.password.message}
+                {errors?.password?.message}
+
               </FormErrorMessage>
             </FormControl>
             <div className="mb-2 mt-2 flex w-full flex-row justify-end">

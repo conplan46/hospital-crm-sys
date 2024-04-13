@@ -1,3 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-return */
+/* eslint-disable @typescript-eslint/no-unsafe-argument */
 import PostgresAdapter from "@auth/pg-adapter";
 import { compareSync } from "bcrypt-ts";
 import { type GetServerSidePropsContext } from "next";
@@ -83,8 +86,8 @@ export const authOptions: NextAuthOptions = {
 
         // If no error and we have user data, return it
         const hashCompRes = compareSync(
-          credentials?.password as string,
-          res.rows[0]?.password as string
+          credentials!.password,
+          res?.rows[0]?.password
         );
 
         if (res.rows[0] && hashCompRes) {
