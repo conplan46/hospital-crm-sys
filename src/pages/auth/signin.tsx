@@ -4,7 +4,7 @@ import {
   useSession,
   getCsrfToken,
 } from "next-auth/react";
-
+import { useRouter } from "next/router";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { InferGetServerSidePropsType } from "next";
 import { CtxOrReq } from "next-auth/client/_utils";
@@ -42,7 +42,7 @@ const SignIn = ({
   csrfToken,
   providers,
 }: InferGetServerSidePropsType<typeof getServerSideProps>) => {
-
+  const router = useRouter();
   const toast = useToast();
   const {
     register,
@@ -63,6 +63,7 @@ const SignIn = ({
       redirect: false,
     })
       .then(res => {
+        setIsSubmitting(false)
         if (res?.ok) {
           toast({
             title: "Signed in",
@@ -71,6 +72,11 @@ const SignIn = ({
             duration: 9000,
             isClosable: true,
           });
+          if (router?.query?.callbackUrl) {
+            void router.push(router?.query?.callbackUrl as string)
+          } else {
+            void router.push('/')
+          }
 
 
         }

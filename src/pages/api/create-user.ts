@@ -17,7 +17,7 @@ const createUser = async (req: NextApiRequest, res: NextApiResponse) => {
 
 			const salt = genSaltSync(10);
 			const hashedPassword = hashSync(body.password, salt);
-			const insertionResult = await pool.query('INSERT INTO user (email,password) VALUES($1,$2) RETURNING id', [body.email, hashedPassword])
+			const insertionResult = await pool.query('INSERT INTO users (email,password) VALUES($1,$2) RETURNING id', [body.email, hashedPassword])
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			if (insertionResult.rows[0].id) {
 

@@ -56,9 +56,10 @@ const SignUp = ({
     console.log(data);
     setIsSubmitting(true);
 
-    fetch("/api/create-user", { method: "POST", body: JSON.stringify(data) }).then(data => data.json())
+    fetch("/api/create-user", { headers: { 'Content-Type': 'application/json' }, method: "POST", body: JSON.stringify(data) }).then(data => data.json())
       .then((result: { status: string; }) => {
         if (result.status == "user added") {
+          setIsSubmitting(false);
           toast({
             title: "Account created.",
             description: "We've created your account for you.",
@@ -72,6 +73,11 @@ const SignUp = ({
             password: data.password,
             redirect: false,
           }).then((res) => {
+            if (router?.query?.callbackUrl) {
+              void router.push(router?.query?.callbackUrl as string)
+            } else {
+              void router.push('/')
+            }
             if (res?.ok) {
               toast({
                 title: "Signed in",
