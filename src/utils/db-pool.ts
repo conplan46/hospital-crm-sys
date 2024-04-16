@@ -8,6 +8,7 @@ export const pool = new Pool({
 	database: env.DB_NAME,
 	port: parseInt(env.DB_PORT),
 	max: 20,
+	ssl: true,
 	idleTimeoutMillis: 30000,
 	connectionTimeoutMillis: 2000,
 });
