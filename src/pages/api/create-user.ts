@@ -30,7 +30,7 @@ const createUser = async (req: NextApiRequest, res: NextApiResponse) => {
 	} catch (error) {
 		console.error(error)
 
-		return res.status(200).json({ status: "An internal error occured" });
+		return res.status(404).json({ status: "An internal error occured" });
 	}
 
 }
