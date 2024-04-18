@@ -1,12 +1,15 @@
 import Head from "next/head";
 import Link from "next/link";
-import { signIn, useSession } from "next-auth/react";
-
+import { signIn, signOut, useSession } from "next-auth/react";
+import { useRouter } from "next/router";
+import { Button } from "@chakra-ui/react";
 export default function Home() {
+  const router = useRouter()
   const { data: session, status } = useSession();
   if (status === "unauthenticated") {
-    void signIn(undefined, { callbackUrl: "/" });
+    void signIn(undefined, { callbackUrl: router?.asPath });
   }
+  console.log({ session })
   return (
     <>
 
@@ -16,7 +19,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main className="flex min-h-screen flex-col items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-
+        <Button onClick={() => { void signOut() }}>logout</Button>
       </main>
     </>
   );

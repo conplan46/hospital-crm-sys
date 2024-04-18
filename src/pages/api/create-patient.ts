@@ -19,17 +19,19 @@ const createPatient = async (req: NextApiRequest, res: NextApiResponse) => {
 		onboardingDataSchema.parse(req.body);
 
 		const getEmailQuery = await pool.query("SELECT * FROM users WHERE EMAIL = $1", [body?.email])
-
+		console.log(getEmailQuery?.rows[0])
 		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		const result = await pool.query("INSERT INTO patients(firstName,lastName,phoneNumber,primaryAreaOfSpeciality,countyOfPractice,userId) VALUES($1,$2,$3,$4,$5,$6)",
-			[body?.firstName, body?.lastName, body?.phoneNumber, body?.primaryAreaOfSpeciality, body?.countyOfPractice, getEmailQuery?.rows[0]?.email])
-		// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-		if (result.rows[0].id) {
+		if (getEmailQuery?.rows[0]?.id) {
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			const result = await pool.query("INSERT INTO patients (firstName,lastName,phoneNumber,userId) VALUES($1,$2,$3,$4) RETURNING id", [body?.firstName, body?.lastName, body?.phoneNumber, getEmailQuery?.rows[0]?.id])
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			if (result.rows[0].id) {
 
-			return res.status(200).json({ status: "patient added" });
-		} else {
+				return res.status(200).json({ status: "patient added" });
+			} else {
 
-			return res.status(404).json({ status: "An internal error adding the patient" });
+				return res.status(404).json({ status: "An internal error adding the patient" });
+			}
 		}
 	} catch (e) {
 		console.error(e)

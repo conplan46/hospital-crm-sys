@@ -73,11 +73,8 @@ const SignUp = ({
             password: data.password,
             redirect: false,
           }).then((res) => {
-            if (router?.query?.callbackUrl) {
-              void router.push(router?.query?.callbackUrl as string)
-            } else {
-              void router.push('/')
-            }
+            void router.push('/auth/new-user')
+
             if (res?.ok) {
               toast({
                 title: "Signed in",

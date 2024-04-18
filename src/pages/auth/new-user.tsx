@@ -17,6 +17,7 @@ import {
   AlertDialogCloseButton,
   useDisclosure,
 } from "@chakra-ui/react";
+import { signIn, useSession } from "next-auth/react";
 import Head from "next/head"
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react"
@@ -28,6 +29,7 @@ const onboardingDataSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   phoneNumber: z.string(),
+  email: z.string().optional(),
   primaryAreaOfSpeciality: z.string().optional(),
   countyOfPractice: z.string().optional(),
 });
@@ -49,6 +51,11 @@ export default function NewUserPage() {
   const router = useRouter();
   const cancelRef = useRef(null)
   console.log({ queried })
+  const { data: session, status } = useSession();
+  if (status === "unauthenticated") {
+    void signIn(undefined, { callbackUrl: router?.asPath });
+  }
+
   useEffect(() => {
     if (!queried) {
       if (!isOpen) {
@@ -62,6 +69,12 @@ export default function NewUserPage() {
   const onSubmit: SubmitHandler<OnboardingData> = (data) => {
     console.log(data)
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    if (session?.user?.email) {
+      data = { ...data, email: session?.user?.email }
+    }
     if (isClinician) {
       fetch("/api/create-clinician", { headers: { 'Content-Type': 'application/json' }, method: "POST", body: JSON.stringify(data) }).then(data => data.json())
         .then((result: { status: string; }) => {
@@ -94,7 +107,7 @@ export default function NewUserPage() {
     } else {
       fetch("/api/create-patient", { headers: { 'Content-Type': 'application/json' }, method: "POST", body: JSON.stringify(data) }).then(data => data.json())
         .then((result: { status: string; }) => {
-          if (result.status == "clinician added") {
+          if (result.status == "patient added") {
             setIsSubmitting(false);
             toast({
               title: "Data received.",
