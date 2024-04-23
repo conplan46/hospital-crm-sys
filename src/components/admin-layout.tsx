@@ -1,3 +1,5 @@
+import { Button } from "@chakra-ui/react";
+import { signOut } from "next-auth/react";
 import Head from "next/head"
 
 import Link from "next/link"
@@ -22,14 +24,10 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 						</div>
 					</div>
 					<ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
+
 						<li>
-							<a className="justify-between">
-								Profile
-								<span className="badge">New</span>
-							</a>
+							<Button onClick={() => { void signOut() }}>Logout</Button>
 						</li>
-						<li><a>Settings</a></li>
-						<li><a>Logout</a></li>
 					</ul>
 				</div>
 			</div>

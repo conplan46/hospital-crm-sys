@@ -4,9 +4,9 @@ import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
 import { Button, Skeleton, useToast } from "@chakra-ui/react";
 import { AdminLayout } from "~/components/admin-layout";
-import { Clinicians } from "~/utils/used-types";
+import { Clinicians, Patients } from "~/utils/used-types";
 import { useEffect, useState } from "react";
-export default function CliniciansView() {
+export default function PatientsView() {
   const router = useRouter()
   const { data: session, status } = useSession();
   if (status === "unauthenticated") {
@@ -14,13 +14,13 @@ export default function CliniciansView() {
   }
   const toast = useToast();
   const [loading, setLoading] = useState(false)
-  const [clinicians, setClinicians] = useState<Clinicians | undefined>(undefined)
+  const [patients, setPatients] = useState<Patients | undefined>(undefined)
   useEffect(() => {
     setLoading(true);
-    fetch("/api/get-clinicians", { headers: { 'Content-Type': 'application/json' }, method: "GET" }).then(data => data.json()).then((data: { status: string, clinicians: Clinicians }) => {
+    fetch("/api/get-patients", { headers: { 'Content-Type': 'application/json' }, method: "GET" }).then(data => data.json()).then((data: { status: string, patients: Patients }) => {
       setLoading(false);
       if (data?.status === 'success') {
-        setClinicians(data?.clinicians)
+        setPatients(data?.patients)
       } else {
         toast({ status: "error", description: "An error occured fetching clinicians" });
       }
@@ -39,19 +39,15 @@ export default function CliniciansView() {
                   <th></th>
                   <th>Name</th>
                   <th>Phone Number</th>
-                  <th>Primary area of Speciality</th>
-                  <th>County of practice</th>
                 </tr>
               </thead>
               <tbody>
-                {clinicians?.map((clinician, index) => {
+                {patients?.map((patient, index) => {
                   return (
                     <tr key={index}>
                       <th>{index + 1}</th>
-                      <td>{`${clinician?.firstname} ${clinician?.lastname}`}</td>
-                      <td>{clinician?.phonenumber}</td>
-                      <td>{clinician?.primaryareaofspeciality}</td>
-                      <td>{clinician?.countyofpractice}</td>
+                      <td>{`${patient?.firstname} ${patient?.lastname}`}</td>
+                      <td>{patient?.phonenumber}</td>
                     </tr>
 
                   )
@@ -62,8 +58,6 @@ export default function CliniciansView() {
                   <th></th>
                   <th>Name</th>
                   <th>Phone Number</th>
-                  <th>Primary area of Speciality</th>
-                  <th>County of practice</th>
                 </tr>
               </tfoot>
             </table>
