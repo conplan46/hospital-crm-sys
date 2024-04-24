@@ -26,8 +26,7 @@ export const AdminLayout = ({ children }: { children: React.ReactNode }) => {
 					<ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
 
 						<li>
-							<Button onClick={() => { void signOut() }}>Logout</Button>
-						</li>
+							<a onClick={() => { void signOut() }}>Logout</a>						</li>
 					</ul>
 				</div>
 			</div>

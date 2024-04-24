@@ -1,3 +1,4 @@
+import { signOut } from "next-auth/react";
 import Link from "next/link"
 import { useRouter } from "next/router"
 import { FaCog } from "react-icons/fa"
@@ -21,20 +22,18 @@ export const Layout = ({ children }: { children: React.ReactNode }) => {
 					</div>
 					<ul tabIndex={0} className="mt-3 z-[1] p-2 shadow menu menu-sm dropdown-content bg-base-100 rounded-box w-52">
 						<li>
-							<a className="justify-between">
+							<Link href="/profile" className="justify-between">
 								Profile
-								<span className="badge">New</span>
-							</a>
+							</Link>
 						</li>
-						<li><a>Settings</a></li>
-						<li><a>Logout</a></li>
+						<li><a onClick={() => { void signOut() }}>Logout</a></li>
 					</ul>
 				</div>
 			</div>
 		</div>
 		<div className="drawer lg:drawer-open">
 			<input id="my-drawer-2" type="checkbox" className="drawer-toggle" />
-			<div className="drawer-content flex flex-col items-center justify-center">
+			<div className="drawer-content flex flex-col ">
 				{/* Page content here */}
 				<main className="m-2">{children}</main>
 				<label htmlFor="my-drawer-2" className="btn btn-primary drawer-button lg:hidden">Open drawer</label>

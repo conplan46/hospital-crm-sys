@@ -14,8 +14,7 @@ export default function Home() {
   return (
     <Layout>
 
-      <main className="flex min-h-screen flex-col w-full items-center justify-center bg-gradient-to-b from-[#2e026d] to-[#15162c]">
-        <Button onClick={() => { void signOut() }}>logout</Button>
+      <main className="flex min-h-screen flex-col w-full items-center justify-center ">
       </main>
     </Layout>
   );
