@@ -1,21 +1,25 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/no-unsafe-return */
 /* eslint-disable @typescript-eslint/no-unsafe-argument */
-import PostgresAdapter from "@auth/pg-adapter";
-import { compareSync } from "bcrypt-ts";
-import { type GetServerSidePropsContext } from "next";
 import {
   getServerSession,
   type DefaultSession,
   type NextAuthOptions,
 } from "next-auth";
+import DiscordProvider from "next-auth/providers/discord";
+
+import type { QueryResult } from "pg";
+import PostgresAdapter from "@auth/pg-adapter";
+import { compareSync } from "bcrypt-ts";
+import { type GetServerSidePropsContext } from "next";
 import { Adapter } from "next-auth/adapters";
 import CredentialsProvider from "next-auth/providers/credentials"
 import GoogleProvider from "next-auth/providers/google";
 import { Pool } from "pg"
 import { env } from "~/env";
-import { pool } from "~/utils/db-pool";
-
+import { pool } from "utils/db-pool";
+import { User } from "utils/used-types";
+type Credentials = { email: string, password: string };
 const debug =
   env.NODE_ENV == "development" ||
     process.env.VERCEL_ENV == "preview" ||
@@ -31,11 +35,11 @@ const debug =
  */
 declare module "next-auth" {
   interface Session extends DefaultSession {
-    user: DefaultSession["user"] & {
+    user: {
       id: string;
       // ...other properties
       // role: UserRole;
-    };
+    } & DefaultSession["user"];
   }
 
   // interface User {
@@ -82,17 +86,17 @@ export const authOptions: NextAuthOptions = {
         // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
         // You can also use the `req` object to obtain additional parameters
         // (i.e., the request IP address)
-        const res = await pool.query("SELECT * FROM users WHERE EMAIL = $1", [credentials?.email])
+        const res = await pool.query("SELECT * FROM users WHERE EMAIL = $1", [credentials?.email]);
 
         // If no error and we have user data, return it
         const hashCompRes = compareSync(
-          credentials!.password,
-          res?.rows[0]?.password
+          credentials?.password as string,
+          res?.rows?.[0]?.password as string
         );
 
         if (res.rows[0] && hashCompRes) {
 
-          return res.rows[0]
+          return res?.rows[0]
         }
         // Return null if user data could not be retrieved
         return null
@@ -115,14 +119,10 @@ export const authOptions: NextAuthOptions = {
   }
 };
 
+
 /**
  * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.
  *
  * @see https://next-auth.js.org/configuration/nextjs
  */
-export const getServerAuthSession = (ctx: {
-  req: GetServerSidePropsContext["req"];
-  res: GetServerSidePropsContext["res"];
-}) => {
-  return getServerSession(ctx.req, ctx.res, authOptions);
-};
+export const getServerAuthSession = () => getServerSession(authOptions);
