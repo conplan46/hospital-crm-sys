@@ -89,17 +89,19 @@ export const authOptions: NextAuthOptions = {
         const res = await pool.query("SELECT * FROM users WHERE EMAIL = $1", [credentials?.email]);
 
         // If no error and we have user data, return it
-        const hashCompRes = compareSync(
-          credentials?.password as string,
-          res?.rows?.[0]?.password as string
-        );
+        if (credentials) {
+          const hashCompRes = compareSync(
+            credentials.password,
+            res?.rows?.[0]?.password as string
+          );
 
-        if (res.rows[0] && hashCompRes) {
+          if (res.rows[0] && hashCompRes) {
 
-          return res?.rows[0]
+            return res?.rows[0]
+          }
+          // Return null if user data could not be retrieved
+          return null
         }
-        // Return null if user data could not be retrieved
-        return null
       }
     }),
 

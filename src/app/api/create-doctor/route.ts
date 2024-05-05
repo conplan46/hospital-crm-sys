@@ -12,7 +12,7 @@ const onboardingDataSchema = z.object({
 });
 type onBoardingData = z.infer<typeof onboardingDataSchema>;
 
-export default async function POST(request: Request) {
+export async function POST(request: Request) {
 	try {
 		const data = await request.formData();
 		const email = data.get("email");
@@ -30,7 +30,7 @@ export default async function POST(request: Request) {
 		);
 		if (getEmailQuery?.rows[0]?.email) {
 			const result = await pool.query(
-				"INSERT INTO doctors (firstName,lastName,phoneNumber,primaryAreaOfSpeciality,countyOfPractice,userId,license_document_link) VALUES($1,$2,$3,$4,$5,$6) RETURNING id",
+				"INSERT INTO doctors (firstName,lastName,phoneNumber,primaryAreaOfSpeciality,countyOfPractice,userId,license_document_link) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id",
 
 				[
 					firstName,

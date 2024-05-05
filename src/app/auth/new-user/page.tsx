@@ -171,7 +171,7 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
         "primaryAreaOfSpeciality",
         data.primaryAreaOfSpeciality,
       );
-      const storageRef = ref(storage, data?.practicingLicense?.[0]?.name);
+      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
 
       const snapshot = await uploadBytes(
         storageRef,
@@ -397,7 +397,7 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
       formData.append("phoneNumber", phoneNumber);
       formData.append("location", data.location);
       formData.append('services', JSON.stringify(servicesList))
-      const storageRef = ref(storage, data?.practicingLicense?.[0]?.name);
+      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
 
       const snapshot = await uploadBytes(
         storageRef,
@@ -664,7 +664,8 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
         "primaryAreaOfSpeciality",
         data.primaryAreaOfSpeciality,
       );
-      const storageRef = ref(storage, data?.practicingLicense?.[0]?.name);
+      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
+
 
       const snapshot = await uploadBytes(
         storageRef,
@@ -905,7 +906,7 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
       formData.append("email", session?.user?.email);
       formData.append("phoneNumber", phoneNumber);
       formData.append("location", data.location);
-      const storageRef = ref(storage, data?.practicingLicense?.[0]?.name);
+      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
 
       const snapshot = await uploadBytes(
         storageRef,

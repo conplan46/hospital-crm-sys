@@ -4,10 +4,10 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 export default function HomePage() {
-
+  const callBackUrl = usePathname()
   const { data: session, status } = useSession();
   if (status === "unauthenticated") {
-    void signIn(undefined, { callbackUrl: usePathname() });
+    void signIn(undefined, { callbackUrl: callBackUrl });
   }
   console.log({ session })
   return (

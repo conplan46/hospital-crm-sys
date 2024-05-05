@@ -12,7 +12,7 @@ const onboardingDataSchema = z.object({
 });
 type onBoardingData = z.infer<typeof onboardingDataSchema>;
 
-export default async function POST(request: Request) {
+export async function POST(request: Request) {
 	try {
 		const data = await request.formData();
 		const email = data.get("email");
