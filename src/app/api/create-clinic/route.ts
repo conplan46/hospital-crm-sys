@@ -28,8 +28,9 @@ export async function POST(request: Request) {
 				],
 			);
 
+			const updateRoleQuery = await pool.query(`UPDATE users set userRole='clinician' WHERE id=$1`, [getEmailQuery?.rows[0]?.id]);
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			if (result.rows[0].id) {
+			if (result.rows[0].id && updateRoleQuery.rowCount == 1) {
 				return Response.json({ status: "clinic added" });
 			} else {
 				return Response.json({

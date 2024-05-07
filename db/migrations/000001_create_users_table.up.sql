@@ -34,7 +34,12 @@ CREATE TABLE IF NOT EXISTS  sessions
  
   PRIMARY KEY (id)
 );
- 
+CREATE TABLE IF NOT EXISTS roles
+(
+  role TEXT UNIQUE
+
+);
+
 CREATE TABLE IF NOT EXISTS  users
 (
   id SERIAL,
@@ -43,7 +48,10 @@ CREATE TABLE IF NOT EXISTS  users
   password VARCHAR(255),
   "emailVerified" TIMESTAMPTZ,
   image TEXT,
+  userRole TEXT NULL,
+  CONSTRAINT fk_Role FOREIGN KEY(userRole) REFERENCES roles(role),
  
   PRIMARY KEY (id)
 );
  
+INSERT INTO roles (role) VALUES('doctor'),('clinician'),('clinic'),('pharmacy'),('patient'),('nurse'),('pharmacist');

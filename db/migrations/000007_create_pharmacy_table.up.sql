@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS pharmacy
 (
   id SERIAL,
   license_document_link VARCHAR(255) NOT NULL, 
-  name VARCHAR(255) NOT NULL, 
+  estname VARCHAR(255) NOT NULL, 
   phoneNumber VARCHAR(15) NOT NULL,
   location VARCHAR(255) NOT NULL, 
   userId INT,
