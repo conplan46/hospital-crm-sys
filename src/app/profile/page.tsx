@@ -51,18 +51,30 @@ export default function ProfilePage() {
       </div>
       <div>
         <Wrap>
-          <WrapItem>
-            <Stat className="m-3 rounded-md border-2 p-2">
-              <StatLabel>First Name</StatLabel>
-              <StatNumber>{userData?.firstname}</StatNumber>
-            </Stat>
-          </WrapItem>
-          <WrapItem>
-            <Stat className="m-3 rounded-md border-2 p-2">
-              <StatLabel>Last Name</StatLabel>
-              <StatNumber>{userData?.lastname}</StatNumber>
-            </Stat>
-          </WrapItem>
+          {userData?.userrole == "pharmacy" || userData?.userrole == "clinic" ? (
+
+            <WrapItem>
+              <Stat className="m-3 rounded-md border-2 p-2">
+                <StatLabel>Establishment Name</StatLabel>
+                <StatNumber>{userData?.estname}</StatNumber>
+              </Stat>
+            </WrapItem>
+
+          ) : (<>
+            <WrapItem>
+
+              <Stat className="m-3 rounded-md border-2 p-2">
+                <StatLabel>First Name</StatLabel>
+                <StatNumber>{userData?.firstname}</StatNumber>
+              </Stat>
+            </WrapItem>
+            <WrapItem>
+              <Stat className="m-3 rounded-md border-2 p-2">
+                <StatLabel>Last Name</StatLabel>
+                <StatNumber>{userData?.lastname}</StatNumber>
+              </Stat>
+            </WrapItem></>
+          )}
         </Wrap>
         <Stat className="m-3 rounded-md border-2 p-2">
           <StatLabel>Phone Number</StatLabel>
