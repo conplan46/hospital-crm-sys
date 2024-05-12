@@ -1,4 +1,6 @@
 'use client'
+import { useDisclosure } from '@mantine/hooks';
+
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -6,12 +8,15 @@ import { Button, Skeleton, useToast } from "@chakra-ui/react";
 import { Clinicians } from "utils/used-types";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
+import Loading from '~/app/loading';
 export default function CliniciansView() {
   const callBackUrl = usePathname()
   const { data: session, status } = useSession();
   if (status === "unauthenticated") {
     void signIn(undefined, { callbackUrl: callBackUrl });
   }
+
+  const [visible, { toggle }] = useDisclosure(true);
   const toast = useToast();
   const [loading, setLoading] = useState(false)
   const [clinicians, setClinicians] = useState<Clinicians | undefined>(undefined)
@@ -27,10 +32,16 @@ export default function CliniciansView() {
     }
     ).catch(err => console.error(err))
   }, [])
+  if (status == "loading") {
+    return (<Loading />)
+  }
+
   console.log({ session })
-  return (
-    <Skeleton isLoaded={!loading}>
-      <main className="w-full">
+  if (status === "authenticated") {
+    return (
+
+      <Skeleton isLoaded={!loading}>
+
         <div className="overflow-x-auto">
           <table className="table">
             <thead>
@@ -56,18 +67,9 @@ export default function CliniciansView() {
                 )
               })}
             </tbody>
-            <tfoot>
-              <tr>
-                <th></th>
-                <th>Name</th>
-                <th>Phone Number</th>
-                <th>Primary area of Speciality</th>
-                <th>County of practice</th>
-              </tr>
-            </tfoot>
           </table>
         </div>
-      </main>
-    </Skeleton>
-  );
+      </Skeleton>
+    )
+  }
 }

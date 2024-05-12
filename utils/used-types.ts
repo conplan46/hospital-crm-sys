@@ -5,8 +5,8 @@ export interface Patient { id: number, firstname: string, lastname: string, phon
 export interface User { id: number; userrole: string; name: string; email: string; password: string; image: string; emailverified: string; }
 export type CreateClinicReturnType = "clinic added" | "An internal error adding the clinic" | "Corresponding user does not exist";
 export interface Doctor { id: number, firstname: string, lastname: string, phonenumber: string, primaryareaofspeciality: string, countyofpractice: string, userid: number }
-export interface Clinic { id: number, estname: string, license_document_link: string, services: string, location: string, userid: number }
-export interface Pharmacy { id: number, estname: string, license_document_link: string, services: string, location: string, userid: number }
+export interface Clinic { id: number, estname: string, phonenumber: string, license_document_link: string, services: string, location: string, userid: number }
+export interface Pharmacy { id: number, estname: string, phonenumber: string, license_document_link: string, services: string, location: string, userid: number }
 export interface ClinicData extends User, Clinic { };
 export interface PharmacyData extends User, Pharmacy { };
 export interface DoctorData extends User, Doctor { };
