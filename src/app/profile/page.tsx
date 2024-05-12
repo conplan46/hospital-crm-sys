@@ -53,6 +53,12 @@ export default function ProfilePage() {
   if (status == "loading") {
     return (<Loading />)
   }
+  if (!isClient) {
+    return (
+      <Loading />
+    )
+  }
+
   if (isClient && status == "authenticated") {
     return (
       <Skeleton isLoaded={!loading}>

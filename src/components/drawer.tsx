@@ -144,7 +144,7 @@ function HeaderNew() {
 				<AdminNav />
 			</div>
 			<div className="navbar-center">
-				<a className="btn btn-ghost text-xl">Hospital CRM</a>
+				<Link href="/" className="btn btn-ghost text-xl">Hospital CRM</Link>
 			</div>
 			<div className="navbar-end">
 				<div className="form-control">

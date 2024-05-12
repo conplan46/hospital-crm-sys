@@ -16,11 +16,13 @@ export default function CliniciansView() {
     void signIn(undefined, { callbackUrl: callBackUrl });
   }
 
+  const [isClient, setIsClient] = useState(false);
   const [visible, { toggle }] = useDisclosure(true);
   const toast = useToast();
   const [loading, setLoading] = useState(false)
   const [clinicians, setClinicians] = useState<Clinicians | undefined>(undefined)
   useEffect(() => {
+    setIsClient(true)
     setLoading(true);
     fetch("/api/get-clinicians", { headers: { 'Content-Type': 'application/json' }, method: "GET" }).then(data => data.json()).then((data: { status: string, clinicians: Clinicians }) => {
       setLoading(false);
@@ -34,6 +36,11 @@ export default function CliniciansView() {
   }, [])
   if (status == "loading") {
     return (<Loading />)
+  }
+  if (!isClient) {
+    return (
+      <Loading />
+    )
   }
 
   console.log({ session })
