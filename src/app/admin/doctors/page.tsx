@@ -1,4 +1,4 @@
-'use client'
+"use client";
 import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
@@ -8,32 +8,40 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Loading from "~/app/loading";
 export default function DoctorsView() {
-	const callBackUrl = usePathname()
+	const callBackUrl = usePathname();
 	const { data: session, status } = useSession();
 	if (status === "unauthenticated") {
 		void signIn(undefined, { callbackUrl: callBackUrl });
 	}
 	const toast = useToast();
-	const [loading, setLoading] = useState(false)
-	const [doctors, setDoctors] = useState<Array<Doctor> | undefined>(undefined)
-	const [isClient, setIsClient] = useState(false)
+	const [loading, setLoading] = useState(false);
+	const [doctors, setDoctors] = useState<Array<Doctor> | undefined>(undefined);
+	const [isClient, setIsClient] = useState(false);
 	useEffect(() => {
-		setIsClient(true)
+		setIsClient(true);
 		setLoading(true);
-		fetch("/api/get-doctors", { headers: { 'Content-Type': 'application/json' }, method: "GET" }).then(data => data.json()).then((data: { status: string, doctors: Array<Doctor> }) => {
-			setLoading(false);
-			if (data?.status === 'success') {
-				setDoctors(data?.doctors)
-			} else {
-				toast({ status: "error", description: "An error occured fetching clinicians" });
-			}
-		}
-		).catch(err => console.error(err))
-	}, [])
-	console.log({ session })
+		fetch("/api/get-doctors", {
+			headers: { "Content-Type": "application/json" },
+			method: "GET",
+		})
+			.then((data) => data.json())
+			.then((data: { status: string; doctors: Array<Doctor> }) => {
+				setLoading(false);
+				if (data?.status === "success") {
+					setDoctors(data?.doctors);
+				} else {
+					toast({
+						status: "error",
+						description: "An error occured fetching clinicians",
+					});
+				}
+			})
+			.catch((err) => console.error(err));
+	}, []);
+	console.log({ session });
 
 	if (status == "loading") {
-		return (<Loading />)
+		return <Loading />;
 	}
 
 	if (isClient && status == "authenticated") {
@@ -50,20 +58,25 @@ export default function DoctorsView() {
 								<th>County of practice</th>
 							</tr>
 						</thead>
-						<tbody>
-							{doctors?.map((doctor, index) => {
-								return (
-									<tr key={index}>
-										<th>{index + 1}</th>
-										<td>{`${doctor?.firstname} ${doctor?.lastname}`}</td>
-										<td>{doctor?.phonenumber}</td>
-										<td>{doctor?.primaryareaofspeciality}</td>
-										<td>{doctor?.countyofpractice}</td>
-									</tr>
-
-								)
-							})}
-						</tbody>
+						{doctors?.length != 0 ? (
+							<tbody>
+								{doctors?.map((doctor, index) => {
+									return (
+										<tr key={index}>
+											<th>{index + 1}</th>
+											<td>{`${doctor?.firstname} ${doctor?.lastname}`}</td>
+											<td>{doctor?.phonenumber}</td>
+											<td>{doctor?.primaryareaofspeciality}</td>
+											<td>{doctor?.countyofpractice}</td>
+										</tr>
+									);
+								})}
+							</tbody>
+						) : (
+							<div className="flex w-screen items-center justify-center">
+								<h1 className="text-xl">no doctors have signed up</h1>
+							</div>
+						)}
 						<tfoot>
 							<tr>
 								<th></th>
@@ -76,6 +89,6 @@ export default function DoctorsView() {
 					</table>
 				</div>
 			</Skeleton>
-		)
+		);
 	}
 }
