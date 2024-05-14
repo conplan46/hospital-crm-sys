@@ -1,12 +1,19 @@
 "use client";
 import {
+  Box,
   CircularProgress,
   CircularProgressLabel,
   Stat,
   StatLabel,
   StatNumber,
 } from "@chakra-ui/react";
-import { Accordion } from "@mantine/core";
+import {
+  Accordion,
+  AccordionItem,
+  AccordionButton,
+  AccordionPanel,
+  AccordionIcon,
+} from "@chakra-ui/react";
 import { atom } from "jotai";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
@@ -21,9 +28,7 @@ export default function HomePage() {
   }, []);
   //console.log({ session });
   if (!isClient) {
-    return (
-      <Loading />
-    )
+    return <Loading />;
   }
   if (isClient) {
     return (
@@ -107,6 +112,265 @@ export default function HomePage() {
                   View all
                 </button>
               </div>
+            </div>
+          </div>
+          <div className="p-4 md:w-1/2">
+            <div className="border-grey rounded-3xl border-x border-y bg-white p-6 ">
+              <div className="m-2 flex justify-between">
+                <h1 className=" default-font text-4xl text-black">
+                  {" "}
+                  Urgent Care
+                </h1>
+              </div>{" "}
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Cold & Flu{" "}
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Fever and Cough
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Sinus Infection{" "}
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Nausea & Vomiting
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Headache
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Headache
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Asthma
+              </p>
+              <Accordion defaultIndex={[0]} allowMultiple>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box as="span" flex="1" textAlign="left">
+                        Skin Conditions
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Acne
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Rashes
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Allergies
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Sunburns
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Sunburns
+                    </p>
+                  </AccordionPanel>
+                </AccordionItem>
+
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box as="span" flex="1" textAlign="left">
+                        Womens Health
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      UTI
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Yeast Infection
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Fatigue
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Metabolic Syndrome
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      STI
+                    </p>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+              <Link
+                target="_blank"
+                href="#"
+                className="default-font btn btn-outline ml-4 mt-4 text-[#A699F8] md:w-1/3"
+              >
+                Book
+              </Link>
+            </div>
+          </div>
+          <div className="p-4 md:w-1/2">
+            <div className="border-grey rounded-3xl border-x border-y bg-white p-6 ">
+              <div className="m-2 flex justify-between">
+                <h1 className=" default-font text-4xl text-black">
+                  {" "}
+                  Mental Health
+                </h1>
+              </div>{" "}
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Online therapy
+                {" "}
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Anxiety              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Depression
+                {" "}
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                Grief and losS
+              </p>
+              <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                PTSD
+              </p>
+              <Link
+                target="_blank"
+                href="#"
+                className="default-font btn btn-outline ml-4 mt-4 text-[#A699F8] md:w-1/3"
+              >
+                Book
+              </Link>
+            </div>
+          </div>
+          <div className="p-4 md:w-1/2">
+            <div className="border-grey rounded-3xl border-x border-y bg-white p-6 ">
+              <div className="m-2 flex justify-between">
+                <h1 className=" default-font text-4xl text-black">
+                  {" "}
+                  Chronic Care
+                </h1>
+              </div>{" "}
+              <Accordion defaultIndex={[0]} allowMultiple>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box as="span" flex="1" textAlign="left">
+                        High blood pressure                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Obesity
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Stress
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Diet and Nutrition
+
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Medication management
+
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Blood pressure Monitoring
+
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Routine screening
+
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Refill requests
+
+                    </p>
+
+                  </AccordionPanel>
+                </AccordionItem>
+
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box as="span" flex="1" textAlign="left">
+                        Diabates
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Heart Health
+
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Kidney Health
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Routine Screening
+
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Infectious Disease
+
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Blood glucose monitoring
+
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Refill requests
+
+                    </p>
+
+                  </AccordionPanel>
+                </AccordionItem>
+                <AccordionItem>
+                  <h2>
+                    <AccordionButton>
+                      <Box as="span" flex="1" textAlign="left">
+                        Mens Health
+                      </Box>
+                      <AccordionIcon />
+                    </AccordionButton>
+                  </h2>
+                  <AccordionPanel pb={4}>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Joint Pain
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Stress Management
+                    </p>
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Fatigue
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      Headache
+                    </p>
+
+                    <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
+                      STI{" "}
+                    </p>
+                  </AccordionPanel>
+                </AccordionItem>
+              </Accordion>
+              <Link
+                target="_blank"
+                href="#"
+                className="default-font btn btn-outline ml-4 mt-4 text-[#A699F8] md:w-1/3"
+              >
+                Book
+              </Link>
             </div>
           </div>
         </div>

@@ -46,43 +46,9 @@ import { areaCodes } from "utils/area-codes";
 import { MdPhoto } from "react-icons/md";
 import { FaPlus } from "react-icons/fa";
 import storage from "utils/firebase-config";
-import type { CreateClinicReturnType } from "utils/used-types";
+import type { ClinicDataForm, ClinicianDataForm, CreateClinicReturnType, DoctorDataForm, PharmacyDataForm } from "utils/used-types";
 import type { Session } from "next-auth";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
-const clinicianOnboardingSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  phoneNumber: z.string(),
-  primaryAreaOfSpeciality: z.string(),
-  location: z.string(),
-  countyOfPractice: z.string(),
-  practicingLicense: z.custom<FileList>().nullish(),
-});
-type ClinicianData = z.infer<typeof clinicianOnboardingSchema>;
-const clinicOnboardingDataSchema = z.object({
-  phoneNumber: z.string(),
-  location: z.string(),
-  businessName: z.string(),
-  practicingLicense: z.custom<FileList>().nullish(),
-});
-type ClinicData = z.infer<typeof clinicOnboardingDataSchema>;
-const doctorOnboardingDataSchema = z.object({
-  firstName: z.string(),
-  lastName: z.string(),
-  phoneNumber: z.string(),
-  primaryAreaOfSpeciality: z.string(),
-  location: z.string(),
-  countyOfPractice: z.string(),
-  practicingLicense: z.custom<FileList>().nullish(),
-});
-type DoctorData = z.infer<typeof doctorOnboardingDataSchema>
-type PharmacyData = z.infer<typeof pharmacyOnboardingDataSchema>
-const pharmacyOnboardingDataSchema = z.object({
-  phoneNumber: z.string(),
-  location: z.string(),
-  businessName: z.string(),
-  practicingLicense: z.custom<FileList>().nullish(),
-});
 export default function NewUserPage() {
   const toast = useToast();
   const router = useRouter();
@@ -146,8 +112,8 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<DoctorData>();
-  const onSubmit: SubmitHandler<DoctorData> = async (data) => {
+  } = useForm<DoctorDataForm>();
+  const onSubmit: SubmitHandler<DoctorDataForm> = async (data) => {
     console.log(data);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -377,8 +343,8 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<ClinicData>();
-  const onSubmit: SubmitHandler<ClinicData> = async (data) => {
+  } = useForm<ClinicDataForm>();
+  const onSubmit: SubmitHandler<ClinicDataForm> = async (data) => {
     console.log(data);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -640,8 +606,8 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<ClinicianData>();
-  const onSubmit: SubmitHandler<ClinicianData> = async (data) => {
+  } = useForm<ClinicianDataForm>();
+  const onSubmit: SubmitHandler<ClinicianDataForm> = async (data) => {
     console.log(data);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -884,10 +850,10 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<PharmacyData>();
+  } = useForm<PharmacyDataForm>();
   const [residence, setResidence] = useState("");
   const [areaCode, setAreaCode] = useState("");
-  const onSubmit: SubmitHandler<PharmacyData> = async (data) => {
+  const onSubmit: SubmitHandler<PharmacyDataForm> = async (data) => {
     console.log(data);
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
