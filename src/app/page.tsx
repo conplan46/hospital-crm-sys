@@ -6,6 +6,7 @@ import {
   Stat,
   StatLabel,
   StatNumber,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
   Accordion,
@@ -20,9 +21,11 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import Loading from "./loading";
+import PatientsBooking from "~/components/patient-booking";
 
 export default function HomePage() {
   const [isClient, setIsClient] = useState(false);
+  const { isOpen, onOpen, onClose } = useDisclosure();
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -33,6 +36,7 @@ export default function HomePage() {
   if (isClient) {
     return (
       <>
+        <PatientsBooking onOpen={onOpen} onClose={onClose} isOpen={isOpen} />
         <div className="flex flex-col md:flex-row">
           <div className="p-4 md:w-1/2">
             <div className="border-grey rounded-3xl border-x border-y bg-white p-6 ">
@@ -45,13 +49,13 @@ export default function HomePage() {
               <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                 Book an appointment now
               </p>
-              <Link
+              <a
                 target="_blank"
-                href="#"
+                onClick={onOpen}
                 className="default-font btn btn-outline ml-4 mt-4 text-[#A699F8] md:w-1/3"
               >
                 Book
-              </Link>
+              </a>
             </div>
           </div>
           <div className="p-4 md:w-1/2">
@@ -222,14 +226,13 @@ export default function HomePage() {
                 </h1>
               </div>{" "}
               <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
-                Online therapy
-                {" "}
+                Online therapy{" "}
               </p>
               <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
-                Anxiety              </p>
+                Anxiety{" "}
+              </p>
               <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
-                Depression
-                {" "}
+                Depression{" "}
               </p>
               <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                 Grief and losS
@@ -259,7 +262,8 @@ export default function HomePage() {
                   <h2>
                     <AccordionButton>
                       <Box as="span" flex="1" textAlign="left">
-                        High blood pressure                      </Box>
+                        High blood pressure{" "}
+                      </Box>
                       <AccordionIcon />
                     </AccordionButton>
                   </h2>
@@ -272,27 +276,21 @@ export default function HomePage() {
                     </p>
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Diet and Nutrition
-
                     </p>
 
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Medication management
-
                     </p>
 
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Blood pressure Monitoring
-
                     </p>
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Routine screening
-
                     </p>
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Refill requests
-
                     </p>
-
                   </AccordionPanel>
                 </AccordionItem>
 
@@ -308,30 +306,24 @@ export default function HomePage() {
                   <AccordionPanel pb={4}>
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Heart Health
-
                     </p>
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Kidney Health
                     </p>
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Routine Screening
-
                     </p>
 
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Infectious Disease
-
                     </p>
 
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Blood glucose monitoring
-
                     </p>
                     <p className="my-4 ml-3 text-base font-medium text-[#8D8D8D]">
                       Refill requests
-
                     </p>
-
                   </AccordionPanel>
                 </AccordionItem>
                 <AccordionItem>

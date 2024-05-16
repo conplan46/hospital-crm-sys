@@ -1,6 +1,5 @@
 // app/providers.tsx
 'use client'
-import { MantineProvider } from '@mantine/core';
 
 import { ChakraProvider } from '@chakra-ui/react'
 import { Session } from 'next-auth'
@@ -11,13 +10,11 @@ export function Providers({ children, session }: { children: React.ReactNode, se
   return (
     <ChakraProvider>
 
-      <MantineProvider>
-        <SessionProvider session={session}>
+      <SessionProvider session={session}>
 
-          {children}
-        </SessionProvider>
+        {children}
+      </SessionProvider>
 
-      </MantineProvider>
     </ChakraProvider>
   )
 }

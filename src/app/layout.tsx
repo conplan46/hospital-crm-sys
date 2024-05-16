@@ -10,7 +10,6 @@ import { Providers } from "./providers";
 import { getServerAuthSession } from "~/server/auth";
 import LogoutButton from "~/components/logout-button";
 import DrawerLayout from "~/components/drawer";
-import { MantineProvider } from "@mantine/core";
 type Response = {
   userData: Patient | Clinician | undefined;
   status: string | undefined;

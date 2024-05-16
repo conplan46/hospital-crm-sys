@@ -10,8 +10,6 @@ import {
 	MenuDivider,
 	Button,
 } from '@chakra-ui/react'
-import { Burger } from "@mantine/core";
-import { useDisclosure } from "@mantine/hooks";
 import Link from "next/link";
 import { FaChevronRight, FaCog } from "react-icons/fa";
 import LogoutButton from "./logout-button";
@@ -186,7 +184,6 @@ function HeaderNew() {
 }
 function Header() {
 
-	const [opened, { toggle }] = useDisclosure();
 	return (
 		<div className="navbar bg-base-100">
 			{/*<label

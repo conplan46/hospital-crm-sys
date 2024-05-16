@@ -17,7 +17,6 @@ import {
 	StatNumber,
 	useToast,
 } from "@chakra-ui/react";
-import { Accordion } from "@mantine/core";
 import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";

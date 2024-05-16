@@ -124,5 +124,11 @@ const pharmacyOnboardingDataSchema = z.object({
 const patientBookingDataSchema = z.object({
 	patientName: z.string(),
 	doctor: z.string(),
-})
+	nurseVisit: z.boolean(),
+	requestDiagnosticTest: z.boolean(),
+	requestLabTest: z.boolean(),
+	phoneNumber: z.string(),
+	requestPrescription: z.string(),
+	requestMedicalExam: z.boolean(),
+});
 export type PatientBookingFormData = z.infer<typeof patientBookingDataSchema>;

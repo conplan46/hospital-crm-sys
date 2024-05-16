@@ -1,5 +1,4 @@
 "use client";
-import { useDisclosure } from "@mantine/hooks";
 
 import Head from "next/head";
 import Link from "next/link";
@@ -17,7 +16,6 @@ export default function CliniciansView() {
   }
 
   const [isClient, setIsClient] = useState(false);
-  const [visible, { toggle }] = useDisclosure(true);
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [clinicians, setClinicians] = useState<Clinicians | undefined>(
