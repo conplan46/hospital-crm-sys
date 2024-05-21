@@ -32,7 +32,6 @@ export default function PatientsBooking({
 	onClose: () => void;
 }) {
 	const [isClient, setIsClient] = useState(false);
-	const [loading, setLoading] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 	const [residence, setResidence] = useState("");
 	const [areaCode, setAreaCode] = useState("");
@@ -52,7 +51,7 @@ export default function PatientsBooking({
 	}, []);
 	const onSubmit: SubmitHandler<PatientBookingFormData> = async (data) => {
 		console.log(data);
-		setLoading(true);
+		setIsSubmitting(true);
 
 		const formData = new FormData();
 		formData.append("patientName", data.patientName);
@@ -66,9 +65,8 @@ export default function PatientsBooking({
 		fetch("/api/create-patient", { method: "POST", body: formData })
 			.then((data) => data.json())
 			.then((data) => {
-				if (data.status == "success") {
+				if (data.status === "patient added") {
 					toast({
-						title: "Data received.",
 						description: "Patient Booked",
 						status: "success",
 						duration: 9000,
@@ -76,14 +74,13 @@ export default function PatientsBooking({
 					});
 				} else {
 					toast({
-						title: "Error",
 						description: data.status,
 						status: "error",
 						duration: 9000,
 						isClosable: true,
 					});
 				}
-				setLoading(false);
+				setIsSubmitting(false);
 			});
 	};
 

@@ -14,7 +14,7 @@ export async function POST(request: Request) {
 		const patientComplaint = data.get("patientComplaint");
 		console.log(data);
 		const queryResult = await pool.query(
-			"INSERT INTO patients(name,doctor,nurse_visit,lab_test_request,phonenumber,prescription_request,medical_exam_request,patient_complaint)",
+			"INSERT INTO patients(name,doctor,nurse_visit,lab_test_request,phonenumber,prescription_request,medical_exam_request,patient_complaint) VALUES($1,$2,$3,$4,$5,$6,$7,$8)",
 			[
 				patientName,
 				doctor,
