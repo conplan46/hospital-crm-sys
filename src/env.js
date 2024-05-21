@@ -24,7 +24,7 @@ export const env = createEnv({
     DB_HOST: z.string(),
     DB_PASSWORD: z.string(),
     DB_USER: z.string(),
-    DB_PORT: z.string(),
+    DB_PORT: z.string().optional(),
     DB_NAME: z.string(),
     GOOGLE_CLIENT_ID: z.string().optional(),
     GOOGLE_CLIENT_SECRET: z.string().optional(),

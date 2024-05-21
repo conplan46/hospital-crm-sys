@@ -15,8 +15,9 @@ import {
 	Select,
 	Checkbox,
 	Textarea,
+	useToast,
 } from "@chakra-ui/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { areaCodes } from "utils/area-codes";
 import { PatientBookingFormData } from "utils/used-types";
@@ -30,6 +31,8 @@ export default function PatientsBooking({
 	onOpen: () => void;
 	onClose: () => void;
 }) {
+	const [isClient, setIsClient] = useState(false);
+	const [loading, setLoading] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 	const [residence, setResidence] = useState("");
 	const [areaCode, setAreaCode] = useState("");
@@ -39,9 +42,49 @@ export default function PatientsBooking({
 		setValue,
 		formState: { errors },
 	} = useForm<PatientBookingFormData>();
+	const toast = useToast();
+	useEffect(() => {
+		setIsClient(true);
+		setValue("requestLabTest", false);
 
+		setValue("nurseVisit", false);
+		setValue("requestMedicalExam", false);
+	}, []);
 	const onSubmit: SubmitHandler<PatientBookingFormData> = async (data) => {
 		console.log(data);
+		setLoading(true);
+
+		const formData = new FormData();
+		formData.append("patientName", data.patientName);
+		formData.append("doctor", data.doctor);
+		formData.append("nurseVisit", `${data.nurseVisit}`);
+		formData.append("requestLabTest", `${data.requestLabTest}`);
+		formData.append("phoneNumber", `${data.phoneNumber}`);
+		formData.append("requestPrescription", data.requestPrescription);
+		formData.append("patientComplaint", data.patientComplaint);
+		formData.append("requestMedicalExam", `${data.requestMedicalExam}`);
+		fetch("/api/create-patient", { method: "POST", body: formData })
+			.then((data) => data.json())
+			.then((data) => {
+				if (data.status == "success") {
+					toast({
+						title: "Data received.",
+						description: "Patient Booked",
+						status: "success",
+						duration: 9000,
+						isClosable: true,
+					});
+				} else {
+					toast({
+						title: "Error",
+						description: data.status,
+						status: "error",
+						duration: 9000,
+						isClosable: true,
+					});
+				}
+				setLoading(false);
+			});
 	};
 
 	return (
@@ -138,23 +181,18 @@ export default function PatientsBooking({
 								</FormControl>
 								<FormControl
 									className="mb-6"
-									isInvalid={Boolean(errors.requestDiagnosticTest)}
+									isInvalid={Boolean(errors.nurseVisit)}
 								>
 									<FormLabel className="font-bold text-black" htmlFor="name">
-										Request Diagnostic test
+										Nurse visit
 									</FormLabel>
-									<Checkbox
-										{...register("requestDiagnosticTest", {
-											required: "doctor is required",
-										})}
-									>
-										Diagnostic test
-									</Checkbox>
+									<Checkbox {...register("nurseVisit")}>Nurse Visit</Checkbox>
 
 									<FormErrorMessage>
-										{errors?.requestDiagnosticTest?.message}
+										{errors?.requestLabTest?.message}
 									</FormErrorMessage>
 								</FormControl>
+
 								<FormControl
 									className="mb-6"
 									isInvalid={Boolean(errors.requestLabTest)}
@@ -162,13 +200,7 @@ export default function PatientsBooking({
 									<FormLabel className="font-bold text-black" htmlFor="name">
 										Request Lab Test
 									</FormLabel>
-									<Checkbox
-										{...register("requestLabTest", {
-											required: "doctor is required",
-										})}
-									>
-										Lab test
-									</Checkbox>
+									<Checkbox {...register("requestLabTest")}>Lab Test</Checkbox>
 
 									<FormErrorMessage>
 										{errors?.requestLabTest?.message}
@@ -181,12 +213,8 @@ export default function PatientsBooking({
 									<FormLabel className="font-bold text-black" htmlFor="name">
 										Request Medical Exam
 									</FormLabel>
-									<Checkbox
-										{...register("requestMedicalExam", {
-											required: "doctor is required",
-										})}
-									>
-										Diagnostic test
+									<Checkbox {...register("requestMedicalExam")}>
+										Medical Exam
 									</Checkbox>
 
 									<FormErrorMessage>
@@ -211,9 +239,27 @@ export default function PatientsBooking({
 										{errors?.patientName?.message}
 									</FormErrorMessage>
 								</FormControl>
+								<FormControl
+									className="mb-6"
+									isInvalid={Boolean(errors.patientComplaint)}
+								>
+									<FormLabel className="font-bold text-black" htmlFor="name">
+										Patient Complaint
+									</FormLabel>
+									<Textarea
+										className="w-full"
+										placeholder="Enter patient complaint"
+										{...register("patientComplaint", {
+											required: "complaint is required",
+										})}
+									/>
+									<FormErrorMessage>
+										{errors?.patientComplaint?.message}
+									</FormErrorMessage>
+								</FormControl>
+
 								<div className="flex flex-row">
 									<Button
-
 										isLoading={isSubmitting}
 										loadingText="Submitting"
 										bgColor="#285430"
@@ -225,11 +271,9 @@ export default function PatientsBooking({
 										Close
 									</Button>
 								</div>
-
 							</form>
 						</Center>
 					</ModalBody>
-
 				</ModalContent>
 			</Modal>
 		</>

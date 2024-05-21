@@ -1,0 +1,3 @@
+ALTER TABLE patients DROP COLUMN firstName;
+ALTER TABLE patients DROP COLUMN lastName;
+ALTER TABLE patients ADD name VARCHAR(255) NOT NULL;
