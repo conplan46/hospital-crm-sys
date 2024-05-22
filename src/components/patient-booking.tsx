@@ -64,7 +64,7 @@ export default function PatientsBooking({
 		formData.append("requestMedicalExam", `${data.requestMedicalExam}`);
 		fetch("/api/create-patient", { method: "POST", body: formData })
 			.then((data) => data.json())
-			.then((data) => {
+			.then((data: { status: string }) => {
 				if (data.status === "patient added") {
 					toast({
 						description: "Patient Booked",
@@ -81,7 +81,7 @@ export default function PatientsBooking({
 					});
 				}
 				setIsSubmitting(false);
-			});
+			}).catch((err) => console.error(err));;
 	};
 
 	return (
