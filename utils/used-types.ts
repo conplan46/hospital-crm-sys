@@ -13,10 +13,15 @@ export interface Clinician {
 export type Patients = Array<Patient>;
 export interface Patient {
 	id: number;
-	firstname: string;
-	lastname: string;
+	name: string;
 	phonenumber: string;
 	userid: number;
+	prescription_request: string;
+	medical_exam_request: boolean;
+	nurse_visit: boolean;
+	patient_complaint: string;
+	doctor: string;
+	lab_test_request: boolean;
 }
 export interface User {
 	id: number;

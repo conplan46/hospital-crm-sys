@@ -3,8 +3,8 @@ import Head from "next/head";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { useRouter } from "next/router";
-import { Button, Skeleton, useToast } from "@chakra-ui/react";
-import { Clinicians, Patients } from "utils/used-types";
+import { Box, Button, Card, CardBody, CardHeader, Heading, Modal, ModalBody, ModalCloseButton, ModalContent, ModalFooter, ModalHeader, ModalOverlay, Skeleton, Stack, StackDivider, Text, useDisclosure, useToast } from "@chakra-ui/react";
+import { Clinicians, Patient, Patients } from "utils/used-types";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 import Loading from "~/app/loading";
@@ -14,11 +14,13 @@ export default function PatientsView() {
   if (status === "unauthenticated") {
     void signIn(undefined, { callbackUrl: callBackUrl });
   }
-
+  const [currPatient, setCurrPatient] = useState<Patient | undefined>(undefined)
   const [isClient, setIsClient] = useState(false)
   const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [patients, setPatients] = useState<Patients | undefined>(undefined);
+  const { isOpen, onOpen, onClose } = useDisclosure()
+
   useEffect(() => {
     setIsClient(true);
     setLoading(true);
@@ -52,6 +54,7 @@ export default function PatientsView() {
   if (isClient && status == "authenticated") {
     return (
       <Skeleton isLoaded={!loading}>
+
         <main className="w-full">
           <div className="overflow-x-auto">
             <table className="table">
@@ -66,11 +69,100 @@ export default function PatientsView() {
                 {patients?.length != 0 ? (
                   patients?.map((patient, index) => {
                     return (
-                      <tr key={index}>
-                        <th>{index + 1}</th>
-                        <td>{`${patient?.firstname} ${patient?.lastname}`}</td>
-                        <td>{patient?.phonenumber}</td>
-                      </tr>
+                      <>
+                        <tr key={index}>
+                          <th>{index + 1}</th>
+                          <td>{`${patient.name}`}</td>
+                          <td>{patient?.phonenumber}</td>
+                          <td><Button onClick={() => {
+                            onOpen();
+                            setCurrPatient(patient)
+                          }}>view</Button> </td>
+                        </tr>
+                        <Modal isOpen={isOpen} onClose={onClose}>
+                          <ModalOverlay />
+                          <ModalContent>
+                            <ModalHeader></ModalHeader>
+                            <ModalCloseButton />
+                            <ModalBody>
+                              <Card>
+                                <CardHeader>
+                                  <Heading size='md'>Patient Booking</Heading>
+                                </CardHeader>
+
+                                <CardBody>
+                                  <Stack divider={<StackDivider />} spacing='4'>
+                                    <Box>
+                                      <Heading size='xs' textTransform='uppercase'>
+                                        Name
+                                      </Heading>
+                                      <Text pt='2' fontSize='sm'>
+                                        {currPatient?.name}
+                                      </Text>
+                                    </Box>
+                                    <Box>
+                                      <Heading size='xs' textTransform='uppercase'>
+                                        Prescription Request
+                                      </Heading>
+                                      <Text pt='2' fontSize='sm'>
+                                        {currPatient?.prescription_request}
+                                      </Text>
+                                    </Box>
+                                    <Box>
+                                      <Heading size='xs' textTransform='uppercase'>
+                                        Patient Complaint
+                                      </Heading>
+                                      <Text pt='2' fontSize='sm'>
+                                        {currPatient?.patient_complaint}
+                                      </Text>
+                                    </Box>
+                                    <Box>
+                                      <Heading size='xs' textTransform='uppercase'>
+                                        Lab test Request
+                                      </Heading>
+                                      <Text pt='2' fontSize='sm'>
+                                        {`${currPatient?.lab_test_request}`}
+                                      </Text>
+                                    </Box>
+                                    <Box>
+                                      <Heading size='xs' textTransform='uppercase'>
+                                        Medical Exam Request
+                                      </Heading>
+                                      <Text pt='2' fontSize='sm'>
+                                        {`${currPatient?.medical_exam_request}`}
+                                      </Text>
+                                    </Box>
+
+                                    <Box>
+                                      <Heading size='xs' textTransform='uppercase'>
+                                        Nurse Visit
+                                      </Heading>
+                                      <Text pt='2' fontSize='sm'>
+                                        {currPatient?.nurse_visit}
+                                      </Text>
+                                    </Box>
+                                    <Box>
+                                      <Heading size='xs' textTransform='uppercase'>
+                                        Phone Number
+                                      </Heading>
+                                      <Text pt='2' fontSize='sm'>
+                                        {currPatient?.phonenumber}
+                                      </Text>
+                                    </Box>
+
+                                  </Stack>
+                                </CardBody>
+                              </Card>
+                            </ModalBody>
+
+                            <ModalFooter>
+                              <Button colorScheme='blue' mr={3} onClick={onClose}>
+                                Close
+                              </Button>
+                              <Button variant='ghost'>Mark Attended</Button>
+                            </ModalFooter>
+                          </ModalContent>
+                        </Modal></>
                     );
                   })
                 ) : (
