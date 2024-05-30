@@ -70,7 +70,7 @@ export default function PharmacyDashBoard({
 				});
 				const data = (await res.json()) as {
 					status: string;
-					inventory: Array<IInventoryItem> | undefined;
+					inventory: Array<IInventoryItem>;
 				};
 				return data.inventory;
 			} catch (e) {
@@ -154,7 +154,7 @@ export default function PharmacyDashBoard({
 						</div>
 					</Tooltip>
 
-					{inventoryQuery?.data?.length > 0 ? (
+					{inventoryQuery?.data?.length ?? new Array<IInventoryItem>().length > 0 ? (
 						<Heading size="mb" m={6}>
 							Current inventory
 						</Heading>
