@@ -1,4 +1,4 @@
-import { Pool } from "pg";
+import { Client, Pool } from "pg";
 import { env } from "~/env";
 
 const sslBool =
@@ -14,6 +14,13 @@ export const pool = new Pool({
 	database: env.DB_NAME,
 	max: 20,
 	ssl: sslBool,
-	idleTimeoutMillis: 30000,
-	connectionTimeoutMillis: 2000,
+	//idleTimeoutMillis: 30000,
+	//connectionTimeoutMillis: 2000,
 });
+export const client  = new Client({
+	host: env.DB_HOST,
+	user: env.DB_USER,
+	password: env.DB_PASSWORD,
+	database: env.DB_NAME,
+	ssl: sslBool,
+})

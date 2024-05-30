@@ -13,16 +13,35 @@ import {
 import Link from "next/link";
 import { FaChevronRight, FaCog } from "react-icons/fa";
 import LogoutButton from "./logout-button";
+import { useSession } from 'next-auth/react';
+import { usePathname } from 'next/navigation';
+import { useQuery } from '@tanstack/react-query';
+import { UserDataAl } from 'utils/used-types';
 export default function DrawerLayout({ children }: { children: React.ReactNode }) {
-
+	const { data: session, status } = useSession();
+	const path = usePathname();
+	const userDataQuery = useQuery({
+		queryKey: ['user-data'], queryFn: async () => {
+			const res = await fetch("/api/get-user-data", {
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: session?.user?.email }),
+				method: "POST",
+			})
+			/* :{ status: string; data: UserData } */
+			const data = await res.json() as { status: string; data: UserDataAl }
+			console.log(data)
+			return data.data
+		}
+	})
+	//console.log(userDataQuery.data)
 	return (
 		<>
-			<HeaderNew />
+			<HeaderNew id={userDataQuery?.data?.id} role={userDataQuery?.data?.userrole} />
 			<main>{children}</main>
 		</>
 	);
 }
-function AdminNav() {
+function AdminNav({ role }: { role: string | undefined }) {
 	return (
 		<Menu>
 			<MenuButton as={Button} rightIcon={<FaChevronRight />}>
@@ -79,7 +98,7 @@ function AdminNav() {
 
 	);
 }
-function UserNav() {
+function UserNav({ role }: { role: string }) {
 	return (
 		<Menu>
 			<MenuButton as={Button} rightIcon={<FaChevronRight />}>
@@ -135,11 +154,12 @@ function UserNav() {
 		</Menu>
 	);
 }
-function HeaderNew() {
+function HeaderNew({ role, id }: { role: string | undefined; id: number | undefined }) {
+	const urlObj = constructUrl(role, id)
 	return (
 		<div className="navbar bg-base-100">
 			<div className="navbar-start">
-				<AdminNav />
+				<AdminNav role={role} />
 			</div>
 			<div className="navbar-center">
 				<Link href="/" className="btn btn-ghost text-xl">Hospital CRM</Link>
@@ -173,7 +193,7 @@ function HeaderNew() {
 						</li>
 						<LogoutButton />
 						<li>
-							<Link href="/admin">Admin Panel</Link>
+							<Link href={{ pathname: urlObj?.href }}>{urlObj?.linkText}</Link>
 						</li>
 					</ul>
 				</div>
@@ -182,77 +202,19 @@ function HeaderNew() {
 		</div>
 	)
 }
-function Header() {
+function constructUrl(role: string | undefined, id: number | undefined) {
+	switch (role) {
+		case "pharmacy":
+			if (id) {
+				return { href: `/pharmacy/${id}`, linkText: "Pharmacy Dashboard" }
+			}
+			return { href: `#`, linkText: "Pharmacy Dashboard" }
 
-	return (
-		<div className="navbar bg-base-100">
-			{/*<label
-				htmlFor="my-drawer-2"
-				className="btn btn-primary drawer-button lg:hidden"
-			>
-				<svg
-					xmlns="http://www.w3.org/2000/svg"
-					className="h-5 w-5"
-					fill="none"
-					viewBox="0 0 24 24"
-					stroke="currentColor"
-				>
-					<path
-						strokeLinecap="round"
-						strokeLinejoin="round"
-						strokeWidth="2"
-						d="M4 6h16M4 12h8m-8 6h16"
-					/>
-				</svg>
-			</label>*/}
-			<div className="flex-1">
-				<a className="btn btn-ghost text-xl">Hospital CRM</a>
-			</div>
-			<Menu>
-				<MenuButton as={Button} rightIcon={<FaChevronRight />}>
-					Actions
-				</MenuButton>
-				<MenuList>
-					<MenuItem>Download</MenuItem>
-					<MenuItem>Create a Copy</MenuItem>
-					<MenuItem>Mark as Draft</MenuItem>
-					<MenuItem>Delete</MenuItem>
-					<MenuItem>Attend a Workshop</MenuItem>
-				</MenuList>
-			</Menu>			<div className="flex-none gap-2">
-				<div className="form-control">
-					<input
-						type="text"
-						placeholder="Search"
-						className="input input-bordered w-24 md:w-auto"
-					/>
-				</div>
-				<div className="dropdown dropdown-end">
-					<div
-						tabIndex={0}
-						role="button"
-						className="avatar placeholder btn btn-circle btn-ghost"
-					>
-						<div className="w-10  rounded-full">
-							<span className="text-3xl">D</span>
-						</div>
-					</div>
-					<ul
-						tabIndex={0}
-						className="menu dropdown-content menu-sm z-[1] mt-3 w-52 rounded-box bg-base-100 p-2 shadow"
-					>
-						<li>
-							<Link href="/profile" className="justify-between">
-								Profile
-							</Link>
-						</li>
-						<LogoutButton />
-						<li>
-							<Link href="/admin">Admin Panel</Link>
-						</li>
-					</ul>
-				</div>
-			</div>
-		</div>
-	);
+		case "clinic":
+			if (id) {
+				return { href: `/clinic/${id}`, linkText: "Clinic Dashboard" }
+			}
+			return { href: `#`, linkText: "Clinic Dashboard" }
+
+	}
 }

@@ -17,7 +17,7 @@ export async function POST(request: Request) {
 
 		if (getEmailQuery?.rows[0]?.email) {
 			const result = await pool.query(
-				"INSERT INTO clinics(name,phoneNumber,location,userId,license_document_link,services) VALUES($1,$2,$3,$4,$5,$6) RETURNING id ",
+				"INSERT INTO clinics(estname,phoneNumber,location,userId,license_document_link,services) VALUES($1,$2,$3,$4,$5,$6) RETURNING id ",
 				[
 					name,
 					phoneNumber,
