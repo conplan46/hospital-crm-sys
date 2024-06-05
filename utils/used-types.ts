@@ -147,11 +147,11 @@ const inventoryItemSchema = z.object({
   inventoryCount: z.number(),
 });
 export interface IInventoryItem {
-	id:number;
-	product_name:string;
-	inventory_count:number;
-	est_id:number;	
-product_description:string;
+  id: number;
+  product_name: string;
+  inventory_count: number;
+  est_id: number;
+  product_description: string;
 }
 export type AddInvItem = z.infer<typeof inventoryItemSchema>;
 export type PatientBookingFormData = z.infer<typeof patientBookingDataSchema>;

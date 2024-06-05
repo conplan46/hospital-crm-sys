@@ -13,17 +13,17 @@ import PostgresAdapter from "@auth/pg-adapter";
 import { compareSync } from "bcrypt-ts";
 import { type GetServerSidePropsContext } from "next";
 import { Adapter } from "next-auth/adapters";
-import CredentialsProvider from "next-auth/providers/credentials"
+import CredentialsProvider from "next-auth/providers/credentials";
 import GoogleProvider from "next-auth/providers/google";
-import { Pool } from "pg"
+import { Pool } from "pg";
 import { env } from "~/env";
 import { pool } from "utils/db-pool";
 import { User } from "utils/used-types";
-type Credentials = { email: string, password: string };
+type Credentials = { email: string; password: string };
 const debug =
   env.NODE_ENV == "development" ||
-    process.env.VERCEL_ENV == "preview" ||
-    process.env.VERCEL_ENV == "development"
+  process.env.VERCEL_ENV == "preview" ||
+  process.env.VERCEL_ENV == "development"
     ? true
     : false;
 
@@ -55,7 +55,7 @@ declare module "next-auth" {
  */
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    session: ({ session, token }) => ({
+        session: ({ session, token }) => ({
       ...session,
       user: {
         ...session.user,
@@ -70,14 +70,14 @@ export const authOptions: NextAuthOptions = {
   providers: [
     CredentialsProvider({
       // The name to display on the sign in form (e.g. 'Sign in with...')
-      name: 'Credentials',
+      name: "Credentials",
       // The credentials is used to generate a suitable form on the sign in page.
       // You can specify whatever fields you are expecting to be submitted.
       // e.g. domain, username, password, 2FA token, etc.
       // You can pass any HTML attribute to the <input> tag through the object.
       credentials: {
         email: { label: "Email", type: "text", placeholder: "jsmith" },
-        password: { label: "Password", type: "password" }
+        password: { label: "Password", type: "password" },
       },
       async authorize(credentials, req) {
         // You need to provide your own logic here that takes the credentials
@@ -86,23 +86,25 @@ export const authOptions: NextAuthOptions = {
         // e.g. return { id: 1, name: 'J Smith', email: 'jsmith@example.com' }
         // You can also use the `req` object to obtain additional parameters
         // (i.e., the request IP address)
-        const res = await pool.query("SELECT * FROM users WHERE EMAIL = $1", [credentials?.email]);
+        const result = await pool.query(
+          "SELECT * FROM users WHERE EMAIL = $1",
+          [credentials?.email],
+        );
 
         // If no error and we have user data, return it
         if (credentials) {
           const hashCompRes = compareSync(
             credentials.password,
-            res?.rows?.[0]?.password as string
+            result?.rows?.[0]?.password as string,
           );
 
-          if (res.rows[0] && hashCompRes) {
-
-            return res?.rows[0]
+          if (result.rows[0] && hashCompRes) {
+            return result?.rows[0];
           }
           // Return null if user data could not be retrieved
-          return null
+          return null;
         }
-      }
+      },
     }),
 
     /**
@@ -118,9 +120,8 @@ export const authOptions: NextAuthOptions = {
   pages: {
     signIn: "/auth/signin",
     newUser: "/auth/new-user",
-  }
+  },
 };
-
 
 /**
  * Wrapper for `getServerSession` so that you don't need to import the `authOptions` in every file.

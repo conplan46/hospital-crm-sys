@@ -43,7 +43,21 @@ export default function ProfilePage() {
 			return data.data
 		}
 	})
-	console.log(userDataQuery)
+	const isAdminQuery = useQuery({
+		queryKey: ['isAdmin'], queryFn: async () => {
+			const res = await fetch("/api/is-admin", {
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: session?.user?.email }),
+				method: "POST",
+			})
+			/* :{ status: string; data: UserData } */
+			const data = await res.json() as { status: string; isAdmin: boolean }
+			console.log(data)
+			return data.isAdmin
+		}
+	})
+	console.log({ isAdminQuery })
+	console.log({ userDataQuery })
 	useEffect(() => {
 		setIsClient(true)
 	}, []);

@@ -33,10 +33,24 @@ export default function DrawerLayout({ children }: { children: React.ReactNode }
 			return data.data
 		}
 	})
+
+	const isAdminQuery = useQuery({
+		queryKey: ['isAdmin'], queryFn: async () => {
+			const res = await fetch("/api/is-admin", {
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({ email: session?.user?.email }),
+				method: "POST",
+			})
+			/* :{ status: string; data: UserData } */
+			const data = await res.json() as { status: string; isAdmin: boolean }
+			console.log(data)
+			return data.isAdmin
+		}
+	})
 	//console.log(userDataQuery.data)
 	return (
 		<>
-			<HeaderNew id={userDataQuery?.data?.id} role={userDataQuery?.data?.userrole} />
+			<HeaderNew isAdmin={isAdminQuery.data ?? false} id={userDataQuery?.data?.id} role={userDataQuery?.data?.userrole} />
 			<main>{children}</main>
 		</>
 	);
@@ -98,7 +112,7 @@ function AdminNav({ role }: { role: string | undefined }) {
 
 	);
 }
-function UserNav({ role }: { role: string }) {
+function UserNav({ role }: { role: string | undefined }) {
 	return (
 		<Menu>
 			<MenuButton as={Button} rightIcon={<FaChevronRight />}>
@@ -106,19 +120,10 @@ function UserNav({ role }: { role: string }) {
 			</MenuButton>
 			<MenuList>
 				<MenuItem>
-					<Link href="/admin/clinicians">
-						<li
-							className="m-2 flex rounded-xl bg-[#ffffff] p-4"
-							style={{ width: "100%" }}
-						>
-							<p className="flex items-center gap-3 text-lg font-bold">
-								<FaCog /> Clinicians
-							</p>
-						</li>
-					</Link>
+
 
 				</MenuItem>
-				<MenuItem><Link href="/admin/clinics">
+				<MenuItem><Link href="/clinics">
 					<li
 						className="m-2 flex rounded-xl bg-[#ffffff] p-4"
 						style={{ width: "100%" }}
@@ -129,7 +134,7 @@ function UserNav({ role }: { role: string }) {
 					</li>
 				</Link>
 				</MenuItem>
-				<MenuItem><Link href="/admin/pharmacies">
+				<MenuItem><Link href="/pharmacies">
 					<li
 						className="m-2 flex rounded-xl bg-[#ffffff] p-4"
 						style={{ width: "100%" }}
@@ -139,27 +144,17 @@ function UserNav({ role }: { role: string }) {
 						</p>
 					</li>
 				</Link></MenuItem>
-				<MenuItem><Link href="/admin/doctors">
-					<li
-						className="m-2 flex rounded-xl bg-[#ffffff] p-4"
-						style={{ width: "100%" }}
-					>
-						<p className="flex items-center gap-3 text-lg font-bold">
-							<FaCog /> Doctors
-						</p>
-					</li>
-				</Link>
-				</MenuItem>
 			</MenuList>
 		</Menu>
 	);
 }
-function HeaderNew({ role, id }: { role: string | undefined; id: number | undefined }) {
+function HeaderNew({ role, id, isAdmin }: { role: string | undefined; id: number | undefined; isAdmin: boolean }) {
 	const urlObj = constructUrl(role, id)
 	return (
 		<div className="navbar bg-base-100">
 			<div className="navbar-start">
-				<AdminNav role={role} />
+				{isAdmin ? <AdminNav role={role} /> : <UserNav role={role} />
+				}
 			</div>
 			<div className="navbar-center">
 				<Link href="/" className="btn btn-ghost text-xl">Hospital CRM</Link>

@@ -24,6 +24,8 @@ export default function InventoryItem({
 					</Stat>
 					<div className="card-actions justify-end">
 						<button className="btn bg-[#285430]">Edit</button>
+
+						<button className="btn bg-red-600">Delete</button>
 					</div>
 				</div>
 			</div>
