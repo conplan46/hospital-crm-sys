@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     const result: QueryResult<IInventoryItem> = await client.query(
       "DELETE FROM inventory WHERE id=$1 RETURNING *",
     );
-    if (result.rows[0].id == parseInt(invId as string)) {
+    if (result?.rows?.[0]?.id == parseInt(invId as string)) {
       return Response.json({ status: "inventory item deleted" });
     } else {
       return Response.json({ status: "An error occured deleting item" });
