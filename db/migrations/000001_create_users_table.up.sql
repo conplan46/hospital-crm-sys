@@ -54,4 +54,4 @@ CREATE TABLE IF NOT EXISTS  users
   PRIMARY KEY (id)
 );
  
-INSERT INTO roles (role) VALUES('doctor'),('clinician'),('clinic'),('pharmacy'),('patient'),('nurse'),('pharmacist');
+INSERT INTO roles (role) VALUES('doctor'),('admin'),('clinician'),('clinic'),('pharmacy'),('patient'),('nurse'),('pharmacist');
