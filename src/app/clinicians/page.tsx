@@ -1,4 +1,4 @@
-"use client";
+'use client'
 import {
 	Button,
 	Card,
@@ -14,29 +14,30 @@ import {
 	WrapItem,
 	useToast,
 } from "@chakra-ui/react";
-import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import type { Clinic } from "utils/used-types";
+import { Clinic, Clinician, } from "utils/used-types";
 import Loading from "../loading";
-import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
-export default function ClinicsPage() {
+import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
+import Image from "next/image";
+
+export default function CliniciansPage() {
 	const [isClient, setIsClient] = useState(false);
 
 	useEffect(() => {
 		setIsClient(true);
 	}, []);
 	const toast = useToast();
-	const clinicsQuery = useQuery({
+	const cliniciansQuery = useQuery({
 		queryKey: ["clinics"],
 		queryFn: async function() {
 			try {
-				const res = await fetch("/api/get-clinics");
+				const res = await fetch("/api/get-clinicians");
 				const data = (await res.json()) as {
 					status: string;
-					clinics: Array<Clinic>;
+					clinicians: Array<Clinician>;
 				};
-				return data?.clinics;
+				return data?.clinicians;
 			} catch (e) {
 				console.error(e);
 				toast({
@@ -48,7 +49,7 @@ export default function ClinicsPage() {
 			}
 		},
 	});
-	console.log({ clinicsQuery });
+	console.log({ cliniciansQuery });
 
 	if (!isClient) {
 		return <Loading />;
@@ -57,11 +58,11 @@ export default function ClinicsPage() {
 		return (
 			<Skeleton
 				className="h-screen w-screen"
-				isLoaded={clinicsQuery?.isFetched}
+				isLoaded={cliniciansQuery?.isFetched}
 			>
-				{clinicsQuery?.data?.length ?? new Array<Clinic>().length > 0 ? (
+				{cliniciansQuery?.data?.length ?? new Array<Clinician>().length > 0 ? (
 					<Heading size="mb" m={6}>
-						Registered Clinics
+						Registered Clinicians
 					</Heading>
 				) : (
 					<Heading size="mb" m={6}>
@@ -69,27 +70,28 @@ export default function ClinicsPage() {
 					</Heading>
 				)}
 				<Wrap>
-					{clinicsQuery?.data?.map((clinic, index) => {
-						return (
-							<WrapItem key={index}>
-								<ClinicComponent
-									name={clinic.estname}
-									services={clinic.services}
+					{cliniciansQuery?.data?.map((clinician, index) => {
+						return (<>
+							<WrapItem>
+								<ClinicianComponent
+									key={index}
+									name={`${clinician.firstname} ${clinician.lastname}`}
+									areaOfSpeciality={clinician.primaryareaofspeciality}
 								/>
 							</WrapItem>
-						);
-					})}
-				</Wrap>
+
+						</>);
+					})}</Wrap>
 			</Skeleton>
 		);
 	}
 }
-function ClinicComponent({
+function ClinicianComponent({
 	name,
-	services,
+	areaOfSpeciality,
 }: {
 	name: string;
-	services: Array<string>;
+	areaOfSpeciality: string;
 }) {
 	return (
 		<Card
@@ -108,11 +110,9 @@ function ClinicComponent({
 				<CardBody>
 					<Heading size="md">{name}</Heading>
 
-					<Text py="2">services</Text>
+					<Text py="2">Primary Area of Speciality</Text>
 					<UnorderedList>
-						{services.map((service, index) => {
-							return <ListItem key={index}>{service}</ListItem>;
-						})}
+						<ListItem>{areaOfSpeciality}</ListItem>;
 					</UnorderedList>
 				</CardBody>
 
