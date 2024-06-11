@@ -66,7 +66,7 @@ export default function CliniciansPage() {
 					</Heading>
 				) : (
 					<Heading size="mb" m={6}>
-						No Clinics to show
+						No Clinicians to show
 					</Heading>
 				)}
 				<Wrap>
