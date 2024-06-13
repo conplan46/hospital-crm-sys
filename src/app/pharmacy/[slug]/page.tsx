@@ -32,8 +32,8 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { FaPlus } from "react-icons/fa6";
 import { AddInvItem, IInventoryItem } from "utils/used-types";
 import Loading from "~/app/loading";
-import InventoryItem from "~/components/inventory-item";
-export default function PharmacyDashBoard({
+import InventoryItem, { InventoryPurchaseItem } from "~/components/inventory-item";
+export default function PharmacyView({
 	params,
 }: {
 	params: { slug: string };
@@ -43,9 +43,6 @@ export default function PharmacyDashBoard({
 	const { data: session, status } = useSession();
 
 	const callBackUrl = usePathname();
-	if (status === "unauthenticated") {
-		void signIn(undefined, { callbackUrl: callBackUrl });
-	}
 	const {
 		register,
 		handleSubmit,
@@ -86,48 +83,6 @@ export default function PharmacyDashBoard({
 	});
 	console.log({ inventoryQuery });
 
-	const onSubmit: SubmitHandler<AddInvItem> = async (data) => {
-		console.log(data);
-		setIsSubmitting(true);
-
-		const formData = new FormData();
-		formData.append("productTitle", data.productTitle);
-		formData.append("productDescription", data.productDescription);
-		formData.append("inventoryCount", `${data.inventoryCount}`);
-		formData.append("estId", params.slug);
-		fetch("/api/create-inv-item", { method: "POST", body: formData })
-			.then((data) => data.json())
-			.then((data: { status: string }) => {
-				if (data.status === "Item added to inventory") {
-					toast({
-						description: "Item Added",
-						status: "success",
-						duration: 9000,
-						isClosable: true,
-					});
-					void queryClient.invalidateQueries({ queryKey: ["inventory"] });
-				} else {
-					toast({
-						description: data.status,
-						status: "error",
-						duration: 9000,
-						isClosable: true,
-					});
-				}
-				setIsSubmitting(false);
-			})
-			.catch((err) => {
-				setIsSubmitting(false);
-
-				console.error(err);
-				toast({
-					description: "An error occurred",
-					status: "error",
-					duration: 9000,
-					isClosable: true,
-				});
-			});
-	};
 
 	useEffect(() => {
 		setIsClient(true);
@@ -139,20 +94,10 @@ export default function PharmacyDashBoard({
 	if (!isClient) {
 		return <Loading />;
 	}
-	if (isClient && status == "authenticated") {
+	if (isClient) {
 		return (
 			<>
 				<div className="flex w-screen flex-col items-center justify-center">
-					<Tooltip label="Add products" hasArrow arrowSize={15}>
-						<div
-							onClick={() => {
-								onOpen();
-							}}
-							className="btn flex h-24 w-24 items-center justify-center rounded-lg border"
-						>
-							<FaPlus />
-						</div>
-					</Tooltip>
 
 					{inventoryQuery?.data?.length ?? new Array<IInventoryItem>().length > 0 ? (
 						<Heading size="mb" m={6}>
@@ -171,7 +116,7 @@ export default function PharmacyDashBoard({
 							<Wrap>
 								{inventoryQuery.data?.map((item, index: number) => {
 									return (
-										<InventoryItem
+										<InventoryPurchaseItem
 											key={index}
 											id={item.id}
 											title={item.product_name}
@@ -184,92 +129,6 @@ export default function PharmacyDashBoard({
 						</Center>
 					</Skeleton>
 				</div>
-				<Modal isOpen={isOpen} onClose={onClose}>
-					<ModalOverlay />
-					<ModalContent>
-						<ModalHeader>Add item</ModalHeader>
-						<ModalCloseButton />
-						<ModalBody>
-							<Center>
-								<form
-									onSubmit={handleSubmit(onSubmit)}
-									className="form-control m-4"
-								>
-									<FormControl
-										className="mb-6"
-										isInvalid={Boolean(errors.productTitle)}
-									>
-										<FormLabel className="font-bold text-black" htmlFor="name">
-											Product title
-										</FormLabel>
-										<Input
-											className="w-full"
-											placeholder="Product title"
-											{...register("productTitle", {
-												required: "name is required",
-											})}
-										/>
-										<FormErrorMessage>
-											{errors?.productTitle?.message}
-										</FormErrorMessage>
-									</FormControl>
-									<FormControl
-										className="mb-6"
-										isInvalid={Boolean(errors.productDescription)}
-									>
-										<FormLabel className="font-bold text-black" htmlFor="name">
-											Product Description
-										</FormLabel>
-										<Textarea
-											{...register("productDescription", {
-												required: "description is required",
-											})}
-											placeholder="Enter product description"
-										/>
-
-										<FormErrorMessage>
-											{errors?.productDescription?.message}
-										</FormErrorMessage>
-									</FormControl>
-									<FormControl
-										className="mb-6"
-										isInvalid={Boolean(errors.inventoryCount)}
-									>
-										<FormLabel className="font-bold text-black" htmlFor="name">
-											Inventory Count
-										</FormLabel>
-										<input
-											type="number"
-											{...register("inventoryCount", {
-												required: "inventory counnt required",
-											})}
-											placeholder="enter initial inventory count"
-											className="input w-full max-w-xs"
-										/>
-
-										<FormErrorMessage>
-											{errors?.inventoryCount?.message}
-										</FormErrorMessage>
-									</FormControl>
-
-									<div className="flex flex-row">
-										<Button
-											isLoading={isSubmitting}
-											loadingText="Submitting"
-											bgColor="#285430"
-											type="submit"
-										>
-											Book
-										</Button>
-										<Button variant="ghost" onClick={onClose}>
-											Close
-										</Button>
-									</div>
-								</form>
-							</Center>
-						</ModalBody>
-					</ModalContent>
-				</Modal>
 			</>
 		);
 	}

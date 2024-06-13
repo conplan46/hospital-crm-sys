@@ -212,7 +212,7 @@ function constructUrl(role: string | undefined, id: number | undefined) {
 	switch (role) {
 		case "pharmacy":
 			if (id) {
-				return { href: `/pharmacy/${id}`, linkText: "Pharmacy Dashboard" }
+				return { href: `/pharmacy-dash/${id}`, linkText: "Pharmacy Dashboard" }
 			}
 			return { href: `#`, linkText: "Pharmacy Dashboard" }
 

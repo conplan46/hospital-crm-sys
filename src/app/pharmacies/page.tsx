@@ -1,4 +1,5 @@
 'use client'
+import { useRouter, useSearchParams } from "next/navigation";
 import {
 	Button,
 	Card,
@@ -16,28 +17,29 @@ import {
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { Clinic, Clinician, } from "utils/used-types";
+import { Clinic, type Clinician, type Pharmacy, } from "utils/used-types";
 import Loading from "../loading";
-import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
+import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
 import Image from "next/image";
+import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 
-export default function CliniciansPage() {
+export default function PharmacyPage() {
 	const [isClient, setIsClient] = useState(false);
-
+	const router = useRouter();
 	useEffect(() => {
 		setIsClient(true);
 	}, []);
 	const toast = useToast();
-	const cliniciansQuery = useQuery({
-		queryKey: ["clinics"],
+	const pharmacyQuery = useQuery({
+		queryKey: ["pharmacies"],
 		queryFn: async function() {
 			try {
-				const res = await fetch("/api/get-clinicians");
+				const res = await fetch("/api/get-pharmacies");
 				const data = (await res.json()) as {
 					status: string;
-					clinicians: Array<Clinician>;
+					pharmacies: Array<Pharmacy>;
 				};
-				return data?.clinicians;
+				return data?.pharmacies;
 			} catch (e) {
 				console.error(e);
 				toast({
@@ -49,7 +51,7 @@ export default function CliniciansPage() {
 			}
 		},
 	});
-	console.log({ cliniciansQuery });
+	console.log({ pharmacyQuery });
 
 	if (!isClient) {
 		return <Loading />;
@@ -58,25 +60,26 @@ export default function CliniciansPage() {
 		return (
 			<Skeleton
 				className="h-screen w-screen"
-				isLoaded={cliniciansQuery?.isFetched}
+				isLoaded={pharmacyQuery?.isFetched}
 			>
-				{cliniciansQuery?.data?.length ?? new Array<Clinician>().length > 0 ? (
+				{pharmacyQuery?.data?.length ?? new Array<Pharmacy>().length > 0 ? (
 					<Heading size="mb" m={6}>
-						Registered Clinicians
+						Registered Pharmacies
 					</Heading>
 				) : (
 					<Heading size="mb" m={6}>
-						No Clinicians to show
+						No Pharmacies to show
 					</Heading>
 				)}
 				<Wrap>
-					{cliniciansQuery?.data?.map((clinician, index) => {
+					{pharmacyQuery?.data?.map((pharmacy, index) => {
 						return (<>
 							<WrapItem>
-								<ClinicianComponent
+								<PharmacyComponent
 									key={index}
-									name={`${clinician?.firstname} ${clinician?.lastname}`}
-									areaOfSpeciality={clinician?.primaryareaofspeciality}
+									router={router}
+									id={pharmacy?.id}
+									name={pharmacy?.estname}
 								/>
 							</WrapItem>
 
@@ -86,12 +89,13 @@ export default function CliniciansPage() {
 		);
 	}
 }
-function ClinicianComponent({
+function PharmacyComponent({
 	name,
-	areaOfSpeciality,
+	id, router
 }: {
 	name: string;
-	areaOfSpeciality: string;
+	id: number;
+	router: AppRouterInstance
 }) {
 	return (
 		<Card
@@ -110,15 +114,15 @@ function ClinicianComponent({
 				<CardBody>
 					<Heading size="md">{name}</Heading>
 
-					<Text py="2">Primary Area of Speciality</Text>
 					<UnorderedList>
-						<ListItem>{areaOfSpeciality}</ListItem>;
 					</UnorderedList>
 				</CardBody>
 
 				<CardFooter>
-					<Button variant="solid" colorScheme="blue">
-						Book services
+					<Button onClick={() => {
+						void router.push(`/pharmacy/${id}`)
+					}} variant="solid" colorScheme="blue">
+						View inventory
 					</Button>
 				</CardFooter>
 			</Stack>
