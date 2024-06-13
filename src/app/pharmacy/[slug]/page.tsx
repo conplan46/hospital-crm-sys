@@ -32,7 +32,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { FaPlus } from "react-icons/fa6";
 import { AddInvItem, IInventoryItem } from "utils/used-types";
 import Loading from "~/app/loading";
-import InventoryItem, { InventoryPurchaseItem } from "~/components/inventory-item";
+import { InventoryItem, InventoryPurchaseItem } from "~/components/inventory-item";
 export default function PharmacyView({
 	params,
 }: {
