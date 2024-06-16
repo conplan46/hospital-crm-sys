@@ -10,11 +10,6 @@ export interface Clinician {
   countyofpractice: string;
   userid: number;
 }
-export interface Product {
-  id: number;
-  name: string;
-  desc: string;
-}
 export type Patients = Array<Patient>;
 export interface Patient {
   id: number;
@@ -67,6 +62,11 @@ export interface Pharmacy {
   services: string;
   location: string;
   userid: number;
+}
+export type Product= {
+	id:number;
+	name:string;
+	description:string
 }
 export interface ClinicData extends User, Clinic {}
 export interface PharmacyData extends User, Pharmacy {}
