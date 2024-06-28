@@ -3,7 +3,6 @@ import {
   ModalOverlay,
   ModalContent,
   ModalHeader,
-  ModalFooter,
   ModalBody,
   ModalCloseButton,
   Button,
@@ -18,9 +17,9 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
-import { SubmitHandler, useForm } from "react-hook-form";
+import { type SubmitHandler, useForm } from "react-hook-form";
 import { areaCodes } from "utils/area-codes";
-import { PatientBookingFormData } from "utils/used-types";
+import { type PatientBookingFormData } from "utils/used-types";
 
 export default function PatientsBooking({
   isOpen,

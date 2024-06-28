@@ -63,11 +63,11 @@ export interface Pharmacy {
   location: string;
   userid: number;
 }
-export type Product= {
-	id:number;
-	name:string;
-	description:string
-}
+export type Product = {
+  id: number;
+  name: string;
+  description: string;
+};
 export interface ClinicData extends User, Clinic {}
 export interface PharmacyData extends User, Pharmacy {}
 export interface DoctorData extends User, Doctor {}
@@ -141,6 +141,11 @@ const patientBookingDataSchema = z.object({
   requestMedicalExam: z.boolean(),
   patientComplaint: z.string(),
 });
+
+const bookingDataSchema = z.object({
+  name: z.string(),
+  phoneNumber: z.string(),
+});
 const inventoryItemSchema = z.object({
   productTitle: z.string(),
   productDescription: z.string(),
@@ -155,3 +160,4 @@ export interface IInventoryItem {
 }
 export type AddInvItem = z.infer<typeof inventoryItemSchema>;
 export type PatientBookingFormData = z.infer<typeof patientBookingDataSchema>;
+export type BookingFormData = z.infer<typeof bookingDataSchema>;
