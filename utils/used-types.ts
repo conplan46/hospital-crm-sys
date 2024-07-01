@@ -158,6 +158,13 @@ export interface IInventoryItem {
   est_id: number;
   product_description: string;
 }
+export interface Booking {
+  id: number;
+
+  name: string;
+  mobileNumber: string;
+  handler: number;
+}
 export type AddInvItem = z.infer<typeof inventoryItemSchema>;
 export type PatientBookingFormData = z.infer<typeof patientBookingDataSchema>;
 export type BookingFormData = z.infer<typeof bookingDataSchema>;

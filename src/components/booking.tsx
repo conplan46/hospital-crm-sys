@@ -33,7 +33,7 @@ export default function Booking({
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
-  handler: string;
+  handler: number | undefined;
 }) {
   const [isClient, setIsClient] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -51,34 +51,38 @@ export default function Booking({
   }, []);
   const onSubmit: SubmitHandler<BookingFormData> = async (data) => {
     console.log(data);
-    setIsSubmitting(true);
+    if (handler) {
+      setIsSubmitting(true);
 
-    const formData = new FormData();
-    formData.append("name", data.name);
-    formData.append("handler", handler);
-    formData.append("phoneNumber", `${data.phoneNumber}`);
-    fetch("/api/create-booking", { method: "POST", body: formData })
-      .then((data) => data.json())
-      .then((data: { status: string }) => {
-        if (data.status === "Booking Created") {
-          toast({
-            description: data.status,
-            status: "success",
-            duration: 9000,
-            isClosable: true,
-          });
-          onClose();
-        } else {
-          toast({
-            description: data.status,
-            status: "error",
-            duration: 9000,
-            isClosable: true,
-          });
-        }
-        setIsSubmitting(false);
-      })
-      .catch((err) => console.error(err));
+      const formData = new FormData();
+      formData.append("name", data.name);
+      formData.append("handler", `${handler}`);
+      formData.append("phoneNumber", `${data.phoneNumber}`);
+      fetch("/api/create-booking", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((data: { status: string }) => {
+          if (data.status === "Booking Created") {
+            toast({
+              description: data.status,
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            onClose();
+          } else {
+            toast({
+              description: data.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+          setIsSubmitting(false);
+        })
+        .catch((err) => console.error(err));
+    } else {
+      toast({ description: "booking handler missing", status: "error" });
+    }
   };
 
   return (
