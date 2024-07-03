@@ -16,8 +16,8 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { Dispatch, SetStateAction, useEffect, useState } from "react";
-import { Clinic, Clinician } from "utils/used-types";
+import { useEffect, useState } from "react";
+import { type Clinician } from "utils/used-types";
 import Loading from "../loading";
 import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
 import Image from "next/image";
@@ -103,6 +103,7 @@ function ClinicianComponent({
   return (
     <>
       <Booking
+      role="clinician"
         isOpen={isOpen}
         onClose={onClose}
         onOpen={onOpen}

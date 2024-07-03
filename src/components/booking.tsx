@@ -28,11 +28,13 @@ export default function Booking({
   isOpen,
   onOpen,
   onClose,
+  role,
   handler,
 }: {
   isOpen: boolean;
   onOpen: () => void;
   onClose: () => void;
+  role: string;
   handler: number | undefined;
 }) {
   const [isClient, setIsClient] = useState(false);
@@ -58,6 +60,7 @@ export default function Booking({
       formData.append("name", data.name);
       formData.append("handler", `${handler}`);
       formData.append("phoneNumber", `${data.phoneNumber}`);
+      formData.append("handlerRole", role);
       fetch("/api/create-booking", { method: "POST", body: formData })
         .then((data) => data.json())
         .then((data: { status: string }) => {

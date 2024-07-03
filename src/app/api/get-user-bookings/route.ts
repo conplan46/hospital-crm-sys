@@ -1,6 +1,6 @@
-import { QueryResult } from "pg";
+import { type QueryResult } from "pg";
 import { pool } from "utils/db-pool";
-import { Booking } from "utils/used-types";
+import { type Booking } from "utils/used-types";
 import { getServerAuthSession } from "~/server/auth";
 
 export async function POST(request: Request) {
@@ -22,7 +22,7 @@ export async function POST(request: Request) {
               [user?.rows[0].id],
             );
             res = await client.query(
-              "SELECT * from bookings WHERE handler =$1",
+              "SELECT * from bookings WHERE clinicHandler =$1",
               [query?.rows[0]?.id],
             );
             break;
@@ -32,7 +32,7 @@ export async function POST(request: Request) {
               [user?.rows[0].id],
             );
             res = await client.query(
-              "SELECT * from bookings WHERE handler =$1",
+              "SELECT * from bookings WHERE clinicianHandler =$1",
               [query?.rows[0]?.id],
             );
             break;
@@ -42,7 +42,7 @@ export async function POST(request: Request) {
               [user?.rows[0].id],
             );
             res = await client.query(
-              "SELECT * from bookings WHERE handler =$1",
+              "SELECT * from bookings WHERE doctorHandler =$1",
               [query?.rows[0]?.id],
             );
             break;

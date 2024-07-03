@@ -12,6 +12,7 @@ import {
   UnorderedList,
   Wrap,
   WrapItem,
+  useDisclosure,
   useToast,
 } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
@@ -20,6 +21,7 @@ import { type Clinician, type Doctor } from "utils/used-types";
 import Loading from "../loading";
 import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
 import Image from "next/image";
+import Booking from "~/components/booking";
 
 export default function DoctorsPage() {
   const [isClient, setIsClient] = useState(false);
@@ -76,6 +78,7 @@ export default function DoctorsPage() {
                 <WrapItem>
                   <DoctorsComponent
                     key={index}
+                    handler={doctor?.id}
                     name={`${doctor?.firstname} ${doctor?.lastname}`}
                     areaOfSpeciality={doctor?.primaryareaofspeciality}
                   />
@@ -91,39 +94,52 @@ export default function DoctorsPage() {
 function DoctorsComponent({
   name,
   areaOfSpeciality,
+  handler,
 }: {
+  handler: number | undefined;
   name: string;
   areaOfSpeciality: string;
 }) {
+  const { isOpen, onClose, onOpen } = useDisclosure();
   return (
-    <Card
-      direction={{ base: "column", sm: "row" }}
-      overflow="hidden"
-      variant="outline"
-    >
-      <Image
-        height={200}
-        width={200}
-        //maxW={{ base: "100%", sm: "200px" }}
-        src={placeholder}
-        alt="placeholder"
-      />{" "}
-      <Stack>
-        <CardBody>
-          <Heading size="md">{name}</Heading>
+    <>
+      <Booking
+        role="doctors"
+        isOpen={isOpen}
+        onClose={onClose}
+        onOpen={onOpen}
+        handler={handler}
+      />
 
-          <Text py="2">Primary Area of Speciality</Text>
-          <UnorderedList>
-            <ListItem>{areaOfSpeciality}</ListItem>;
-          </UnorderedList>
-        </CardBody>
+      <Card
+        direction={{ base: "column", sm: "row" }}
+        overflow="hidden"
+        variant="outline"
+      >
+        <Image
+          height={200}
+          width={200}
+          //maxW={{ base: "100%", sm: "200px" }}
+          src={placeholder}
+          alt="placeholder"
+        />{" "}
+        <Stack>
+          <CardBody>
+            <Heading size="md">{name}</Heading>
 
-        <CardFooter>
-          <Button variant="solid" colorScheme="blue">
-            Book services
-          </Button>
-        </CardFooter>
-      </Stack>
-    </Card>
+            <Text py="2">Primary Area of Speciality</Text>
+            <UnorderedList>
+              <ListItem>{areaOfSpeciality}</ListItem>;
+            </UnorderedList>
+          </CardBody>
+
+          <CardFooter>
+            <Button variant="solid" colorScheme="blue">
+              Book services
+            </Button>
+          </CardFooter>
+        </Stack>
+      </Card>
+    </>
   );
 }
