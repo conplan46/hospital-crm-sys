@@ -3,7 +3,7 @@ import { pool } from "utils/db-pool";
 import { type Booking } from "utils/used-types";
 import { getServerAuthSession } from "~/server/auth";
 
-export async function POST(request: Request) {
+export async function GET(request: Request) {
   const client = await pool.connect();
   try {
     const session = await getServerAuthSession();
@@ -61,6 +61,9 @@ export async function POST(request: Request) {
 
     console.log({ serverSesh: session });
   } catch (error) {
+    console.error(error);
+    return Response.json({ status: "An internal error occured" });
   } finally {
+    client.release();
   }
 }
