@@ -119,8 +119,8 @@ export default function PharmacyView({
 										<InventoryPurchaseItem
 											key={index}
 											id={item.id}
-											title={item.product_name}
-											description={item.product_description}
+											title={item.name}
+											description={item.description}
 											invCount={item.inventory_count}
 										/>
 									);

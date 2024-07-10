@@ -2,8 +2,8 @@
 import { Center, Heading, Skeleton, Wrap, useToast } from '@chakra-ui/react';
 import { useQuery } from '@tanstack/react-query';
 import { useEffect, useState } from 'react'
-import type { Product } from 'utils/used-types';
-import { InventoryPurchaseItem, type Product, ProductComponent } from '~/components/inventory-item';
+import { type Product } from 'utils/used-types';
+import { InventoryPurchaseItem,  ProductComponent } from '~/components/inventory-item';
 export default function PharmDbPage() {
 	const [isClient, setIsClient] = useState(false);
 	const toast = useToast();

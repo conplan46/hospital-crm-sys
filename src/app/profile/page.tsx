@@ -188,7 +188,7 @@ export default function ProfilePage() {
           ) : (
             ""
           )}
-          <div  className="m-3">
+          <div className="m-3">
             {bookingsQuery?.data?.length ?? new Array<Booking>().length > 0 ? (
               <Heading size="mb" m={6}>
                 Bookings
@@ -198,32 +198,37 @@ export default function ProfilePage() {
                 No Bookings to show
               </Heading>
             )}
-            {bookingsQuery?.data?.map((booking, index) => {
-              return (
-                <BookingEntryComponent
-                  key={index}
-                  name={booking.name}
-                  mobileNumber={booking.mobileNumber}
-                />
-              );
-            })}
+            {(bookingsQuery?.data ?? new Array<Booking>()).map(
+              (booking, index) => {
+                return (
+                  <BookingEntryComponent
+                    key={index}
+                    name={booking?.name}
+                      index={index +1}
+                    mobileNumber={booking?.mobilenumber}
+                  />
+                );
+              },
+            )}
           </div>
         </div>
       </Skeleton>
     );
   }
 }
-export function BookingEntryComponent({
+function BookingEntryComponent({
   name,
   mobileNumber,
+  index
 }: {
   name: string;
   mobileNumber: string;
+  index:number;
 }) {
   return (
     <Card>
       <CardHeader>
-        <Heading size="md">Booking</Heading>
+        <Heading size="md">Booking {index}</Heading>
       </CardHeader>
 
       <CardBody>

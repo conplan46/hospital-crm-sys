@@ -18,10 +18,12 @@ export function InventoryItem({
         <div className="card-body">
           <h2 className="card-title">{title}</h2>
           <p>{description}</p>
-          <Stat>
-            <StatLabel>inventory count</StatLabel>
-            <StatNumber>{invCount}</StatNumber>
-          </Stat>
+          <div className="stats shadow">
+            <div className="stat">
+              <div className="stat-title">inventory count</div>
+              <div className="stat-value">{invCount}</div>
+            </div>
+          </div>
           <div className="card-actions justify-end">
             <button className="btn bg-[#285430]">Edit</button>
 

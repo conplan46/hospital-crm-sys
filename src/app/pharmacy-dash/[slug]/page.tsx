@@ -98,7 +98,7 @@ export default function PharmacyDashBoard({
 		fetch("/api/create-inv-item", { method: "POST", body: formData })
 			.then((data) => data.json())
 			.then((data: { status: string }) => {
-				if (data.status === "Item added to inventory") {
+				if (data.status === "Item added to inventory and new product added to registry") {
 					toast({
 						description: "Item Added",
 						status: "success",
@@ -174,8 +174,8 @@ export default function PharmacyDashBoard({
 										<InventoryItem
 											key={index}
 											id={item.id}
-											title={item.product_name}
-											description={item.product_description}
+											title={item.name}
+											description={item.description}
 											invCount={item.inventory_count}
 										/>
 									);
@@ -259,7 +259,7 @@ export default function PharmacyDashBoard({
 											bgColor="#285430"
 											type="submit"
 										>
-											Book
+											Add
 										</Button>
 										<Button variant="ghost" onClick={onClose}>
 											Close

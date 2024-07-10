@@ -52,7 +52,7 @@ export async function GET(request: Request) {
         }
         if (res?.rows?.length > 0) {
           console.log(res?.rows)
-          return Response.json({ bookings: res.rows[0], status: "success" });
+          return Response.json({ bookings: res.rows, status: "success" });
         } else {
           return new Response("No matching records found", { status: 404 });
         }

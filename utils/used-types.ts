@@ -153,16 +153,16 @@ const inventoryItemSchema = z.object({
 });
 export interface IInventoryItem {
   id: number;
-  product_name: string;
+  name: string;
   inventory_count: number;
   est_id: number;
-  product_description: string;
+  description: string;
 }
 export interface Booking {
   id: number;
 
   name: string;
-  mobileNumber: string;
+  mobilenumber: string;
   handler: number;
 }
 export type AddInvItem = z.infer<typeof inventoryItemSchema>;
