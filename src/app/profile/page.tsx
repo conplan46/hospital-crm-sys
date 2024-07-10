@@ -10,9 +10,9 @@ import {
   Stack,
   StackDivider,
   Stat,
+  Text,
   StatLabel,
   StatNumber,
-  Text,
   Wrap,
   WrapItem,
 } from "@chakra-ui/react";
@@ -53,21 +53,23 @@ export default function ProfilePage() {
       return data.data;
     },
   });
-
-  const userBookingsDataQuery = useQuery({
+  const bookingsQuery = useQuery({
     queryKey: ["user-bookings"],
     queryFn: async () => {
-      const res = await fetch("/api/get-user-bookings", { method: "GET" });
+      const res = await fetch("/api/get-user-bookings", {
+        headers: { "Content-Type": "application/json" },
+        method: "GET",
+      });
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as {
         status: string;
-        data: Array<Booking>;
+        bookings: Array<Booking>;
       };
       console.log(data);
-      return data.data;
+      return data.bookings;
     },
   });
-
+  console.log({ bookingsQuery });
   const isAdminQuery = useQuery({
     queryKey: ["isAdmin"],
     queryFn: async () => {
@@ -84,7 +86,6 @@ export default function ProfilePage() {
   });
   console.log({ isAdminQuery });
   console.log({ userDataQuery });
-  console.log({ userBookingsDataQuery });
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -99,7 +100,11 @@ export default function ProfilePage() {
     return (
       <Skeleton
         className="h-screen w-screen"
-        isLoaded={userDataQuery.isFetched}
+        isLoaded={
+          userDataQuery.isFetched &&
+          isAdminQuery?.isFetched &&
+          bookingsQuery?.isFetched
+        }
       >
         <div className="flex flex-row items-baseline">
           <div className="avatar placeholder m-2">
@@ -145,6 +150,7 @@ export default function ProfilePage() {
               </>
             )}
           </Wrap>
+
           <Stat className="m-3 rounded-md border-2 p-2">
             <StatLabel>Phone Number</StatLabel>
             <StatNumber>{userDataQuery?.data?.phonenumber}</StatNumber>
@@ -182,30 +188,37 @@ export default function ProfilePage() {
           ) : (
             ""
           )}
-        </div>
-        <div className="m-3">
-
-        <Heading size="md">Bookings</Heading>
-          {userBookingsDataQuery?.data?.map((booking, index) => {
-            return (
-              <BookingListingComponent
-                key={index}
-                name={booking.name}
-                phoneNumber={booking.mobileNumber}
-              />
-            );
-          })}
+          <div  className="m-3">
+            {bookingsQuery?.data?.length ?? new Array<Booking>().length > 0 ? (
+              <Heading size="mb" m={6}>
+                Bookings
+              </Heading>
+            ) : (
+              <Heading size="mb" m={6}>
+                No Bookings to show
+              </Heading>
+            )}
+            {bookingsQuery?.data?.map((booking, index) => {
+              return (
+                <BookingEntryComponent
+                  key={index}
+                  name={booking.name}
+                  mobileNumber={booking.mobileNumber}
+                />
+              );
+            })}
+          </div>
         </div>
       </Skeleton>
     );
   }
 }
-function BookingListingComponent({
+export function BookingEntryComponent({
   name,
-  phoneNumber,
+  mobileNumber,
 }: {
-  phoneNumber: string;
   name: string;
+  mobileNumber: string;
 }) {
   return (
     <Card>
@@ -217,18 +230,18 @@ function BookingListingComponent({
         <Stack divider={<StackDivider />} spacing="4">
           <Box>
             <Heading size="xs" textTransform="uppercase">
-              PhoneNumber
-            </Heading>
-            <Text pt="2" fontSize="sm">
-              {phoneNumber}
-            </Text>
-          </Box>
-          <Box>
-            <Heading size="xs" textTransform="uppercase">
               Name
             </Heading>
             <Text pt="2" fontSize="sm">
               {name}
+            </Text>
+          </Box>
+          <Box>
+            <Heading size="xs" textTransform="uppercase">
+              MobileNumber
+            </Heading>
+            <Text pt="2" fontSize="sm">
+              {mobileNumber}
             </Text>
           </Box>
         </Stack>

@@ -101,7 +101,7 @@ function ClinicComponent({
   return (
     <>
       <Booking
-	  role="clinic"
+        role="clinic"
         isOpen={isOpen}
         onClose={onClose}
         onOpen={onOpen}
@@ -132,7 +132,13 @@ function ClinicComponent({
           </CardBody>
 
           <CardFooter>
-            <Button variant="solid" colorScheme="blue">
+            <Button
+              onClick={() => {
+                onOpen();
+              }}
+              variant="solid"
+              colorScheme="blue"
+            >
               Book services
             </Button>
           </CardFooter>

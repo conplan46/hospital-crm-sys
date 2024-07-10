@@ -134,7 +134,13 @@ function DoctorsComponent({
           </CardBody>
 
           <CardFooter>
-            <Button variant="solid" colorScheme="blue">
+            <Button
+              onClick={() => {
+                onOpen();
+              }}
+              variant="solid"
+              colorScheme="blue"
+            >
               Book services
             </Button>
           </CardFooter>

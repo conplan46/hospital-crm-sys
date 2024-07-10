@@ -11,18 +11,13 @@ export async function POST(request: Request) {
     const inventoryCount = data.get("inventoryCount");
     const estId = data.get("estId");
     const getProductQuery: QueryResult<Product> = await client.query(
-      "SELECT * FROM inventory WHERE products = $1",
+      "SELECT * FROM products WHERE name = $1",
       [productTitle],
     );
     if (getProductQuery?.rows.length > 0) {
       const res = await client.query(
-        "INSERT INTO inventory (product_name,est_id,inventory_count,product_description) VALUES($1,$2,$3,$4) RETURNING id",
-        [
-          getProductQuery?.rows[0]?.name,
-          estId,
-          inventoryCount,
-          getProductQuery?.rows[0]?.description,
-        ],
+        "INSERT INTO inventory (est_id,product_id,inventory_count) VALUES($1,$2,$3) RETURNING id",
+        [estId, getProductQuery?.rows[0]?.id,inventoryCount],
       );
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -34,19 +29,18 @@ export async function POST(request: Request) {
       }
     } else {
       const product = await client.query(
-        "INSERT INTO product(name,description) VALUES($1,$2) RETURNING id",
+        "INSERT INTO products(name,description) VALUES($1,$2) RETURNING id",
         [productTitle, productDescription],
       );
       const inventoryEntry = await client.query(
-        "INSERT INTO inventory (product_name,est_id,inventory_count,product_description) VALUES($1,$2,$3,$4) RETURNING id",
+        "INSERT INTO inventory (est_id,product_id,inventory_count) VALUES($1,$2,$3) RETURNING id",
         [
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          product?.rows[0]?.name,
           estId,
-          inventoryCount,
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          product?.rows[0]?.description,
+          product?.rows[0]?.id,
+          inventoryCount
         ],
       );
 

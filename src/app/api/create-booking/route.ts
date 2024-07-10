@@ -12,19 +12,19 @@ export async function POST(request: Request) {
     switch (handlerRole) {
       case "clinician":
         booking = await client.query(
-          "INSERT INTO bookings(name,mobileNumber,clinicianHandler) VALUES($1,$2,$3) RETURNING id ",
+          "INSERT INTO bookings(name,mobileNumber,clinician_handler) VALUES($1,$2,$3) RETURNING id ",
           [name, phoneNumber, handler],
         );
         break;
       case "doctors":
         booking = await client.query(
-          "INSERT INTO bookings(name,mobileNumber,doctorHandler) VALUES($1,$2,$3) RETURNING id ",
+          "INSERT INTO bookings(name,mobileNumber,doctor_handler) VALUES($1,$2,$3) RETURNING id ",
           [name, phoneNumber, handler],
         );
         break;
       case "clinic":
         booking = await client.query(
-          "INSERT INTO bookings(name,mobileNumber,clinicHandler) VALUES($1,$2,$3) RETURNING id ",
+          "INSERT INTO bookings(name,mobileNumber,clinic_handler) VALUES($1,$2,$3) RETURNING id ",
           [name, phoneNumber, handler],
         );
         break;

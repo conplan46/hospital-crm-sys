@@ -103,7 +103,7 @@ function ClinicianComponent({
   return (
     <>
       <Booking
-      role="clinician"
+        role="clinician"
         isOpen={isOpen}
         onClose={onClose}
         onOpen={onOpen}
