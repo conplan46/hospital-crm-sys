@@ -157,6 +157,18 @@ function UserNav({ role }: { role: string | undefined }) {
           </Link>
         </MenuItem>
         <MenuItem>
+          <Link href="/labs">
+            <li
+              className="m-2 flex rounded-xl bg-[#ffffff] p-4"
+              style={{ width: "100%" }}
+            >
+              <p className="flex items-center gap-3 text-lg font-bold">
+                <FaCog /> Labs
+              </p>
+            </li>
+          </Link>
+        </MenuItem>
+        <MenuItem>
           <Link href="/clinicians">
             <li
               className="m-2 flex rounded-xl bg-[#ffffff] p-4"

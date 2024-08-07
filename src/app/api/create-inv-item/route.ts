@@ -17,7 +17,7 @@ export async function POST(request: Request) {
     if (getProductQuery?.rows.length > 0) {
       const res = await client.query(
         "INSERT INTO inventory (est_id,product_id,inventory_count) VALUES($1,$2,$3) RETURNING id",
-        [estId, getProductQuery?.rows[0]?.id,inventoryCount],
+        [estId, getProductQuery?.rows[0]?.product_id,inventoryCount],
       );
 
       // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
       }
     } else {
       const product = await client.query(
-        "INSERT INTO products(name,description) VALUES($1,$2) RETURNING id",
+        "INSERT INTO products(name,description) VALUES($1,$2) RETURNING product_id",
         [productTitle, productDescription],
       );
       const inventoryEntry = await client.query(
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
           estId,
 
           // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          product?.rows[0]?.id,
+          product?.rows[0]?.product_id,
           inventoryCount
         ],
       );

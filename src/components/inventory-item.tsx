@@ -1,5 +1,13 @@
-import { Stat, StatLabel, StatNumber, WrapItem } from "@chakra-ui/react";
-
+import {
+  Button,
+  Stat,
+  StatLabel,
+  StatNumber,
+  WrapItem,
+  useToast,
+} from "@chakra-ui/react";
+import Link from "next/link";
+import { useState } from "react";
 export function InventoryItem({
   title,
   id,
@@ -11,6 +19,8 @@ export function InventoryItem({
   description: string;
   invCount: number;
 }) {
+  const toast = useToast();
+  const [isDeleting, setIsDeleting] = useState(false);
   return (
     <WrapItem>
       <div className="card m-2 w-96 bg-base-100 shadow-xl">
@@ -27,7 +37,44 @@ export function InventoryItem({
           <div className="card-actions justify-end">
             <button className="btn bg-[#285430]">Edit</button>
 
-            <button className="btn bg-red-600">Delete</button>
+            <Button
+              className="btn "
+                colorScheme="red"
+              isLoading={isDeleting}
+              onClick={() => {
+                setIsDeleting(true);
+                const formData = new FormData();
+                formData.append("invId", `${id}`);
+                fetch("/api/delete-inventory", {
+                  body: formData,
+                  method: "POST",
+                })
+                  .then((data) => data.json())
+                  .then(
+                    (data: {
+                      status: string | undefined;
+                      error: string | undefined;
+                    }) => {
+                      setIsDeleting(false);
+                      if (data.status) {
+                        toast({ description: data.status, status: "success" });
+                      } else {
+                        toast({ description: data.error, status: "error" });
+                      }
+                    },
+                  )
+                  .catch((err) => {
+                    console.log(err);
+                    setIsDeleting(false);
+                    toast({
+                      description: "An error occured deleting item",
+                      status: "error",
+                    });
+                  });
+              }}
+            >
+              Delete
+            </Button>
           </div>
         </div>
       </div>
@@ -43,7 +90,7 @@ export function InventoryPurchaseItem({
   title: string;
   id: number;
   description: string;
-  invCount: number;
+  invCount: string;
 }) {
   return (
     <WrapItem>
@@ -57,7 +104,9 @@ export function InventoryPurchaseItem({
             <StatNumber>{invCount}</StatNumber>
           </Stat>
           <div className="card-actions justify-end">
-            <button className="btn bg-[#285430]">purchase</button>
+            <Link href={`/pharmacy/drug/${id}`} className="btn bg-[#285430]">
+              purchase
+            </Link>
           </div>
         </div>
       </div>
@@ -67,20 +116,24 @@ export function InventoryPurchaseItem({
 export function ProductComponent({
   title,
   description,
+  id,
 }: {
+  id: number;
   title: string;
   description: string;
 }) {
   return (
-    <WrapItem>
-      <div className="card m-2 w-96 bg-base-100 shadow-xl">
-        <div className="skeleton h-32 w-96"></div>
-        <div className="card-body">
-          <h2 className="card-title">{title}</h2>
-          <p>{description}</p>
-          <div className="card-actions justify-end"></div>
+    <Link href={`/drug/${id}`}>
+      <WrapItem>
+        <div className="card m-2 w-96 bg-base-100 shadow-xl">
+          <div className="skeleton h-32 w-96"></div>
+          <div className="card-body">
+            <h2 className="card-title">{title}</h2>
+            <p>{description}</p>
+            <div className="card-actions justify-end"></div>
+          </div>
         </div>
-      </div>
-    </WrapItem>
+      </WrapItem>
+    </Link>
   );
 }

@@ -46,7 +46,14 @@ import { areaCodes } from "utils/area-codes";
 import { MdPhoto } from "react-icons/md";
 import { FaPlus } from "react-icons/fa";
 import storage from "utils/firebase-config";
-import type { ClinicDataForm, ClinicianDataForm, CreateClinicReturnType, DoctorDataForm, PharmacyDataForm } from "utils/used-types";
+import type {
+  ClinicDataForm,
+  ClinicianDataForm,
+  DoctorDataForm,
+  Lab,
+  LabDataForm,
+  PharmacyDataForm,
+} from "utils/used-types";
 import type { Session } from "next-auth";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
 export default function NewUserPage() {
@@ -54,7 +61,6 @@ export default function NewUserPage() {
   const router = useRouter();
   const [tabIndex, setTabIndex] = useState<number>(0);
   const handleTabsChange = (index: number) => {
-
     setTabIndex(index);
   };
   const cancelRef = useRef(null);
@@ -75,7 +81,6 @@ export default function NewUserPage() {
  
    }, []) */
 
-
   return (
     <Tabs index={tabIndex} onChange={handleTabsChange} variant="enclosed">
       <TabList>
@@ -83,6 +88,7 @@ export default function NewUserPage() {
         <Tab>Clinic</Tab>
         <Tab>Pharmacy</Tab>
         <Tab>Doctor</Tab>
+        <Tab>Lab</Tab>
       </TabList>
       <TabPanels>
         <TabPanel>
@@ -97,12 +103,20 @@ export default function NewUserPage() {
         <TabPanel>
           <DoctorComponent router={router} session={session} />
         </TabPanel>
+        <TabPanel>
+          <LabComponent router={router} session={session} />
+        </TabPanel>
       </TabPanels>
     </Tabs>
   );
 }
-function DoctorComponent({ session, router }: { session: Session | null, router: AppRouterInstance }) {
-
+function DoctorComponent({
+  session,
+  router,
+}: {
+  session: Session | null;
+  router: AppRouterInstance;
+}) {
   const [residence, setResidence] = useState("");
   const [areaCode, setAreaCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -125,7 +139,6 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
     const formData = new FormData();
     const phoneNumber = areaCode + data.phoneNumber;
     if (session?.user?.email) {
-
       setIsSubmitting(true);
 
       formData.append("email", session?.user?.email);
@@ -133,11 +146,11 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
       formData.append("lastName", data.lastName);
       formData.append("phoneNumber", data.phoneNumber);
       formData.append("countyOfPractice", data.countyOfPractice);
-      formData.append(
-        "primaryAreaOfSpeciality",
-        data.primaryAreaOfSpeciality,
+      formData.append("primaryAreaOfSpeciality", data.primaryAreaOfSpeciality);
+      const storageRef = ref(
+        storage,
+        `licenses/${data?.practicingLicense?.[0]?.name}`,
       );
-      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
 
       const snapshot = await uploadBytes(
         storageRef,
@@ -181,15 +194,11 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
           })
           .catch((err) => console.error(err));
       }
-
-
     }
   };
 
   return (
-    <div className="font-manrope p-2 ">
-
-
+    <div className="font-manrope p-2">
       <div className="m-6 grid rounded-lg  bg-white sm:col-start-2">
         <div className="m-3 flex flex-col items-center">
           <h1 className="m-2 text-2xl font-bold text-black">
@@ -209,9 +218,7 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
                   required: "name is required",
                 })}
               />
-              <FormErrorMessage>
-                {errors?.firstName?.message}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors?.firstName?.message}</FormErrorMessage>
             </FormControl>
             <FormControl m={4} isInvalid={Boolean(errors.lastName)}>
               <FormLabel className="font-bold text-black" htmlFor="name">
@@ -224,9 +231,7 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
                   required: "name is required",
                 })}
               />
-              <FormErrorMessage>
-                {errors?.lastName?.message}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors?.lastName?.message}</FormErrorMessage>
             </FormControl>
             <FormControl m={4} isInvalid={Boolean(errors.phoneNumber)}>
               <FormLabel htmlFor="name">Phone Number</FormLabel>
@@ -288,10 +293,7 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
                 {errors?.phoneNumber?.message}
               </FormErrorMessage>
             </FormControl>
-            <FormControl
-              m={4}
-              isInvalid={Boolean(errors.countyOfPractice)}
-            >
+            <FormControl m={4} isInvalid={Boolean(errors.countyOfPractice)}>
               <FormLabel className="font-bold text-black" htmlFor="name">
                 County of practice
               </FormLabel>
@@ -329,11 +331,15 @@ function DoctorComponent({ session, router }: { session: Session | null, router:
         </Center>
       </div>
     </div>
-
-  )
+  );
 }
-function ClinicComponent({ session, router }: { session: Session | null, router: AppRouterInstance }) {
-
+function ClinicComponent({
+  session,
+  router,
+}: {
+  session: Session | null;
+  router: AppRouterInstance;
+}) {
   const [service, setService] = useState("");
   const [servicesList, setServicesList] = useState<Array<string>>([]);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -356,14 +362,16 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
     const formData = new FormData();
     const phoneNumber = areaCode + data.phoneNumber;
     if (session?.user?.email) {
-
       setIsSubmitting(true);
       formData.append("name", data.businessName);
       formData.append("email", session?.user?.email);
       formData.append("phoneNumber", phoneNumber);
       formData.append("location", data.location);
-      formData.append('services', JSON.stringify(servicesList))
-      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
+      formData.append("services", JSON.stringify(servicesList));
+      const storageRef = ref(
+        storage,
+        `licenses/${data?.practicingLicense?.[0]?.name}`,
+      );
 
       const snapshot = await uploadBytes(
         storageRef,
@@ -381,7 +389,7 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
         formData.append("practicingLicense", url);
         fetch("/api/create-clinic", { method: "POST", body: formData })
           .then((data) => data.json())
-          .then((result: { status: CreateClinicReturnType }) => {
+          .then((result: { status: string }) => {
             if (result.status == "clinic added") {
               setIsSubmitting(false);
               toast({
@@ -407,24 +415,19 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
           })
           .catch((err) => console.error(err));
       }
-
     }
   };
   const [residence, setResidence] = useState("");
   const [areaCode, setAreaCode] = useState("");
   return (
     <div className="font-manrope p-2 ">
-
       <div className="m-3 flex flex-col items-center">
         <h1 className="m-2 text-2xl font-bold text-black">
           Create Clinic Account
         </h1>
       </div>
       <Center>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="form-control m-4"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="form-control m-4">
           <FormControl
             className="mb-4"
             isInvalid={Boolean(errors.businessName)}
@@ -439,9 +442,7 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
                 required: "name is required",
               })}
             />
-            <FormErrorMessage>
-              {errors?.businessName?.message}
-            </FormErrorMessage>
+            <FormErrorMessage>{errors?.businessName?.message}</FormErrorMessage>
           </FormControl>
 
           <FormControl
@@ -523,10 +524,7 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
               {servicesList?.length == 0 ? "services list empty" : ""}
             </FormErrorMessage>
           </div>
-          <FormControl
-            className="mb-4"
-            isInvalid={Boolean(errors.phoneNumber)}
-          >
+          <FormControl className="mb-4" isInvalid={Boolean(errors.phoneNumber)}>
             <FormLabel htmlFor="name">Phone Number</FormLabel>
             <div className="join">
               <Select
@@ -545,15 +543,13 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
                 <option disabled selected>
                   Area Code
                 </option>
-                {areaCodes.map(
-                  (val: { code: string; name: string }, index) => {
-                    return (
-                      <option key={index} value={val.code}>
-                        {val.name} {val.code}
-                      </option>
-                    );
-                  },
-                )}
+                {areaCodes.map((val: { code: string; name: string }, index) => {
+                  return (
+                    <option key={index} value={val.code}>
+                      {val.name} {val.code}
+                    </option>
+                  );
+                })}
               </Select>
               <Input
                 id="name"
@@ -564,9 +560,7 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
                 })}
               />
             </div>
-            <FormErrorMessage>
-              {errors?.phoneNumber?.message}
-            </FormErrorMessage>
+            <FormErrorMessage>{errors?.phoneNumber?.message}</FormErrorMessage>
           </FormControl>
 
           <label className="form-control w-full max-w-xs">
@@ -591,11 +585,15 @@ function ClinicComponent({ session, router }: { session: Session | null, router:
         </form>
       </Center>
     </div>
-
-  )
+  );
 }
-function ClinicianComponent({ session, router }: { session: Session | null, router: AppRouterInstance }) {
-
+function ClinicianComponent({
+  session,
+  router,
+}: {
+  session: Session | null;
+  router: AppRouterInstance;
+}) {
   const [residence, setResidence] = useState("");
   const [areaCode, setAreaCode] = useState("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -619,19 +617,17 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
     const formData = new FormData();
     const phoneNumber = areaCode + data.phoneNumber;
     if (session?.user?.email) {
-
       setIsSubmitting(true);
       formData.append("email", session?.user?.email);
       formData.append("firstName", data.firstName);
       formData.append("lastName", data.lastName);
       formData.append("phoneNumber", phoneNumber);
       formData.append("countyOfPractice", data.countyOfPractice);
-      formData.append(
-        "primaryAreaOfSpeciality",
-        data.primaryAreaOfSpeciality,
+      formData.append("primaryAreaOfSpeciality", data.primaryAreaOfSpeciality);
+      const storageRef = ref(
+        storage,
+        `licenses/${data?.practicingLicense?.[0]?.name}`,
       );
-      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
-
 
       const snapshot = await uploadBytes(
         storageRef,
@@ -652,9 +648,9 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
           .then(
             (result: {
               status:
-              | "clinician added"
-              | "An internal error adding the clinician"
-              | "An internal error occured";
+                | "clinician added"
+                | "An internal error adding the clinician"
+                | "An internal error occured";
             }) => {
               if (result.status == "clinician added") {
                 setIsSubmitting(false);
@@ -682,14 +678,11 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
           )
           .catch((err) => console.error(err));
       }
-
-
     }
   };
 
   return (
     <div className="font-manrope p-2 ">
-
       <div className="m-6 grid rounded-lg  bg-white sm:col-start-2">
         <div className="m-3 flex flex-col items-center">
           <h1 className="m-2 text-2xl font-bold text-black">
@@ -709,9 +702,7 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
                   required: "name is required",
                 })}
               />
-              <FormErrorMessage>
-                {errors?.firstName?.message}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors?.firstName?.message}</FormErrorMessage>
             </FormControl>
             <FormControl m={4} isInvalid={Boolean(errors.lastName)}>
               <FormLabel className="font-bold text-black" htmlFor="name">
@@ -724,9 +715,7 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
                   required: "name is required",
                 })}
               />
-              <FormErrorMessage>
-                {errors?.lastName?.message}
-              </FormErrorMessage>
+              <FormErrorMessage>{errors?.lastName?.message}</FormErrorMessage>
             </FormControl>
             <FormControl m={4} isInvalid={Boolean(errors.phoneNumber)}>
               <FormLabel htmlFor="name">Phone Number</FormLabel>
@@ -788,10 +777,7 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
                 {errors?.phoneNumber?.message}
               </FormErrorMessage>
             </FormControl>
-            <FormControl
-              m={4}
-              isInvalid={Boolean(errors.countyOfPractice)}
-            >
+            <FormControl m={4} isInvalid={Boolean(errors.countyOfPractice)}>
               <FormLabel className="font-bold text-black" htmlFor="name">
                 County of practice
               </FormLabel>
@@ -806,10 +792,7 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
                 {errors?.countyOfPractice?.message}
               </FormErrorMessage>
             </FormControl>
-            <FormControl
-              m={4}
-              isInvalid={Boolean(errors.practicingLicense)}
-            >
+            <FormControl m={4} isInvalid={Boolean(errors.practicingLicense)}>
               <FormLabel className="font-bold text-black" htmlFor="name">
                 Practicing license
               </FormLabel>
@@ -838,11 +821,15 @@ function ClinicianComponent({ session, router }: { session: Session | null, rout
         </Center>
       </div>
     </div>
-
-  )
+  );
 }
-function PharmacyComponent({ session, router }: { session: Session | null, router: AppRouterInstance }) {
-
+function PharmacyComponent({
+  session,
+  router,
+}: {
+  session: Session | null;
+  router: AppRouterInstance;
+}) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const toast = useToast();
   const {
@@ -865,14 +852,16 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
     const formData = new FormData();
     const phoneNumber = areaCode + data.phoneNumber;
     if (session?.user?.email) {
-
       setIsSubmitting(true);
 
       formData.append("name", data.businessName);
       formData.append("email", session?.user?.email);
       formData.append("phoneNumber", phoneNumber);
       formData.append("location", data.location);
-      const storageRef = ref(storage, `licenses/${data?.practicingLicense?.[0]?.name}`);
+      const storageRef = ref(
+        storage,
+        `licenses/${data?.practicingLicense?.[0]?.name}`,
+      );
 
       const snapshot = await uploadBytes(
         storageRef,
@@ -916,22 +905,17 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
           })
           .catch((err) => console.error(err));
       }
-
-
     }
-  }; return (
+  };
+  return (
     <div className="font-manrope p-2 ">
-
       <div className="m-3 flex flex-col items-center">
         <h1 className="m-2 text-2xl font-bold text-black">
           Create Pharmacy Account
         </h1>
       </div>
       <Center>
-        <form
-          onSubmit={handleSubmit(onSubmit)}
-          className="form-control m-4"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="form-control m-4">
           <FormControl
             className="mb-6"
             isInvalid={Boolean(errors.businessName)}
@@ -946,9 +930,7 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
                 required: "name is required",
               })}
             />
-            <FormErrorMessage>
-              {errors?.businessName?.message}
-            </FormErrorMessage>
+            <FormErrorMessage>{errors?.businessName?.message}</FormErrorMessage>
           </FormControl>
 
           <FormControl
@@ -999,15 +981,13 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
                 <option disabled selected>
                   Area Code
                 </option>
-                {areaCodes.map(
-                  (val: { code: string; name: string }, index) => {
-                    return (
-                      <option key={index} value={val.code}>
-                        {val.name} {val.code}
-                      </option>
-                    );
-                  },
-                )}
+                {areaCodes.map((val: { code: string; name: string }, index) => {
+                  return (
+                    <option key={index} value={val.code}>
+                      {val.name} {val.code}
+                    </option>
+                  );
+                })}
               </Select>
               <Input
                 id="name"
@@ -1018,9 +998,7 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
                 })}
               />
             </div>
-            <FormErrorMessage>
-              {errors?.phoneNumber?.message}
-            </FormErrorMessage>
+            <FormErrorMessage>{errors?.phoneNumber?.message}</FormErrorMessage>
           </FormControl>
           <Button
             m={4}
@@ -1033,6 +1011,261 @@ function PharmacyComponent({ session, router }: { session: Session | null, route
           </Button>
         </form>
       </Center>
-    </div>)
+    </div>
+  );
+}
+function LabComponent({
+  session,
+  router,
+}: {
+  session: Session | null;
+  router: AppRouterInstance;
+}) {
+  const [service, setService] = useState("");
+  const [servicesList, setServicesList] = useState<Array<string>>([]);
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const toast = useToast();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<LabDataForm>();
+  const onSubmit: SubmitHandler<LabDataForm> = async (data) => {
+    console.log(data);
 
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    /*    if (session?.user?.email) {
+         data = { ...data, email: session?.us}
+       } */
+    const formData = new FormData();
+    const phoneNumber = areaCode + data.phoneNumber;
+    if (session?.user?.email) {
+      setIsSubmitting(true);
+      formData.append("name", data.businessName);
+      formData.append("email", session?.user?.email);
+      formData.append("phoneNumber", phoneNumber);
+      formData.append("location", data.location);
+      formData.append("services", JSON.stringify(servicesList));
+      const storageRef = ref(
+        storage,
+        `licenses/${data?.practicingLicense?.[0]?.name}`,
+      );
+
+      const snapshot = await uploadBytes(
+        storageRef,
+        data?.practicingLicense?.[0] as Blob,
+      );
+      const url = await getDownloadURL(snapshot.ref);
+      if (!url) {
+        toast({
+          description: "Error uploading practicing license",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      } else {
+        formData.append("practicingLicense", url);
+        fetch("/api/create-lab", { method: "POST", body: formData })
+          .then((data) => data.json())
+          .then((result: { status: string }) => {
+            if (result.status == "lab added") {
+              setIsSubmitting(false);
+              toast({
+                title: "Data received.",
+                description: "We've created a lab account for you.",
+                status: "success",
+                duration: 9000,
+                isClosable: true,
+              });
+              void router.push("/");
+              //if user was added successfully sign up with new use and redirect to new-user page
+            } else {
+              setIsSubmitting(false);
+
+              toast({
+                title: "Error",
+                description: result.status,
+                status: "error",
+                duration: 9000,
+                isClosable: true,
+              });
+            }
+          })
+          .catch((err) => console.error(err));
+      }
+    }
+  };
+  const [residence, setResidence] = useState("");
+  const [areaCode, setAreaCode] = useState("");
+  return (
+    <div className="font-manrope p-2 ">
+      <div className="m-3 flex flex-col items-center">
+        <h1 className="m-2 text-2xl font-bold text-black">
+          Create Lab Account
+        </h1>
+      </div>
+      <Center>
+        <form onSubmit={handleSubmit(onSubmit)} className="form-control m-4">
+          <FormControl
+            className="mb-4"
+            isInvalid={Boolean(errors.businessName)}
+          >
+            <FormLabel className="font-bold text-black" htmlFor="name">
+              Lab Name
+            </FormLabel>
+            <Input
+              className="w-full"
+              placeholder="Enter your establishment's Name"
+              {...register("businessName", {
+                required: "name is required",
+              })}
+            />
+            <FormErrorMessage>{errors?.businessName?.message}</FormErrorMessage>
+          </FormControl>
+
+          <FormControl
+            className="mb-4"
+            isInvalid={Boolean(errors.practicingLicense)}
+          >
+            <FormLabel className="font-bold text-black" htmlFor="name">
+              Practicing license
+            </FormLabel>
+            <input
+              {...register("practicingLicense", {
+                required: "practicing license is required",
+              })}
+              type="file"
+              className="file-input file-input-bordered w-full max-w-xs"
+            />
+
+            <FormErrorMessage>
+              {errors?.practicingLicense?.message}
+            </FormErrorMessage>
+          </FormControl>
+          <FormControl
+            className="mb-4"
+            isInvalid={Boolean(servicesList.length == 0)}
+          >
+            <FormLabel className="font-bold text-black" htmlFor="name">
+              Services
+            </FormLabel>
+            <div className="join">
+              <input
+                value={service}
+                className="input join-item input-bordered"
+                onChange={(e) => {
+                  setService(e.target.value);
+                  e.preventDefault();
+                }}
+                placeholder="service offered"
+              />
+
+              <button
+                className="btn join-item rounded-r-full"
+                type="button"
+                onClick={() => {
+                  if (service !== "") {
+                    setServicesList([service, ...servicesList]);
+                    setService("");
+                  }
+                }}
+              >
+                Add service
+              </button>
+            </div>
+          </FormControl>
+
+          <div className="mb-4 flex flex-col rounded border p-3">
+            <TableContainer>
+              <Table variant="simple">
+                <Thead>
+                  <Tr>
+                    <Th></Th>
+                    <Th>Services</Th>
+                  </Tr>
+                </Thead>
+                <Tbody>
+                  {servicesList.map((service, index) => {
+                    return (
+                      <>
+                        <Tr></Tr>
+                        <Tr className="m-1" key={index}>
+                          {service}
+                        </Tr>
+                      </>
+                    );
+                  })}
+                </Tbody>
+              </Table>
+            </TableContainer>
+
+            <FormErrorMessage>
+              {servicesList?.length == 0 ? "services list empty" : ""}
+            </FormErrorMessage>
+          </div>
+          <FormControl className="mb-4" isInvalid={Boolean(errors.phoneNumber)}>
+            <FormLabel htmlFor="name">Phone Number</FormLabel>
+            <div className="join">
+              <Select
+                className="join-item"
+                onChange={(e) => {
+                  setAreaCode(e.target.value);
+                  areaCodes.forEach(
+                    (val: { code: string; name: string }, index) => {
+                      if (val.code == e.target.value) {
+                        setResidence(val.name);
+                      }
+                    },
+                  );
+                }}
+              >
+                <option disabled selected>
+                  Area Code
+                </option>
+                {areaCodes.map((val: { code: string; name: string }, index) => {
+                  return (
+                    <option key={index} value={val.code}>
+                      {val.name} {val.code}
+                    </option>
+                  );
+                })}
+              </Select>
+              <Input
+                id="name"
+                className="join-item"
+                placeholder="phoneNumber"
+                {...register("phoneNumber", {
+                  required: "Phone number is required",
+                })}
+              />
+            </div>
+            <FormErrorMessage>{errors?.phoneNumber?.message}</FormErrorMessage>
+          </FormControl>
+
+          <label className="form-control w-full max-w-xs">
+            <div className="label">
+              <span className="label-text">Location</span>
+            </div>
+            <input
+              type="text"
+              placeholder="Type here"
+              className="input input-bordered w-full max-w-xs"
+            />
+          </label>
+          <Button
+            m={4}
+            isLoading={isSubmitting}
+            loadingText="Submitting"
+            bgColor="#285430"
+            type="submit"
+          >
+            Submit
+          </Button>
+        </form>
+      </Center>
+    </div>
+  );
 }

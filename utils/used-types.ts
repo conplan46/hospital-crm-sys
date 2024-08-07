@@ -23,6 +23,11 @@ export interface Patient {
   doctor: string;
   lab_test_request: boolean;
 }
+export interface DrugPurchaseForm {
+  inventory_id: number;
+  amount: number;
+  quantity: number;
+}
 export interface User {
   id: number;
   userrole: string;
@@ -32,10 +37,6 @@ export interface User {
   image: string;
   emailverified: string;
 }
-export type CreateClinicReturnType =
-  | "clinic added"
-  | "An internal error adding the clinic"
-  | "Corresponding user does not exist";
 export interface Doctor {
   id: number;
   firstname: string;
@@ -54,6 +55,16 @@ export interface Clinic {
   location: string;
   userid: number;
 }
+
+export interface Lab {
+  id: number;
+  estname: string;
+  phonenumber: string;
+  license_document_link: string;
+  services: Array<string>;
+  location: string;
+  userid: number;
+}
 export interface Pharmacy {
   id: number;
   estname: string;
@@ -64,7 +75,7 @@ export interface Pharmacy {
   userid: number;
 }
 export type Product = {
-  id: number;
+  product_id: number;
   name: string;
   description: string;
 };
@@ -73,11 +84,13 @@ export interface PharmacyData extends User, Pharmacy {}
 export interface DoctorData extends User, Doctor {}
 export interface PatientData extends User, Patient {}
 export interface ClinicianData extends User, Clinician {}
+export interface LabData extends User, Lab {}
 export type UserData =
   | ClinicData
   | PharmacyData
   | DoctorData
   | PatientData
+  | LabData
   | ClinicianData;
 type CommonKeys<T extends object> = keyof T;
 type AllKeys<T> = T extends any ? keyof T : never;
@@ -114,6 +127,14 @@ const clinicOnboardingDataSchema = z.object({
   practicingLicense: z.custom<FileList>().nullish(),
 });
 export type ClinicDataForm = z.infer<typeof clinicOnboardingDataSchema>;
+
+const labOnboardingDataSchema = z.object({
+  phoneNumber: z.string(),
+  location: z.string(),
+  businessName: z.string(),
+  practicingLicense: z.custom<FileList>().nullish(),
+});
+export type LabDataForm = z.infer<typeof labOnboardingDataSchema>;
 const doctorOnboardingDataSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
@@ -153,14 +174,14 @@ const inventoryItemSchema = z.object({
 });
 export interface IInventoryItem {
   id: number;
+  product_id: number;
   name: string;
-  inventory_count: number;
+  inventory_count: string;
   est_id: number;
   description: string;
 }
 export interface Booking {
   id: number;
-
   name: string;
   mobilenumber: string;
   handler: number;

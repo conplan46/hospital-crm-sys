@@ -36,8 +36,8 @@ CREATE TABLE IF NOT EXISTS  sessions
 );
 CREATE TABLE IF NOT EXISTS roles
 (
-  role TEXT UNIQUE
-
+  role TEXT UNIQUE,
+  PRIMARY KEY (role)
 );
 
 CREATE TABLE IF NOT EXISTS  users
@@ -54,4 +54,4 @@ CREATE TABLE IF NOT EXISTS  users
   PRIMARY KEY (id)
 );
  
-INSERT INTO roles (role) VALUES('doctor'),('admin'),('clinician'),('clinic'),('pharmacy'),('patient'),('nurse'),('pharmacist');
+INSERT INTO roles (role) VALUES('doctor'),('lab'),('admin'),('clinician'),('clinic'),('pharmacy'),('patient'),('nurse'),('pharmacist');
