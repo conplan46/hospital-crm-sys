@@ -162,10 +162,16 @@ const patientBookingDataSchema = z.object({
   requestMedicalExam: z.boolean(),
   patientComplaint: z.string(),
 });
-
-const bookingDataSchema = z.object({
-  name: z.string(),
+const patientRegistration = z.object({  
+  firstName: z.string(),
+  lastName: z.string(),
+  email:z.string().email(),
   phoneNumber: z.string(),
+})
+const bookingDataSchema = z.object({
+  patientEmail:z.string().email(),
+  reasonForAppointment:z.string(),
+  handler:z.number(),
 });
 const inventoryItemSchema = z.object({
   productTitle: z.string(),
@@ -188,4 +194,5 @@ export interface Booking {
 }
 export type AddInvItem = z.infer<typeof inventoryItemSchema>;
 export type PatientBookingFormData = z.infer<typeof patientBookingDataSchema>;
+export type PatientRegistrationForm = z.infer<typeof patientRegistration>;
 export type BookingFormData = z.infer<typeof bookingDataSchema>;

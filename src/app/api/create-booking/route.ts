@@ -4,32 +4,51 @@ export async function POST(request: Request) {
   const client = await pool.connect();
   try {
     const data = await request.formData();
-    const name = data.get("name");
     const handler = data.get("handler");
-    const phoneNumber = data.get("phoneNumber");
+    const reasonForAppointment = data.get("reasonForAppointment");
+    const patientId = data.get("patientId");
     const handlerRole = data.get("handlerRole");
     let booking;
-    switch (handlerRole) {
-      case "clinician":
-        booking = await client.query(
-          "INSERT INTO bookings(name,mobileNumber,clinician_handler) VALUES($1,$2,$3) RETURNING id ",
-          [name, phoneNumber, handler],
-        );
-        break;
-      case "doctors":
-        booking = await client.query(
-          "INSERT INTO bookings(name,mobileNumber,doctor_handler) VALUES($1,$2,$3) RETURNING id ",
-          [name, phoneNumber, handler],
-        );
-        break;
-      case "clinic":
-        booking = await client.query(
-          "INSERT INTO bookings(name,mobileNumber,clinic_handler) VALUES($1,$2,$3) RETURNING id ",
-          [name, phoneNumber, handler],
-        );
-        break;
-      default:
-        return new Response("Error matching roles", { status: 404 });
+    if (patientId && reasonForAppointment && handler) {
+      switch (handlerRole) {
+        case "clinician":
+          booking = await client.query(
+            "INSERT INTO bookings(patientId,clinician_handler) VALUES($1,$2) RETURNING id ",
+            [patientId, handler],
+          );
+          await client.query(
+            "UPDATE patients SET reason_for_appointment = $2 WHERE id=$1",
+            [patientId, reasonForAppointment],
+          );
+
+          break;
+        case "doctors":
+          booking = await client.query(
+            "INSERT INTO bookings(patientId,doctor_handler) VALUES($1,$2) RETURNING id ",
+            [patientId, handler],
+          );
+          await client.query(
+            "UPDATE patients SET reason_for_appointment = $2 WHERE id=$1",
+            [patientId, reasonForAppointment],
+          );
+
+          break;
+        case "clinic":
+          booking = await client.query(
+            "INSERT INTO bookings(patientId,clinic_handler) VALUES($1,$2,$3) RETURNING id ",
+            [patientId, handler],
+          );
+          await client.query(
+            "UPDATE patients SET reason_for_appointment = $2 WHERE id=$1",
+            [patientId, reasonForAppointment],
+          );
+
+          break;
+        default:
+          return new Response("Error matching roles", { status: 404 });
+      }
+    } else {
+      return new Response("Form data submitted is null", { status: 404 });
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access

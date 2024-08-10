@@ -15,7 +15,9 @@ import {
   Checkbox,
   Textarea,
   useToast,
+  Alert,
 } from "@chakra-ui/react";
+import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { areaCodes } from "utils/area-codes";
@@ -47,20 +49,23 @@ export default function Booking({
     setValue,
     formState: { errors },
   } = useForm<BookingFormData>();
+
+  const { data: session, status } = useSession();
   const toast = useToast();
   useEffect(() => {
     setIsClient(true);
   }, []);
   const onSubmit: SubmitHandler<BookingFormData> = async (data) => {
     console.log(data);
-    if (handler) {
+    if (handler && session?.user?.email) {
       setIsSubmitting(true);
 
       const formData = new FormData();
-      formData.append("name", data.name);
+      formData.append("email", session?.user?.email);
       formData.append("handler", `${handler}`);
-      formData.append("phoneNumber", `${data.phoneNumber}`);
       formData.append("handlerRole", role);
+
+      formData.append("reasonForAppointment", data.reasonForAppointment);
       fetch("/api/create-booking", { method: "POST", body: formData })
         .then((data) => data.json())
         .then((data: { status: string }) => {
@@ -101,62 +106,22 @@ export default function Booking({
                 onSubmit={handleSubmit(onSubmit)}
                 className="form-control m-4"
               >
-                <FormControl className="mb-6" isInvalid={Boolean(errors.name)}>
-                  <FormLabel className="font-bold text-black" htmlFor="name">
-                    Patient Name
-                  </FormLabel>
-                  <Input
-                    className="w-full"
-                    placeholder="Name"
-                    {...register("name", {
-                      required: "name is required",
-                    })}
-                  />
-                  <FormErrorMessage>{errors?.name?.message}</FormErrorMessage>
-                </FormControl>
                 <FormControl
                   className="mb-6"
-                  isInvalid={Boolean(errors.phoneNumber)}
+                  isInvalid={Boolean(errors.reasonForAppointment)}
                 >
-                  <FormLabel htmlFor="name">Phone Number</FormLabel>
-                  <div className="join">
-                    <Select
-                      className="join-item"
-                      onChange={(e) => {
-                        setAreaCode(e.target.value);
-                        areaCodes.forEach(
-                          (val: { code: string; name: string }, index) => {
-                            if (val.code == e.target.value) {
-                              setResidence(val.name);
-                            }
-                          },
-                        );
-                      }}
-                    >
-                      <option disabled selected>
-                        Area Code
-                      </option>
-                      {areaCodes.map(
-                        (val: { code: string; name: string }, index) => {
-                          return (
-                            <option key={index} value={val.code}>
-                              {val.name} {val.code}
-                            </option>
-                          );
-                        },
-                      )}
-                    </Select>
-                    <Input
-                      id="name"
-                      className="join-item"
-                      placeholder="phoneNumber"
-                      {...register("phoneNumber", {
-                        required: "Phone number is required",
-                      })}
-                    />
-                  </div>
+                  <FormLabel className="font-bold text-black" htmlFor="name">
+                    Reason for booking appointment
+                  </FormLabel>
+                  <Textarea
+                    className="w-full"
+                    placeholder="reason"
+                    {...register("reasonForAppointment", {
+                      required: "Reason for appointment is required",
+                    })}
+                  />
                   <FormErrorMessage>
-                    {errors?.phoneNumber?.message}
+                    {errors?.reasonForAppointment?.message}
                   </FormErrorMessage>
                 </FormControl>
                 <div className="flex flex-row">
@@ -174,6 +139,10 @@ export default function Booking({
                 </div>
               </form>
             </Center>
+
+            <Alert status="info">
+              You have to be logged in as a patient to book an appointment
+            </Alert>
           </ModalBody>
         </ModalContent>
       </Modal>
