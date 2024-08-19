@@ -91,12 +91,14 @@ export default function DrugPage({ params }: { params: { id: string } }) {
                   </div>
                   <div>
                     <span className="font-bold text-gray-700 dark:text-gray-300">
-                      Availability:
+                      Availability
                     </span>
                     <span className="text-gray-600 dark:text-gray-300">
-                      {parseInt(productQuery?.data?.[0]?.inventory_count) > 1
-                        ? "in stock"
-                        : "not in stock"}
+                      {parseInt(productQuery?.data?.[0]?.inventory_count ?? "0") > 1
+                        ? <div className="badge">In stock</div>
+
+                        : <div className="badge">Not in stock</div>
+}
                     </span>
                   </div>
                 </div>

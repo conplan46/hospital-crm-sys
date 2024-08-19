@@ -94,9 +94,11 @@ export default function PharmacyDrugPage({ params }: { params: { id: string } })
                       Availability:
                     </span>
                     <span className="text-gray-600 dark:text-gray-300">
-                      {parseInt(inventoryItemQuery?.data?.[0]?.inventory_count) > 1
-                        ? "in stock"
-                        : "not in stock"}
+                      {parseInt(inventoryItemQuery?.data?.[0]?.inventory_count ?? "0") > 1
+                        ? <div className="badge">In stock</div>
+
+                        : <div className="badge">Not in stock</div>
+}
                     </span>
                   </div>
                 </div>

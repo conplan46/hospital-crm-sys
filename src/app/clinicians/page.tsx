@@ -22,6 +22,10 @@ import Loading from "../loading";
 import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
 import Image from "next/image";
 import Booking from "~/components/booking";
+import { useAtomValue } from "jotai";
+import { userDataAtom } from "~/components/drawer";
+import { signIn, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 
 export default function CliniciansPage() {
   const [isClient, setIsClient] = useState(false);
@@ -99,6 +103,10 @@ function ClinicianComponent({
   areaOfSpeciality: string;
   handler: number | undefined;
 }) {
+  const pathName = usePathname();
+  const toast = useToast();
+  const { data: session, status } = useSession();
+  const userDataAtomI = useAtomValue(userDataAtom);
   const { isOpen, onClose, onOpen } = useDisclosure();
   return (
     <>
@@ -134,7 +142,19 @@ function ClinicianComponent({
           <CardFooter>
             <Button
               onClick={() => {
-                onOpen();
+                if (userDataAtomI?.userrole !== "patient") {
+                  toast({
+                    description: "You account is not a patient account",
+                    status: "error",
+                  });
+                } else {
+                  if (status === "unauthenticated") {
+                    void signIn(undefined, { callbackUrl: pathName });
+                  }
+                  if (status === "authenticated") {
+                    onOpen();
+                  }
+                }
               }}
               variant="solid"
               colorScheme="blue"

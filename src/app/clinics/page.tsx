@@ -22,9 +22,12 @@ import type { Clinic } from "utils/used-types";
 import Loading from "../loading";
 import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
 import Booking from "~/components/booking";
+import { signIn, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
+import { useAtom, useAtomValue } from "jotai";
+import { userDataAtom } from "~/components/drawer";
 export default function ClinicsPage() {
   const [isClient, setIsClient] = useState(false);
-
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -97,7 +100,12 @@ function ClinicComponent({
 
   handler: number | undefined;
 }) {
+  const toast = useToast();
+  const userDataAtomI = useAtomValue(userDataAtom);
+  const { data: session, status } = useSession();
+  const pathName = usePathname();
   const { isOpen, onClose, onOpen } = useDisclosure();
+  console.log({role:userDataAtomI?.userrole})
   return (
     <>
       <Booking
@@ -134,7 +142,19 @@ function ClinicComponent({
           <CardFooter>
             <Button
               onClick={() => {
-                onOpen();
+                if (userDataAtomI?.userrole !== "patient") {
+                  toast({
+                    description: "You account is not a patient account",
+                    status: "error",
+                  });
+                } else {
+                  if (status === "unauthenticated") {
+                    void signIn(undefined, { callbackUrl: pathName });
+                  }
+                  if (status === "authenticated") {
+                    onOpen();
+                  }
+                }
               }}
               variant="solid"
               colorScheme="blue"

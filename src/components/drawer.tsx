@@ -17,11 +17,15 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { UserDataAl } from "utils/used-types";
+import { atom, useAtom, useSetAtom } from "jotai";
+export const userDataAtom = atom<UserDataAl|undefined>(undefined);
 export default function DrawerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const userDataAtomI = useAtom(userDataAtom)
+  const setUserData = useSetAtom(userDataAtom)
   const { data: session, status } = useSession();
   const path = usePathname();
   const userDataQuery = useQuery({
@@ -35,6 +39,7 @@ export default function DrawerLayout({
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as { status: string; data: UserDataAl };
       console.log(data);
+     setUserData(data.data)
       return data.data;
     },
   });

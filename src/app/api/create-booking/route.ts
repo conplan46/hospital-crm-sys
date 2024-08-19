@@ -22,7 +22,7 @@ export async function POST(request: Request) {
           );
 
           break;
-        case "doctors":
+        case "doctor":
           booking = await client.query(
             "INSERT INTO bookings(patientId,doctor_handler) VALUES($1,$2) RETURNING id ",
             [patientId, handler],
