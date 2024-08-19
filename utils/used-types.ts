@@ -22,6 +22,15 @@ export interface Patient {
   patient_complaint: string;
   doctor: string;
   lab_test_request: boolean;
+  reason_for_appointment: string;
+  height:number;
+  weight:number;
+  BMI:number;
+  temperature:number;
+  blood_pressure:number;
+  resp:number;
+  notes:string;
+
 }
 export interface DrugPurchaseForm {
   inventory_id: number;
@@ -162,16 +171,16 @@ const patientBookingDataSchema = z.object({
   requestMedicalExam: z.boolean(),
   patientComplaint: z.string(),
 });
-const patientRegistration = z.object({  
+const patientRegistration = z.object({
   firstName: z.string(),
   lastName: z.string(),
-  email:z.string().email(),
+  email: z.string().email(),
   phoneNumber: z.string(),
-})
+});
 const bookingDataSchema = z.object({
-  patientEmail:z.string().email(),
-  reasonForAppointment:z.string(),
-  handler:z.number(),
+  patientEmail: z.string().email(),
+  reasonForAppointment: z.string(),
+  handler: z.number(),
 });
 const inventoryItemSchema = z.object({
   productTitle: z.string(),
