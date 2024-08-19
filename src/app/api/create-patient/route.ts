@@ -1,4 +1,5 @@
-import { QueryResult } from "pg";
+import { eq } from "drizzle-orm";
+import { db, patients, users } from "drizzle/schema";
 import { pool } from "utils/db-pool";
 import { User } from "utils/used-types";
 export async function POST(request: Request) {
@@ -8,16 +9,30 @@ export async function POST(request: Request) {
     const phoneNumber = data.get("phoneNumber");
     const email = data.get("email");
     console.log(data);
-    const userQueryResult: QueryResult<User> = await pool.query(
-      "SELECT * FROM users WHERE email = $1",
+    /*const userQueryResult: QueryResult<User> = await pool.query(
+     "SELECT * FROM users WHERE email = $1",
       [email],
-    );
-    if (userQueryResult?.rows.length == 1) {
-      const queryResult = await pool.query(
+    );*/
+    const userQueryResult = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email as string));
+
+    if (userQueryResult[0]?.id) {
+      const insertResult = await db
+        .insert(patients)
+        .values({
+          name: patientName,
+          phonenumber: phoneNumber as string,
+          userid: userQueryResult[0]?.id,
+        })
+        .returning({ insertedId: patients.id });
+      await db.update(users).set({userrole:"patient"}).where(eq(users.id,userQueryResult[0]?.id))
+      /*const queryResult = await pool.query(
         "INSERT INTO patients(name,phonenumber,userId) VALUES($1,$2,$3)",
         [patientName, phoneNumber, userQueryResult?.rows[0]?.id],
-      );
-      if (queryResult.rowCount == 1) {
+      );*/
+      if (insertResult[0]?.insertedId) {
         return Response.json({ status: "patient added" });
       } else {
         return Response.json({

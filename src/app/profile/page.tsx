@@ -113,13 +113,16 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="m-2 flex flex-col">
-            <h1>profile</h1>
-            <span className="text-3xl">
-              {userDataQuery?.data?.userrole == "pharmacy" ||
-              userDataQuery?.data?.userrole == "clinic"
-                ? userDataQuery?.data?.estname
-                : `${userDataQuery?.data?.firstname} ${userDataQuery?.data?.lastname}`}
-            </span>
+            {userDataQuery?.data?.userrole === "patient" ? (
+              <span className="text-3xl">{userDataQuery?.data?.name}</span>
+            ) : (
+              <span className="text-3xl">
+                {userDataQuery?.data?.userrole == "pharmacy" ||
+                userDataQuery?.data?.userrole == "clinic"
+                  ? userDataQuery?.data?.estname
+                  : `${userDataQuery?.data?.firstname} ${userDataQuery?.data?.lastname}`}
+              </span>
+            )}
             <span className="mt-2">{userDataQuery?.data?.userrole}</span>{" "}
           </div>
         </div>
@@ -135,18 +138,31 @@ export default function ProfilePage() {
               </WrapItem>
             ) : (
               <>
-                <WrapItem>
-                  <Stat className="m-3 rounded-md border-2 p-2">
-                    <StatLabel>First Name</StatLabel>
-                    <StatNumber>{userDataQuery?.data?.firstname}</StatNumber>
-                  </Stat>
-                </WrapItem>
-                <WrapItem>
-                  <Stat className="m-3 rounded-md border-2 p-2">
-                    <StatLabel>Last Name</StatLabel>
-                    <StatNumber>{userDataQuery?.data?.lastname}</StatNumber>
-                  </Stat>
-                </WrapItem>
+                {userDataQuery?.data?.userrole === "patient" ? (
+                  <WrapItem>
+                    <Stat className="m-3 rounded-md border-2 p-2">
+                      <StatLabel>Name</StatLabel>
+                      <StatNumber>{userDataQuery?.data?.name}</StatNumber>
+                    </Stat>
+                  </WrapItem>
+                ) : (
+                  <WrapItem>
+                    <Stat className="m-3 rounded-md border-2 p-2">
+                      <StatLabel>First Name</StatLabel>
+                      <StatNumber>{userDataQuery?.data?.firstname}</StatNumber>
+                    </Stat>
+                  </WrapItem>
+                )}
+                {userDataQuery?.data?.userrole === "patient" ? (
+                  ""
+                ) : (
+                  <WrapItem>
+                    <Stat className="m-3 rounded-md border-2 p-2">
+                      <StatLabel>Last Name</StatLabel>
+                      <StatNumber>{userDataQuery?.data?.lastname}</StatNumber>
+                    </Stat>
+                  </WrapItem>
+                )}
               </>
             )}
           </Wrap>
@@ -173,6 +189,8 @@ export default function ProfilePage() {
               <StatLabel>Location</StatLabel>
               <StatNumber>{userDataQuery?.data?.location}</StatNumber>
             </Stat>
+          ) : userDataQuery?.data?.userrole === "patient" ? (
+            ""
           ) : (
             <Stat className="m-3 rounded-md border-2 p-2">
               <StatLabel>County of Practice</StatLabel>
@@ -204,7 +222,7 @@ export default function ProfilePage() {
                   <BookingEntryComponent
                     key={index}
                     name={booking?.name}
-                      index={index +1}
+                    index={index + 1}
                     mobileNumber={booking?.mobilenumber}
                   />
                 );
@@ -219,11 +237,11 @@ export default function ProfilePage() {
 function BookingEntryComponent({
   name,
   mobileNumber,
-  index
+  index,
 }: {
   name: string;
   mobileNumber: string;
-  index:number;
+  index: number;
 }) {
   return (
     <Card>

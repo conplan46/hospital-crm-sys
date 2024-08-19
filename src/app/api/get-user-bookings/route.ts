@@ -47,6 +47,16 @@ export async function GET(request: Request) {
               [query?.rows[0]?.id],
             );
             break;
+          case "patient":
+            query = await client.query(
+              "SELECT id from patients WHERE userid = $1",
+              [user?.rows[0].id],
+            );
+            res = await client.query(
+              "SELECT * from bookings WHERE patient_id =$1",
+              [query?.rows[0]?.id],
+            );
+            break;
           default:
             return new Response("No matching cases found", { status: 404 });
         }

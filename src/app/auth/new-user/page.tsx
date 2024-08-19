@@ -52,6 +52,7 @@ import type {
   DoctorDataForm,
   Lab,
   LabDataForm,
+  PatientRegistrationForm,
   PharmacyDataForm,
 } from "utils/used-types";
 import type { Session } from "next-auth";
@@ -89,6 +90,7 @@ export default function NewUserPage() {
         <Tab>Pharmacy</Tab>
         <Tab>Doctor</Tab>
         <Tab>Lab</Tab>
+        <Tab>Patient</Tab>
       </TabList>
       <TabPanels>
         <TabPanel>
@@ -105,6 +107,9 @@ export default function NewUserPage() {
         </TabPanel>
         <TabPanel>
           <LabComponent router={router} session={session} />
+        </TabPanel>
+        <TabPanel>
+          <PatientComponent router={router} session={session} />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -318,6 +323,164 @@ function DoctorComponent({
               />
             </label>
 
+            <Button
+              m={4}
+              isLoading={isSubmitting}
+              loadingText="Submitting"
+              bgColor="#285430"
+              type="submit"
+            >
+              Submit
+            </Button>
+          </form>
+        </Center>
+      </div>
+    </div>
+  );
+}
+function PatientComponent({
+  session,
+  router,
+}: {
+  session: Session | null;
+  router: AppRouterInstance;
+}) {
+  const [residence, setResidence] = useState("");
+  const [areaCode, setAreaCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const toast = useToast();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<PatientRegistrationForm>();
+  const onSubmit: SubmitHandler<PatientRegistrationForm> = async (data) => {
+    console.log(data);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    /*    if (session?.user?.email) {
+         data = { ...data, email: session?.us}
+       } */
+    const formData = new FormData();
+    const phoneNumber = areaCode + data.phoneNumber;
+    if (session?.user?.email) {
+      setIsSubmitting(true);
+
+      formData.append("email", session?.user?.email);
+      formData.append("firstName", data.firstName);
+      formData.append("lastName", data.lastName);
+      formData.append("phoneNumber", data.phoneNumber);
+      fetch("/api/create-patient", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((result: { status: string }) => {
+          if (result.status == "patient added") {
+            setIsSubmitting(false);
+            toast({
+              title: "Data received.",
+              description: "We've created a patient account for you.",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            void router.push("/");
+            //if user was added successfully sign up with new use and redirect to new-user page
+          } else {
+            setIsSubmitting(false);
+
+            toast({
+              title: "Error",
+              description: result.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+        })
+        .catch((err) => console.error(err));
+    }
+  };
+
+  return (
+    <div className="font-manrope p-2">
+      <div className="m-6 grid rounded-lg  bg-white sm:col-start-2">
+        <div className="m-3 flex flex-col items-center">
+          <h1 className="m-2 text-2xl font-bold text-black">
+            Create Patient Account
+          </h1>
+        </div>
+        <Center>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FormControl m={4} isInvalid={Boolean(errors.firstName)}>
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                First Name
+              </FormLabel>
+              <Input
+                className="w-full"
+                placeholder="Enter your first Name"
+                {...register("firstName", {
+                  required: "name is required",
+                })}
+              />
+              <FormErrorMessage>{errors?.firstName?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl m={4} isInvalid={Boolean(errors.lastName)}>
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                Last Name
+              </FormLabel>
+              <Input
+                className="w-full"
+                placeholder="Enter your last Name"
+                {...register("lastName", {
+                  required: "name is required",
+                })}
+              />
+              <FormErrorMessage>{errors?.lastName?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl m={4} isInvalid={Boolean(errors.phoneNumber)}>
+              <FormLabel htmlFor="name">Phone Number</FormLabel>
+              <div className="join">
+                <Select
+                  className="join-item"
+                  onChange={(e) => {
+                    setAreaCode(e.target.value);
+                    areaCodes.forEach(
+                      (val: { code: string; name: string }, index) => {
+                        if (val.code == e.target.value) {
+                          setResidence(val.name);
+                        }
+                      },
+                    );
+                  }}
+                >
+                  <option disabled selected>
+                    Area Code
+                  </option>
+                  {areaCodes.map(
+                    (val: { code: string; name: string }, index) => {
+                      return (
+                        <option key={index} value={val.code}>
+                          {val.name} {val.code}
+                        </option>
+                      );
+                    },
+                  )}
+                </Select>
+                <Input
+                  id="name"
+                  className="join-item"
+                  placeholder="phoneNumber"
+                  {...register("phoneNumber", {
+                    required: "Phone number is required",
+                  })}
+                />
+              </div>
+              <FormErrorMessage>
+                {errors?.phoneNumber?.message}
+              </FormErrorMessage>
+            </FormControl>
             <Button
               m={4}
               isLoading={isSubmitting}
