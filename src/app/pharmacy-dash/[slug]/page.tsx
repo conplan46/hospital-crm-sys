@@ -176,7 +176,7 @@ export default function PharmacyDashBoard({
 											id={item.id}
 											title={item.name}
 											description={item.description}
-											invCount={item.inventory_count}
+											invCount={parseInt(item.inventory_count)}
 										/>
 									);
 								})}
