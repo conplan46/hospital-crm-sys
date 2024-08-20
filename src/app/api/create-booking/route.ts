@@ -1,48 +1,92 @@
-import { pool } from "utils/db-pool";
+import { eq } from "drizzle-orm";
+import { bookings, patients, users } from "drizzle/schema";
+import { db, pool } from "utils/db-pool";
 
 export async function POST(request: Request) {
   const client = await pool.connect();
   try {
     const data = await request.formData();
     const handler = data.get("handler");
+    const email = data.get("email");
     const reasonForAppointment = data.get("reasonForAppointment");
-    const patientId = data.get("patientId");
     const handlerRole = data.get("handlerRole");
     let booking;
-    if (patientId && reasonForAppointment && handler) {
+    const patientUser = await db
+      .select()
+      .from(users)
+      .where(eq(users.email, email as string));
+    const patient = await db
+      .select()
+      .from(patients)
+
+      //eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
+      .where(eq(patients.userid, patientUser?.[0]?.id as number));
+    if (patient[0]?.id && reasonForAppointment && handler) {
       switch (handlerRole) {
         case "clinician":
-          booking = await client.query(
-            "INSERT INTO bookings(patientId,clinician_handler) VALUES($1,$2) RETURNING id ",
-            [patientId, handler],
-          );
-          await client.query(
+          /*booking = await client.query(
+            "INSERT INTO bookings(patient_id,clinician_handler) VALUES($1,$2) RETURNING id ",
+            [patient[0]?.id, handler],
+          );*/
+          /*await client.query(
             "UPDATE patients SET reason_for_appointment = $2 WHERE id=$1",
-            [patientId, reasonForAppointment],
-          );
-
+            [patient[0]?.id, reasonForAppointment],
+          );*/
+          booking = await db
+            .insert(bookings)
+            .values({
+              patientId: patient?.[0]?.id,
+              clinicianHandler: parseInt(handler as string),
+            })
+            .returning();
+          await db
+            .update(patients)
+            .set({ reasonForAppointMent: reasonForAppointment as string })
+            .where(eq(patients.id, patient[0].id));
           break;
         case "doctor":
-          booking = await client.query(
-            "INSERT INTO bookings(patientId,doctor_handler) VALUES($1,$2) RETURNING id ",
-            [patientId, handler],
+          /* booking = await client.query(
+            "INSERT INTO bookings(patient_id,doctor_handler) VALUES($1,$2) RETURNING id ",
+            [patient[0]?.id, handler],
           );
           await client.query(
             "UPDATE patients SET reason_for_appointment = $2 WHERE id=$1",
-            [patientId, reasonForAppointment],
-          );
+            [patient[0]?.id, reasonForAppointment],
+          );*/
 
+          booking = await db
+            .insert(bookings)
+            .values({
+              patientId: patient?.[0]?.id,
+              doctorHandler: parseInt(handler as string),
+            })
+            .returning();
+          await db
+            .update(patients)
+            .set({ reasonForAppointMent: reasonForAppointment as string })
+            .where(eq(patients.id, patient[0].id));
           break;
         case "clinic":
-          booking = await client.query(
-            "INSERT INTO bookings(patientId,clinic_handler) VALUES($1,$2,$3) RETURNING id ",
-            [patientId, handler],
+          /*booking = await client.query(
+            "INSERT INTO bookings(patient_id,clinic_handler) VALUES($1,$2,$3) RETURNING id ",
+            [patient[0]?.id, handler],
           );
           await client.query(
             "UPDATE patients SET reason_for_appointment = $2 WHERE id=$1",
-            [patientId, reasonForAppointment],
-          );
+            [patient[0]?.id, reasonForAppointment],
+          );*/
 
+          booking = await db
+            .insert(bookings)
+            .values({
+              patientId: patient?.[0]?.id,
+              clinicHandler: parseInt(handler as string),
+            })
+            .returning();
+          await db
+            .update(patients)
+            .set({ reasonForAppointMent: reasonForAppointment as string })
+            .where(eq(patients.id, patient[0].id));
           break;
         default:
           return new Response("Error matching roles", { status: 404 });
@@ -52,7 +96,7 @@ export async function POST(request: Request) {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-    if (booking.rows[0].id) {
+    if (booking[0]?.id) {
       return Response.json({ status: "Booking Created" });
     } else {
       return Response.json({ status: "Error creating booking" });

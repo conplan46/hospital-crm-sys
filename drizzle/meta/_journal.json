@@ -15,6 +15,13 @@
       "when": 1723638425098,
       "tag": "0001_glamorous_warbound",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1724164327484,
+      "tag": "0002_neat_mephistopheles",
+      "breakpoints": true
     }
   ]
 }

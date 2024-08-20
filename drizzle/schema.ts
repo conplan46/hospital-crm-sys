@@ -19,8 +19,6 @@ import { pool } from "utils/db-pool";
 import { drizzle } from "drizzle-orm/node-postgres";
 
 
-const client = await pool.connect();
-export const db = drizzle(client)
 export const products = pgTable(
   "products",
   {
@@ -49,8 +47,6 @@ export const inventory = pgTable("inventory", {
 
 export const bookings = pgTable("bookings", {
   id: serial("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-  mobilenumber: text("mobilenumber").notNull(),
   // You can use { mode: "bigint" } if numbers are exceeding js number limitations
   clinicHandler: bigint("clinic_handler", { mode: "number" }).references(
     () => clinics.id,

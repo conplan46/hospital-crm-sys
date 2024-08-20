@@ -69,6 +69,7 @@ export default function Booking({
       fetch("/api/create-booking", { method: "POST", body: formData })
         .then((data) => data.json())
         .then((data: { status: string }) => {
+          setIsSubmitting(false);
           if (data.status === "Booking Created") {
             toast({
               description: data.status,
@@ -85,9 +86,11 @@ export default function Booking({
               isClosable: true,
             });
           }
-          setIsSubmitting(false);
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+          toast({ description: "An error occured", status: "error" });
+        });
     } else {
       toast({ description: "booking handler missing", status: "error" });
     }
