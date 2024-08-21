@@ -2,7 +2,7 @@ import { eq } from "drizzle-orm";
 import {
   clinicians,
   clinics,
-  db,
+  
   doctors,
   patients,
   pharmacy,

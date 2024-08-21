@@ -32,6 +32,7 @@ import {
 } from "utils/used-types";
 import Loading from "../loading";
 import { useQuery } from "@tanstack/react-query";
+import { bookings, patients } from "drizzle/schema";
 export default function ProfilePage() {
   const callBackUrl = usePathname();
   const { data: session, status } = useSession();
@@ -63,7 +64,7 @@ export default function ProfilePage() {
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as {
         status: string;
-        bookings: Array<Booking>;
+        bookings: Array<{bookings:typeof bookings.$inferSelect,patients:typeof patients.$inferSelect}>;
       };
       console.log(data);
       return data.bookings;
@@ -216,14 +217,14 @@ export default function ProfilePage() {
                 No Bookings to show
               </Heading>
             )}
-            {(bookingsQuery?.data ?? new Array<Booking>()).map(
+            {(bookingsQuery?.data ?? new Array<{bookings:typeof bookings.$inferSelect,patients:typeof patients.$inferSelect}>()).map(
               (booking, index) => {
                 return (
                   <BookingEntryComponent
                     key={index}
-                    name={booking?.name}
+                    name={booking?.patients.name}
                     index={index + 1}
-                    mobileNumber={booking?.mobilenumber}
+                    mobileNumber={booking?.patients?.phonenumber}
                   />
                 );
               },
