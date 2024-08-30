@@ -126,6 +126,8 @@ export async function GET(request: Request) {
         } else {
           return new Response("No matching records found", { status: 404 });
         }
+      } else {
+        return new Response("No matching user found", { status: 404 });
       }
     } else {
       return new Response("Unauthorized", { status: 403 });
