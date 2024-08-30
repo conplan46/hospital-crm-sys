@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db, patients, users } from "drizzle/schema";
-import { pool } from "utils/db-pool";
+import { patients, users } from "drizzle/schema";
+import { db, pool } from "utils/db-pool";
 import { User } from "utils/used-types";
 export async function POST(request: Request) {
   try {

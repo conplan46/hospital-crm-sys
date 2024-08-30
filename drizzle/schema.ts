@@ -14,9 +14,6 @@ import {
   decimal,
   real,
 } from "drizzle-orm/pg-core";
-import { sql } from "drizzle-orm";
-import { pool } from "utils/db-pool";
-import { drizzle } from "drizzle-orm/node-postgres";
 
 export const products = pgTable(
   "products",
