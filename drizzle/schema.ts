@@ -18,7 +18,6 @@ import { sql } from "drizzle-orm";
 import { pool } from "utils/db-pool";
 import { drizzle } from "drizzle-orm/node-postgres";
 
-
 export const products = pgTable(
   "products",
   {
@@ -106,7 +105,13 @@ export const patients = pgTable("patients", {
   temperature: real("temperature"),
   blood_pressure: real("blood_pressure"),
   resp: real("resp"),
+  physicianNotes: jsonb("physician_notes"),
   notes: text("notes"),
+  allergies: text("allergies").array(),
+  numberOfVisits: integer("number_of_visits").default(0),
+  medication: text("medication").array(),
+  vaccinations: text("vaccinations").array(),
+  lifestyleTypeScreening: text("lifestyle_type_screening"),
 });
 
 export const accounts = pgTable("accounts", {
@@ -227,4 +232,3 @@ export const verificationToken = pgTable(
     };
   },
 );
-

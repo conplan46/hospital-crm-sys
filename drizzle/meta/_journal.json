@@ -22,6 +22,27 @@
       "when": 1724164327484,
       "tag": "0002_neat_mephistopheles",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1724320084919,
+      "tag": "0003_nice_tigra",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1724320422700,
+      "tag": "0004_cheerful_supreme_intelligence",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1724320493137,
+      "tag": "0005_daffy_baron_zemo",
+      "breakpoints": true
     }
   ]
 }

@@ -15,6 +15,8 @@ import {
   StatNumber,
   Wrap,
   WrapItem,
+  Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import { signIn, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
@@ -33,6 +35,7 @@ import {
 import Loading from "../loading";
 import { useQuery } from "@tanstack/react-query";
 import { bookings, patients } from "drizzle/schema";
+import PatientVitals from "~/components/patients-vitals";
 export default function ProfilePage() {
   const callBackUrl = usePathname();
   const { data: session, status } = useSession();
@@ -64,7 +67,10 @@ export default function ProfilePage() {
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as {
         status: string;
-        bookings: Array<{bookings:typeof bookings.$inferSelect,patients:typeof patients.$inferSelect}>;
+        bookings: Array<{
+          bookings: typeof bookings.$inferSelect;
+          patients: typeof patients.$inferSelect;
+        }>;
       };
       console.log(data);
       return data.bookings;
@@ -217,18 +223,23 @@ export default function ProfilePage() {
                 No Bookings to show
               </Heading>
             )}
-            {(bookingsQuery?.data ?? new Array<{bookings:typeof bookings.$inferSelect,patients:typeof patients.$inferSelect}>()).map(
-              (booking, index) => {
-                return (
-                  <BookingEntryComponent
-                    key={index}
-                    name={booking?.patients.name}
-                    index={index + 1}
-                    mobileNumber={booking?.patients?.phonenumber}
-                  />
-                );
-              },
-            )}
+            {(
+              bookingsQuery?.data ??
+              new Array<{
+                bookings: typeof bookings.$inferSelect;
+                patients: typeof patients.$inferSelect;
+              }>()
+            ).map((booking, index) => {
+              return (
+                <BookingEntryComponent
+                  patient={booking.patients}
+                  key={index}
+                  name={booking?.patients.name}
+                  index={index + 1}
+                  mobileNumber={booking?.patients?.phonenumber}
+                />
+              );
+            })}
           </div>
         </div>
       </Skeleton>
@@ -239,17 +250,30 @@ function BookingEntryComponent({
   name,
   mobileNumber,
   index,
+  patient,
 }: {
   name: string;
   mobileNumber: string;
   index: number;
+  patient: typeof patients.$inferSelect;
 }) {
+  const { isOpen, onClose, onOpen } = useDisclosure();
   return (
     <Card>
-      <CardHeader>
-        <Heading size="md">Booking {index}</Heading>
+      <CardHeader className="flex items-baseline">
+        <Heading className="mx-6" size="md">
+          Booking {index}
+        </Heading>
+        <Button className="mx-6" onClick={onOpen}>
+          Vitals
+        </Button>
       </CardHeader>
-
+      <PatientVitals
+        onOpen={onOpen}
+        isOpen={isOpen}
+        onClose={onClose}
+        patient={patient}
+      />
       <CardBody>
         <Stack divider={<StackDivider />} spacing="4">
           <Box>
