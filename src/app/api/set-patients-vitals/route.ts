@@ -17,6 +17,7 @@ export async function POST(request: Request) {
     const medications: Array<string> = JSON.parse(
       data.get("medications") as string,
     );
+    console.log({ data });
     const vaccinations: Array<string> = JSON.parse(
       data.get("vaccinations") as string,
     );

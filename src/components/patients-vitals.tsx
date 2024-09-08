@@ -20,6 +20,7 @@ import { Wrap, WrapItem } from "@chakra-ui/react";
 import { z } from "zod";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 const patientVitals = z.object({
   height: z.number(),
   weight: z.number(),
@@ -51,12 +52,13 @@ export default function PatientVitals({
   } = useForm<PatientVitalsForm>();
   const [toogleEdit, setToogleEdit] = useState(false);
   const onSubmit: SubmitHandler<PatientVitalsForm> = async (data) => {
+    setToogleEdit(false);
     setLoading(true);
     console.log(data);
     const formData = new FormData();
-    formData.append("height", `${data.height}`);
-    formData.append("bloodPressure", `${data.bloodPressure}`);
-    formData.append("temperature", `${data.temperature}`);
+    formData.append("height", `${data?.height}`);
+    formData.append("bloodPressure", `${data?.bloodPressure}`);
+    formData.append("temperature", `${data?.temperature}`);
     formData.append("resp", `${data?.resp}`);
     formData.append(
       "allergies",
@@ -83,6 +85,7 @@ export default function PatientVitals({
       .then((data: { status: string }) => {
         setLoading(false);
         if (data.status === "updated successfully") {
+          void queryClient.invalidateQueries({ queryKey: ["user-bookings"] });
           toast({ status: "success", description: data.status });
         } else {
           toast({ status: "error", description: data.status });
@@ -95,17 +98,19 @@ export default function PatientVitals({
         toast({ status: "error", description: "something went wrong" });
       });
   };
-  useEffect(() => {
-    setValue("height", patient.height ?? 0);
-    setValue("weight", patient.weight ?? 0);
-    setValue("resp", patient.resp ?? 0);
-    setValue("temperature", patient.temperature ?? 0);
-    setValue("bloodPressure", patient.blood_pressure ?? 0);
-    setValue("vaccinations", patient.vaccinations?.join() ?? "");
-    setValue("medication", patient.medication?.join() ?? "");
-    setValue("allergies", patient.allergies?.join() ?? "");
-  }, []);
+ 
+ /*  useEffect(() => {
+    setValue("height", patient?.height ?? 0);
+    setValue("weight", patient?.weight ?? 0);
+    setValue("resp", patient?.resp ?? 0);
+    setValue("temperature", patient?.temperature ?? 0);
+    setValue("bloodPressure", patient?.blood_pressure ?? 0);
+    setValue("vaccinations", patient?.vaccinations?.join() ?? "");
+    setValue("medication", patient?.medication?.join() ?? "");
+    setValue("allergies", patient?.allergies?.join() ?? "");
+  }, [patient]); */
   const toast = useToast();
+  const queryClient = useQueryClient();
   return (
     <Modal isOpen={isOpen} onClose={onClose} size="full">
       <ModalOverlay />
@@ -117,6 +122,14 @@ export default function PatientVitals({
               <h2 className="m-2">Patient Vitals</h2>
               <Button
                 onClick={() => {
+                  setValue("height", patient.height ?? 0);
+                  setValue("weight", patient.weight ?? 0);
+                  setValue("resp", patient.resp ?? 0);
+                  setValue("temperature", patient.temperature ?? 0);
+                  setValue("bloodPressure", patient.blood_pressure ?? 0);
+                  setValue("vaccinations", patient.vaccinations?.join() ?? "");
+                  setValue("medication", patient.medication?.join() ?? "");
+                  setValue("allergies", patient.allergies?.join() ?? "");
                   setToogleEdit(!toogleEdit);
                 }}
                 className="m-2"

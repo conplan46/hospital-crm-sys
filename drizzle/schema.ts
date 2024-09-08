@@ -71,7 +71,11 @@ export const labs = pgTable("labs", {
   location: varchar("location", { length: 255 }).notNull(),
   userid: integer("userid").references(() => users.id),
 });
-
+export const adBanner = pgTable("ad_banner", {
+  id: serial("id").primaryKey().notNull(),
+  imageUrl: varchar("image_url", { length: 255 }).notNull(),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
 export const pharmacy = pgTable("pharmacy", {
   id: serial("id").primaryKey().notNull(),
   licenseDocumentLink: varchar("license_document_link", {

@@ -153,6 +153,11 @@ const doctorOnboardingDataSchema = z.object({
   countyOfPractice: z.string(),
   practicingLicense: z.custom<FileList>().nullish(),
 });
+
+const bannerObj = z.object({
+  banner: z.custom<FileList>().nullish(),
+});
+export type BannerForm = z.infer<typeof bannerObj>;
 export type DoctorDataForm = z.infer<typeof doctorOnboardingDataSchema>;
 export type PharmacyDataForm = z.infer<typeof pharmacyOnboardingDataSchema>;
 const pharmacyOnboardingDataSchema = z.object({
