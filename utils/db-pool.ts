@@ -23,4 +23,4 @@ export const pool = new Pool({
 });
 //export const db = drizzle(client);
 const sql = neon(env?.DB_CONNECTION);
-export const db = drizzle(sql);
+export const db = drizzle(sql,{logger:true});
