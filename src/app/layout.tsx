@@ -1,6 +1,7 @@
 import "~/styles/globals.css";
 import { Inter } from "next/font/google";
 import { atom, useAtom } from "jotai";
+
 import { signIn, signOut, useSession } from "next-auth/react";
 import Link from "next/link";
 import { FaCog } from "react-icons/fa";
@@ -8,7 +9,6 @@ import { Clinician, Patient } from "utils/used-types";
 import { Metadata } from "next";
 import { Providers } from "./providers";
 import { getServerAuthSession } from "~/server/auth";
-import LogoutButton from "~/components/logout-button";
 import DrawerLayout from "~/components/drawer";
 type Response = {
   userData: Patient | Clinician | undefined;
@@ -33,20 +33,11 @@ export default async function RootLayout({
   const session = await getServerAuthSession();
   return (
     <html lang="en" data-theme="light">
-
       <Providers session={session}>
         <body>
-
-          <DrawerLayout>
-
-            {children}
-          </DrawerLayout>
+          <DrawerLayout>{children}</DrawerLayout>
         </body>
-
       </Providers>
-
     </html>
   );
 }
-
-

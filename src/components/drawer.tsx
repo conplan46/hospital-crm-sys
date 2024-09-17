@@ -18,14 +18,19 @@ import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { UserDataAl } from "utils/used-types";
 import { atom, useAtom, useSetAtom } from "jotai";
-export const userDataAtom = atom<UserDataAl|undefined>(undefined);
+import { useEffect, useState } from "react";
+export const userDataAtom = atom<UserDataAl | undefined>(undefined);
 export default function DrawerLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const userDataAtomI = useAtom(userDataAtom)
-  const setUserData = useSetAtom(userDataAtom)
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  const userDataAtomI = useAtom(userDataAtom);
+  const setUserData = useSetAtom(userDataAtom);
   const { data: session, status } = useSession();
   const path = usePathname();
   const userDataQuery = useQuery({
@@ -39,7 +44,7 @@ export default function DrawerLayout({
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as { status: string; data: UserDataAl };
       console.log(data);
-     setUserData(data.data)
+      setUserData(data.data);
       return data.data;
     },
   });
@@ -59,16 +64,18 @@ export default function DrawerLayout({
     },
   });
   //console.log(userDataQuery.data)
-  return (
-    <>
-      <HeaderNew
-        isAdmin={isAdminQuery.data ?? false}
-        id={userDataQuery?.data?.id}
-        role={userDataQuery?.data?.userrole}
-      />
-      <main>{children}</main>
-    </>
-  );
+  if (isClient) {
+    return (
+      <>
+        <HeaderNew
+          isAdmin={isAdminQuery.data ?? false}
+          id={userDataQuery?.data?.id}
+          role={userDataQuery?.data?.userrole}
+        />
+        <main>{children}</main>
+      </>
+    );
+  }
 }
 function AdminNav({ role }: { role: string | undefined }) {
   return (
@@ -89,6 +96,19 @@ function AdminNav({ role }: { role: string | undefined }) {
             </li>
           </Link>
         </MenuItem>
+        <MenuItem>
+          <Link href="/admin">
+            <li
+              className="m-2 flex rounded-xl bg-[#ffffff] p-4"
+              style={{ width: "100%" }}
+            >
+              <p className="flex items-center gap-3 text-lg font-bold">
+                <FaCog /> Admin
+              </p>
+            </li>
+          </Link>
+        </MenuItem>
+
         <MenuItem>
           <Link href="/admin/clinics">
             <li
