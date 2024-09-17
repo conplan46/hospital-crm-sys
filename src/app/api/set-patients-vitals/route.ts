@@ -1,4 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { eq } from "drizzle-orm";
 import { patients } from "drizzle/schema";
 import { db } from "utils/db-pool";
 
@@ -8,7 +9,7 @@ export async function POST(request: Request) {
     const bloodPressure = data.get("bloodPressure");
     const temperature = data.get("temperature");
     const resp = data.get("resp");
-
+    const patientId = Number(data.get("id"));
     const height = Number(data.get("height"));
     const weight = Number(data.get("weight"));
     const allergies: Array<string> = JSON.parse(
@@ -37,8 +38,9 @@ export async function POST(request: Request) {
         allergies: allergiesArray,
         vaccinations: vaccinationsArray,
       })
+      .where(eq(patients.id, patientId))
       .returning({ id: patients.id });
-    if (patientWithVitals[0]?.id) {
+    if (patientWithVitals[0]?.id == patientId) {
       return Response.json({ status: "updated successfully" });
     } else {
       return Response.json({ status: "error updating" });

@@ -56,6 +56,7 @@ export default function PatientVitals({
     setLoading(true);
     console.log(data);
     const formData = new FormData();
+    formData.append("id",`${patient?.id}`);
     formData.append("height", `${data?.height}`);
     formData.append("bloodPressure", `${data?.bloodPressure}`);
     formData.append("temperature", `${data?.temperature}`);
