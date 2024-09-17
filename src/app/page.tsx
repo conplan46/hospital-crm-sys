@@ -40,6 +40,11 @@ import Image from "next/image";
 import { InventoryPurchaseItem } from "~/components/inventory-item";
 
 export default function HomePage() {
+  const [isClient, setIsClient] = useState(false);
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
   const toast = useToast();
   const bannersQuery = useQuery({
     queryKey: ["banners"],
@@ -64,16 +69,12 @@ export default function HomePage() {
     },
   });
 
-  const [isClient, setIsClient] = useState(false);
   const { isOpen, onOpen, onClose } = useDisclosure();
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
   //console.log({ session });
-  if (!isClient) {
+  if (!isClient || bannersQuery.isLoading) {
     return <Loading />;
   }
-  if (isClient) {
+  if (isClient && bannersQuery.isFetched) {
     return (
       <div className="flex w-screen flex-col items-center">
         <Carousel className="w-full max-w-xs">
