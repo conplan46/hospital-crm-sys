@@ -83,7 +83,7 @@ export async function POST(request: Request) {
             .innerJoin(users, eq(patients.userid, users.id))
             .where(eq(patients.userid, user?.rows[0].id));*/
           query = await client.query(
-            "SELECT * from users INNER JOIN patients ON users.id=patients.userid  WHERE users.id = $1",
+            "SELECT * from users INNER JOIN patients ON users.id=patients.user_id  WHERE users.id = $1",
             [user?.rows[0].id],
           );
           console.log(query.rows[0]);

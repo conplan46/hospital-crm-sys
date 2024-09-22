@@ -272,7 +272,7 @@ function BookingEntryComponent({
         onOpen={onOpen}
         isOpen={isOpen}
         onClose={onClose}
-        patient={patient}
+        patientId={patient.id}
       />
       <CardBody>
         <Stack divider={<StackDivider />} spacing="4">

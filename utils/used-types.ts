@@ -23,14 +23,13 @@ export interface Patient {
   doctor: string;
   lab_test_request: boolean;
   reason_for_appointment: string;
-  height:number;
-  weight:number;
-  BMI:number;
-  temperature:number;
-  blood_pressure:number;
-  resp:number;
-  notes:string;
-
+  height: number;
+  weight: number;
+  BMI: number;
+  temperature: number;
+  blood_pressure: number;
+  resp: number;
+  notes: string;
 }
 export interface DrugPurchaseForm {
   inventory_id: number;
@@ -185,6 +184,9 @@ const patientRegistration = z.object({
 const bookingDataSchema = z.object({
   patientEmail: z.string().email(),
   reasonForAppointment: z.string(),
+  prescriptionRequest: z.boolean(),
+  medicalExamRequest: z.boolean(),
+  labTestRequest: z.boolean(),
   handler: z.number(),
 });
 const inventoryItemSchema = z.object({

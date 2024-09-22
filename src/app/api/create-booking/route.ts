@@ -9,6 +9,14 @@ export async function POST(request: Request) {
     const handler = data.get("handler");
     const email = data.get("email");
     const reasonForAppointment = data.get("reasonForAppointment");
+    const nurseVisit =
+      data.get("nurseVisit")?.toString().toLowerCase() === "true";
+    const labTestRequest =
+      data.get("labTestRequest")?.toString().toLowerCase() === "true";
+    const prescriptionRequest =
+      data.get("prescriptionRequest")?.toString().toLowerCase() === "true";
+    const medicalExamRequest =
+      data.get("medicalExamRequest")?.toString().toLowerCase() === "true";
     const handlerRole = data.get("handlerRole");
     let booking;
     const patientUser = await db
@@ -20,7 +28,7 @@ export async function POST(request: Request) {
       .from(patients)
 
       //eslint-disable-next-line @typescript-eslint/non-nullable-type-assertion-style
-      .where(eq(patients.userid, patientUser?.[0]?.id as number));
+      .where(eq(patients.userId, patientUser?.[0]?.id as number));
     if (patient[0]?.id && reasonForAppointment && handler) {
       switch (handlerRole) {
         case "clinician":
@@ -37,12 +45,13 @@ export async function POST(request: Request) {
             .values({
               patientId: patient?.[0]?.id,
               clinicianHandler: parseInt(handler as string),
+              reasonForAppointMent: reasonForAppointment as string,
+              nurseVisit: nurseVisit,
+              prescriptionRequest: prescriptionRequest,
+              medicalExamRequest: medicalExamRequest,
+              labTestRequest: labTestRequest,
             })
             .returning();
-          await db
-            .update(patients)
-            .set({ reasonForAppointMent: reasonForAppointment as string })
-            .where(eq(patients.id, patient[0].id));
           break;
         case "doctor":
           /* booking = await client.query(
@@ -59,12 +68,14 @@ export async function POST(request: Request) {
             .values({
               patientId: patient?.[0]?.id,
               doctorHandler: parseInt(handler as string),
+
+              reasonForAppointMent: reasonForAppointment as string,
+              nurseVisit: nurseVisit,
+              prescriptionRequest: prescriptionRequest,
+              medicalExamRequest: medicalExamRequest,
+              labTestRequest: labTestRequest,
             })
             .returning();
-          await db
-            .update(patients)
-            .set({ reasonForAppointMent: reasonForAppointment as string })
-            .where(eq(patients.id, patient[0].id));
           break;
         case "clinic":
           /*booking = await client.query(
@@ -81,12 +92,14 @@ export async function POST(request: Request) {
             .values({
               patientId: patient?.[0]?.id,
               clinicHandler: parseInt(handler as string),
+
+              reasonForAppointMent: reasonForAppointment as string,
+              nurseVisit: nurseVisit,
+              prescriptionRequest: prescriptionRequest,
+              medicalExamRequest: medicalExamRequest,
+              labTestRequest: labTestRequest,
             })
             .returning();
-          await db
-            .update(patients)
-            .set({ reasonForAppointMent: reasonForAppointment as string })
-            .where(eq(patients.id, patient[0].id));
           break;
         default:
           return new Response("Error matching roles", { status: 404 });

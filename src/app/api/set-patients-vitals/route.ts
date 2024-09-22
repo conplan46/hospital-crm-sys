@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { eq } from "drizzle-orm";
-import { patients } from "drizzle/schema";
+import { patientVitalsRecords, patients } from "drizzle/schema";
 import { db } from "utils/db-pool";
 
 export async function POST(request: Request) {
@@ -26,8 +26,8 @@ export async function POST(request: Request) {
     const medicationsArray = medications?.toString().split(",");
     const vaccinationsArray = vaccinations?.toString().split(",");
     const patientWithVitals = await db
-      .update(patients)
-      .set({
+      .insert(patientVitalsRecords)
+      .values({
         blood_pressure: Number(bloodPressure),
         temperature: Number(temperature),
         weight: weight,
@@ -37,8 +37,8 @@ export async function POST(request: Request) {
         medication: medicationsArray,
         allergies: allergiesArray,
         vaccinations: vaccinationsArray,
+        patientId: patientId,
       })
-      .where(eq(patients.id, patientId))
       .returning({ id: patients.id });
     if (patientWithVitals[0]?.id == patientId) {
       return Response.json({ status: "updated successfully" });
