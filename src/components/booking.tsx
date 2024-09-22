@@ -16,6 +16,7 @@ import {
   Textarea,
   useToast,
   Alert,
+  Switch,
 } from "@chakra-ui/react";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
@@ -64,8 +65,10 @@ export default function Booking({
       formData.append("email", session?.user?.email);
       formData.append("handler", `${handler}`);
       formData.append("handlerRole", role);
-
       formData.append("reasonForAppointment", data.reasonForAppointment);
+      formData.append("prescriptionRequest",`${data.prescriptionRequest}`);
+      formData.append("labTestRequest",`${data.labTestRequest}`)
+      formData.append("medicalExamRequest",`${data.medicalExamRequest}`)
       fetch("/api/create-booking", { method: "POST", body: formData })
         .then((data) => data.json())
         .then((data: { status: string }) => {
@@ -125,6 +128,42 @@ export default function Booking({
                   />
                   <FormErrorMessage>
                     {errors?.reasonForAppointment?.message}
+                  </FormErrorMessage>
+                </FormControl>
+
+                <FormControl
+                  className="mb-6"
+                  isInvalid={Boolean(errors.medicalExamRequest)}
+                >
+                  <FormLabel>Medical Exam Request</FormLabel>
+                  <Switch {...register("medicalExamRequest",)} />
+
+                  <FormErrorMessage>
+                    {errors?.medicalExamRequest?.message}
+                  </FormErrorMessage>
+                </FormControl>
+
+                <FormControl
+                  className="mb-6"
+                  isInvalid={Boolean(errors.prescriptionRequest)}
+                >
+                  <FormLabel>Prescription Request</FormLabel>
+                  <Switch {...register("prescriptionRequest",)} />
+
+                  <FormErrorMessage>
+                    {errors?.prescriptionRequest?.message}
+                  </FormErrorMessage>
+                </FormControl>
+
+                <FormControl
+                  className="mb-6"
+                  isInvalid={Boolean(errors.labTestRequest)}
+                >
+                  <FormLabel>Lab Test Request</FormLabel>
+                  <Switch {...register("labTestRequest",)} />
+
+                  <FormErrorMessage>
+                    {errors?.labTestRequest?.message}
                   </FormErrorMessage>
                 </FormControl>
                 <div className="flex flex-row">

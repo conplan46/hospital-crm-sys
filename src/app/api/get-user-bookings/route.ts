@@ -108,7 +108,7 @@ export async function GET(request: Request) {
             query = await db
               .select()
               .from(patients)
-              .where(eq(patients.userid, user[0]?.id));
+              .where(eq(patients.userId, user[0]?.id));
             if (query[0]?.id) {
               res = await db
                 .select()

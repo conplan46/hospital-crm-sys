@@ -1,15 +1,16 @@
 import { eq } from "drizzle-orm";
-import { patients } from "drizzle/schema";
+import { patientVitalsRecords, patients } from "drizzle/schema";
 import { db } from "utils/db-pool";
 
 export async function POST(request: Request) {
   try {
-    const body = (await request.json()) as { id: number };
-    const getpatient = await db
+    const body = await request.formData();
+    const id = Number(body.get("id"));
+    const patientVitals = await db
       .select()
-      .from(patients)
-      .where(eq(patients.id, body.id));
-    return Response.json({ status: "success", patient: getpatient[0] });
+      .from(patientVitalsRecords)
+      .where(eq(patientVitalsRecords.patientId, id));
+    return Response.json({ status: "success", vitals: patientVitals });
   } catch (e) {
     console.error(e);
 

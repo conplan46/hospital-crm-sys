@@ -41,25 +41,6 @@ export const inventory = pgTable("inventory", {
   inventoryCount: bigint("inventory_count", { mode: "number" }).notNull(),
 });
 
-export const bookings = pgTable("bookings", {
-  id: serial("id").primaryKey().notNull(),
-  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-  clinicHandler: bigint("clinic_handler", { mode: "number" }).references(
-    () => clinics.id,
-  ),
-  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-  clinicianHandler: bigint("clinician_handler", { mode: "number" }).references(
-    () => clinicians.id,
-  ),
-  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
-  doctorHandler: bigint("doctor_handler", { mode: "number" }).references(
-    () => doctors.id,
-  ),
-  patientId: bigint("patient_id", { mode: "number" }).references(
-    () => patients.id,
-  ),
-});
-
 export const labs = pgTable("labs", {
   id: serial("id").primaryKey().notNull(),
   estname: varchar("estname", { length: 255 }).notNull(),
@@ -90,16 +71,16 @@ export const pharmacy = pgTable("pharmacy", {
 export const patients = pgTable("patients", {
   id: serial("id").primaryKey().notNull(),
   phonenumber: varchar("phonenumber", { length: 15 }).notNull(),
-  userid: integer("userid").references(() => users.id),
-  prescriptionRequest: text("prescription_request"),
-  medicalExamRequest: boolean("medical_exam_request"),
-  nurseVisit: boolean("nurse_visit"),
-  patientComplaint: text("patient_complaint"),
-  doctor: text("doctor"),
-  labTestRequest: boolean("lab_test_request"),
+  userId: integer("user_id").references(() => users.id),
   name: varchar("name", { length: 255 }).notNull(),
-  processed: boolean("processed").default(false),
-  reasonForAppointMent: text("reason_for_appointment"),
+  numberOfVisits: integer("number_of_visits").default(0),
+});
+
+export const patientVitalsRecords = pgTable("patient_vitals_records", {
+  id: serial("id").primaryKey().notNull(),
+  patientId: integer("patient_id")
+    .notNull()
+    .references(() => patients.id),
   height: real("height"),
   weight: real("weight"),
   BMI: real("BMI"),
@@ -109,10 +90,36 @@ export const patients = pgTable("patients", {
   physicianNotes: jsonb("physician_notes"),
   notes: text("notes"),
   allergies: text("allergies").array(),
-  numberOfVisits: integer("number_of_visits").default(0),
   medication: text("medication").array(),
   vaccinations: text("vaccinations").array(),
   lifestyleTypeScreening: text("lifestyle_type_screening"),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
+});
+
+export const bookings = pgTable("bookings", {
+  id: serial("id").primaryKey().notNull(),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  clinicHandler: bigint("clinic_handler", { mode: "number" }).references(
+    () => clinics.id,
+  ),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  clinicianHandler: bigint("clinician_handler", { mode: "number" }).references(
+    () => clinicians.id,
+  ),
+  // You can use { mode: "bigint" } if numbers are exceeding js number limitations
+  doctorHandler: bigint("doctor_handler", { mode: "number" }).references(
+    () => doctors.id,
+  ),
+  patientId: bigint("patient_id", { mode: "number" }).references(
+    () => patients.id,
+  ),
+  requestNurseVisit: boolean("nurse_visit"),
+  reasonForAppointMent: text("reason_for_appointment"),
+  prescriptionRequest: boolean("prescription_request"),
+  medicalExamRequest: boolean("medical_exam_request"),
+  labTestRequest: boolean("lab_test_request"),
+  processed: boolean("processed").default(false),
+  createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const accounts = pgTable("accounts", {
