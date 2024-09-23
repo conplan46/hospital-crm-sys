@@ -70,7 +70,7 @@ export async function POST(request: Request) {
               doctorHandler: parseInt(handler as string),
 
               reasonForAppointMent: reasonForAppointment as string,
-              nurseVisit: nurseVisit,
+              requestNurseVisit: nurseVisit,
               prescriptionRequest: prescriptionRequest,
               medicalExamRequest: medicalExamRequest,
               labTestRequest: labTestRequest,
@@ -94,7 +94,7 @@ export async function POST(request: Request) {
               clinicHandler: parseInt(handler as string),
 
               reasonForAppointMent: reasonForAppointment as string,
-              nurseVisit: nurseVisit,
+              requestNurseVisit: nurseVisit,
               prescriptionRequest: prescriptionRequest,
               medicalExamRequest: medicalExamRequest,
               labTestRequest: labTestRequest,
