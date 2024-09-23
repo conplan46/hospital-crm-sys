@@ -46,7 +46,7 @@ export async function POST(request: Request) {
               patientId: patient?.[0]?.id,
               clinicianHandler: parseInt(handler as string),
               reasonForAppointMent: reasonForAppointment as string,
-              nurseVisit: nurseVisit,
+              requestNurseVisit: nurseVisit,
               prescriptionRequest: prescriptionRequest,
               medicalExamRequest: medicalExamRequest,
               labTestRequest: labTestRequest,
