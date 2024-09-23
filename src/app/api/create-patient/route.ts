@@ -24,10 +24,13 @@ export async function POST(request: Request) {
         .values({
           name: patientName,
           phonenumber: phoneNumber as string,
-          userid: userQueryResult[0]?.id,
+          userId: userQueryResult[0]?.id,
         })
         .returning({ insertedId: patients.id });
-      await db.update(users).set({userrole:"patient"}).where(eq(users.id,userQueryResult[0]?.id))
+      await db
+        .update(users)
+        .set({ userrole: "patient" })
+        .where(eq(users.id, userQueryResult[0]?.id));
       /*const queryResult = await pool.query(
         "INSERT INTO patients(name,phonenumber,userId) VALUES($1,$2,$3)",
         [patientName, phoneNumber, userQueryResult?.rows[0]?.id],

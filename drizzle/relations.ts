@@ -80,7 +80,7 @@ export const pharmacyRelations = relations(pharmacy, ({one}) => ({
 
 export const patientsRelations = relations(patients, ({one}) => ({
 	user: one(users, {
-		fields: [patients.userid],
+		fields: [patients.userId],
 		references: [users.id]
 	}),
 }));
