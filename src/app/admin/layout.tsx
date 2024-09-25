@@ -31,9 +31,7 @@ export default function RootLayout({
   });
   if (isClient && isAdminQuery?.data && isAdminQuery.isFetched) {
     return (
-      <html lang="en">
-        <body>{children}</body>
-      </html>
+        <section>{children}</section>
     );
   } else if (!isAdminQuery?.data && isClient && isAdminQuery.isFetched) {
     return <NoPriv />;

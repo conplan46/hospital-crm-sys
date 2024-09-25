@@ -228,7 +228,8 @@ export default function AdminPage() {
                           <div className="p-1">
                             <Card>
                               <CardContent className="flex aspect-square items-center justify-center p-6">
-                                <Image src={banner?.imageUrl} alt="banner" />
+                                  <Image fill={true} src={banner?.imageUrl} alt="banner" />
+
                               </CardContent>
                             </Card>
                           </div>
