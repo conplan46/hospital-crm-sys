@@ -142,7 +142,7 @@ function ClinicianComponent({
           <CardFooter>
             <Button
               onClick={() => {
-                if (userDataAtomI?.userrole !== "patient") {
+                if (userDataAtomI?.[0]?.users?.userrole !== "patient") {
                   toast({
                     description: "You account is not a patient account",
                     status: "error",
