@@ -35,7 +35,7 @@ import { useEffect, useState } from "react";
 import Loading from "./loading";
 import PatientsBooking from "~/components/patient-booking";
 import { useQuery } from "@tanstack/react-query";
-import { adBanner } from "drizzle/schema";
+import { adBanner, inventory, products } from "drizzle/schema";
 import Image from "next/image";
 import { InventoryPurchaseItem } from "~/components/inventory-item";
 
@@ -46,6 +46,28 @@ export default function HomePage() {
   }, []);
 
   const toast = useToast();
+  const topProductsQuery = useQuery({
+    queryKey: ["top-products"],
+    queryFn: async function () {
+      try {
+        const res = await fetch("/api/get-top-products");
+        const data = (await res.json()) as {
+          topProducts: Array<{
+            inventory: typeof inventory.$inferSelect;
+            products: typeof products.$inferSelect;
+          }>;
+        };
+        console.log(data.topProducts);
+        return data.topProducts;
+      } catch (e) {}
+      toast({
+        description: "An error occured fetching the top products",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    },
+  });
   const bannersQuery = useQuery({
     queryKey: ["banners"],
     queryFn: async function () {

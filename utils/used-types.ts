@@ -1,3 +1,4 @@
+import { clinicians, clinics, doctors, patients, pharmacy, users } from "drizzle/schema";
 import { z } from "zod";
 
 export type Clinicians = Array<Clinician>;
@@ -113,7 +114,14 @@ type Merge<T extends object> = {
 } & {
   [k in NonCommonKeys<T>]?: PickTypeOf<T, k>;
 };
-
+export type UserDataDrizzle = Array<{
+        users: typeof users.$inferSelect;
+        clinics?: typeof clinics.$inferSelect;
+        clinicians?: typeof clinicians.$inferSelect;
+        doctors?:typeof doctors.$inferSelect;
+        pharmacy?:typeof pharmacy.$inferSelect;
+        patients?:typeof patients.$inferSelect;
+      }>|undefined;
 type PickTypeOf<T, K extends string | number | symbol> =
   K extends AllKeys<T> ? PickType<T, K> : never;
 

@@ -17,9 +17,11 @@ import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import { UserDataAl } from "utils/used-types";
+
+import { UserDataDrizzle } from "utils/used-types";
 import { atom, useAtom, useSetAtom } from "jotai";
 import { useEffect, useState } from "react";
-export const userDataAtom = atom<UserDataAl | undefined>(undefined);
+export const userDataAtom = atom<UserDataDrizzle | undefined>(undefined);
 export default function DrawerLayout({
   children,
 }: {
@@ -42,10 +44,15 @@ export default function DrawerLayout({
         method: "POST",
       });
       /* :{ status: string; data: UserData } */
-      const data = (await res.json()) as { status: string; data: UserDataAl };
+      const data = (await res.json()) as {
+        status: string;
+        data: UserDataDrizzle;
+      };
       console.log(data);
-      setUserData(data.data);
-      return data.data;
+      if (data.data) {
+        setUserData(data?.data);
+        return data?.data;
+      }
     },
   });
 
@@ -59,7 +66,7 @@ export default function DrawerLayout({
       });
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as { status: string; isAdmin: boolean };
-      console.log(data);
+      console.log({data});
       return data.isAdmin;
     },
   });
@@ -69,8 +76,8 @@ export default function DrawerLayout({
       <>
         <HeaderNew
           isAdmin={isAdminQuery.data ?? false}
-          id={userDataQuery?.data?.id}
-          role={userDataQuery?.data?.userrole}
+          id={userDataQuery?.data?.[0]?.users?.id}
+          role={userDataQuery?.data?.[0]?.users?.userrole ?? ""}
         />
         <main>{children}</main>
       </>

@@ -29,6 +29,7 @@ import {
   Patient,
   Pharmacy,
   User,
+  UserDataDrizzle,
   type UserData,
   type UserDataAl,
 } from "utils/used-types";
@@ -52,9 +53,12 @@ export default function ProfilePage() {
         method: "POST",
       });
       /* :{ status: string; data: UserData } */
-      const data = (await res.json()) as { status: string; data: UserDataAl };
+      const data = (await res.json()) as {
+        status: string;
+        data: UserDataDrizzle;
+      };
       console.log(data);
-      return data.data;
+      return data?.data;
     },
   });
   const bookingsQuery = useQuery({
@@ -102,7 +106,17 @@ export default function ProfilePage() {
   if (!isClient) {
     return <Loading />;
   }
+  function name(role: string) {
+    switch (role) {
+      case "doctor":
+        return `${userDataQuery?.data?.[0]?.doctors?.firstname} ${userDataQuery?.data?.[0]?.doctors?.lastname}`;
+      case "patient":
+        return userDataQuery?.data?.[0]?.patients?.name;
 
+      case "clinician":
+        return `${userDataQuery?.data?.[0]?.clinicians?.firstname} ${userDataQuery?.data?.[0]?.clinicians?.lastname}`;
+    }
+  }
   if (isClient && status == "authenticated") {
     return (
       <Skeleton
@@ -120,53 +134,69 @@ export default function ProfilePage() {
             </div>
           </div>
           <div className="m-2 flex flex-col">
-            {userDataQuery?.data?.userrole === "patient" ? (
-              <span className="text-3xl">{userDataQuery?.data?.name}</span>
+            {userDataQuery?.data?.[0]?.users?.userrole === "patient" ? (
+              <span className="text-3xl">
+                {userDataQuery?.data?.[0]?.patients?.name}
+              </span>
             ) : (
               <span className="text-3xl">
-                {userDataQuery?.data?.userrole == "pharmacy" ||
-                userDataQuery?.data?.userrole == "clinic"
-                  ? userDataQuery?.data?.estname
-                  : `${userDataQuery?.data?.firstname} ${userDataQuery?.data?.lastname}`}
+                {userDataQuery?.data?.[0]?.users?.userrole == "pharmacy" ||
+                userDataQuery?.data?.[0]?.users?.userrole == "clinic"
+                  ? userDataQuery?.data?.[0]?.pharmacy?.estname ??
+                    userDataQuery?.data?.[0]?.clinics?.estname
+                  : name(userDataQuery?.data?.[0]?.users?.userrole ?? "")}
               </span>
             )}
-            <span className="mt-2">{userDataQuery?.data?.userrole}</span>{" "}
+            <span className="mt-2">
+              {userDataQuery?.data?.[0]?.users.userrole}
+            </span>{" "}
           </div>
         </div>
         <div>
           <Wrap>
-            {userDataQuery?.data?.userrole == "pharmacy" ||
-            userDataQuery?.data?.userrole == "clinic" ? (
+            {userDataQuery?.data?.[0]?.users?.userrole == "pharmacy" ||
+            userDataQuery?.data?.[0]?.users?.userrole == "clinic" ? (
               <WrapItem>
                 <Stat className="m-3 rounded-md border-2 p-2">
                   <StatLabel>Establishment Name</StatLabel>
-                  <StatNumber>{userDataQuery?.data?.estname}</StatNumber>
+                  <StatNumber>
+                    {userDataQuery?.data?.[0]?.pharmacy?.estname ??
+                      userDataQuery?.data?.[0]?.clinics?.estname}
+                  </StatNumber>
                 </Stat>
               </WrapItem>
             ) : (
               <>
-                {userDataQuery?.data?.userrole === "patient" ? (
+                {userDataQuery?.data?.[0]?.users?.userrole === "patient" ? (
                   <WrapItem>
                     <Stat className="m-3 rounded-md border-2 p-2">
                       <StatLabel>Name</StatLabel>
-                      <StatNumber>{userDataQuery?.data?.name}</StatNumber>
+                      <StatNumber>
+                        {name(userDataQuery?.data?.[0]?.users?.userrole ?? "")}
+                      </StatNumber>
                     </Stat>
                   </WrapItem>
                 ) : (
                   <WrapItem>
                     <Stat className="m-3 rounded-md border-2 p-2">
                       <StatLabel>First Name</StatLabel>
-                      <StatNumber>{userDataQuery?.data?.firstname}</StatNumber>
+                      <StatNumber>
+                        {userDataQuery?.data?.[0]?.doctors?.firstname ??
+                          userDataQuery?.data?.[0]?.clinicians?.firstname}
+                      </StatNumber>
                     </Stat>
                   </WrapItem>
                 )}
-                {userDataQuery?.data?.userrole === "patient" ? (
+                {userDataQuery?.data?.[0]?.users?.userrole === "patient" ? (
                   ""
                 ) : (
                   <WrapItem>
                     <Stat className="m-3 rounded-md border-2 p-2">
                       <StatLabel>Last Name</StatLabel>
-                      <StatNumber>{userDataQuery?.data?.lastname}</StatNumber>
+                      <StatNumber>
+                        {userDataQuery?.data?.[0]?.doctors?.firstname ??
+                          userDataQuery?.data?.[0]?.clinicians?.firstname}
+                      </StatNumber>
                     </Stat>
                   </WrapItem>
                 )}
@@ -176,39 +206,55 @@ export default function ProfilePage() {
 
           <Stat className="m-3 rounded-md border-2 p-2">
             <StatLabel>Phone Number</StatLabel>
-            <StatNumber>{userDataQuery?.data?.phonenumber}</StatNumber>
+            <StatNumber>
+              {userDataQuery?.data?.[0]?.pharmacy?.phonenumber ??
+                userDataQuery?.data?.[0]?.clinicians?.phonenumber ??
+                userDataQuery?.data?.[0]?.clinics?.phonenumber ??
+                userDataQuery?.data?.[0]?.doctors?.phonenumber ??
+                userDataQuery?.data?.[0]?.patients?.phonenumber}
+            </StatNumber>
           </Stat>
-          {userDataQuery?.data?.userrole == "doctor" ||
-          userDataQuery?.data?.userrole == "clinician" ? (
+          {userDataQuery?.data?.[0]?.users?.userrole == "doctor" ||
+          userDataQuery?.data?.[0]?.users?.userrole == "clinician" ? (
             <Stat className="m-3 rounded-md border-2 p-2">
               <StatLabel>Primary Area of Speciality</StatLabel>
               <StatNumber>
-                {userDataQuery?.data?.primaryareaofspeciality}
+                {userDataQuery?.data?.[0]?.doctors?.primaryareaofspeciality ??
+                  userDataQuery?.data?.[0]?.clinicians?.primaryareaofspeciality}
               </StatNumber>
             </Stat>
           ) : (
             ""
           )}
 
-          {userDataQuery?.data?.userrole == "pharmacy" ||
-          userDataQuery?.data?.userrole == "clinic" ? (
+          {userDataQuery?.data?.[0]?.users?.userrole == "pharmacy" ||
+          userDataQuery?.data?.[0]?.users?.userrole == "clinic" ? (
             <Stat className="m-3 rounded-md border-2 p-2">
               <StatLabel>Location</StatLabel>
-              <StatNumber>{userDataQuery?.data?.location}</StatNumber>
+              <StatNumber>
+                {userDataQuery?.data?.[0]?.pharmacy?.location ??
+                  userDataQuery?.data?.[0]?.clinics?.location}
+              </StatNumber>
             </Stat>
-          ) : userDataQuery?.data?.userrole === "patient" ? (
+          ) : userDataQuery?.data?.[0]?.users?.userrole === "patient" ? (
             ""
           ) : (
             <Stat className="m-3 rounded-md border-2 p-2">
               <StatLabel>County of Practice</StatLabel>
-              <StatNumber>{userDataQuery?.data?.countyofpractice}</StatNumber>
+              <StatNumber>
+                {userDataQuery?.data?.[0]?.doctors?.countyofpractice ??
+                  userDataQuery?.data?.[0]?.clinicians?.countyofpractice}
+              </StatNumber>
             </Stat>
           )}
-          {userDataQuery?.data?.userrole == "pharmacy" ||
-          userDataQuery?.data?.userrole == "clinic" ? (
+          {userDataQuery?.data?.[0]?.users?.userrole == "pharmacy" ||
+          userDataQuery?.data?.[0]?.users?.userrole == "clinic" ? (
             <Stat className="m-3 rounded-md border-2 p-2">
               <StatLabel>Name</StatLabel>
-              <StatNumber>{userDataQuery?.data?.estname}</StatNumber>
+              <StatNumber>
+                {userDataQuery?.data?.[0]?.pharmacy?.estname ??
+                  userDataQuery?.data?.[0]?.clinics?.estname}
+              </StatNumber>
             </Stat>
           ) : (
             ""
