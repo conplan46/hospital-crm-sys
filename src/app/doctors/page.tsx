@@ -36,7 +36,7 @@ export default function DoctorsPage() {
   const toast = useToast();
   const doctorsQuery = useQuery({
     queryKey: ["doctors"],
-    queryFn: async function () {
+    queryFn: async function() {
       try {
         const res = await fetch("/api/get-doctors");
         const data = (await res.json()) as {
@@ -144,7 +144,7 @@ function DoctorsComponent({
           <CardFooter>
             <Button
               onClick={() => {
-                if (userDataAtomI?.userrole !== "patient") {
+                if (userDataAtomI?.[0]?.users.userrole !== "patient") {
                   toast({
                     description: "You account is not a patient account",
                     status: "error",
