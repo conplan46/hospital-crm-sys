@@ -34,7 +34,7 @@ export default function ClinicsPage() {
   const toast = useToast();
   const clinicsQuery = useQuery({
     queryKey: ["clinics"],
-    queryFn: async function () {
+    queryFn: async function() {
       try {
         const res = await fetch("/api/get-clinics");
         const data = (await res.json()) as {
@@ -105,7 +105,7 @@ function ClinicComponent({
   const { data: session, status } = useSession();
   const pathName = usePathname();
   const { isOpen, onClose, onOpen } = useDisclosure();
-  console.log({role:userDataAtomI?.userrole})
+  console.log({ role: userDataAtomI?.[0]?.users?.userrole })
   return (
     <>
       <Booking
