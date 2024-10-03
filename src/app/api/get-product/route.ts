@@ -1,17 +1,16 @@
-import { pool } from "utils/db-pool";
+import { eq } from "drizzle-orm";
+import { products } from "drizzle/schema";
+import { db, pool } from "utils/db-pool";
 
 export async function POST(request: Request) {
   const client = await pool.connect();
   try {
     const data = await request.formData();
-    const product_id = data.get("id");
-    const inventory = await client.query(
-      "SELECT * FROM inventory INNER JOIN products ON inventory.product_id = products.product_id WHERE inventory.product_id = $1",
-      [product_id],
-    );
-    console.log({ inventory: inventory.rows });
+    const product_id = Number(data.get("id"));
+    const product = await db.select().from(products).where(eq(products.productId, product_id));
+    console.log({ product: product });
 
-    return Response.json({ inventory: inventory.rows, status: "success" });
+    return Response.json({ product, status: "success" });
   } catch (e) {
     console.error(e);
     return Response.json({ status: "An internal error occured" });

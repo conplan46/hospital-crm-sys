@@ -56,7 +56,7 @@ export default function AdminPage() {
   const queryClient = useQueryClient();
   const bannersQuery = useQuery({
     queryKey: ["banners"],
-    queryFn: async function () {
+    queryFn: async function() {
       try {
         const res = await fetch("/api/get-banners");
         const data = (await res.json()) as {
@@ -85,9 +85,6 @@ export default function AdminPage() {
   } = useForm<BannerForm>();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { data: session, status } = useSession();
-  if (status === "unauthenticated") {
-    void signIn(undefined, { callbackUrl: callBackUrl });
-  }
   const [isClient, setIsClient] = useState(false);
   const [demoStats, setDemoStats] = useState<{
     status: string;
@@ -120,9 +117,9 @@ export default function AdminPage() {
         .then(
           (result: {
             status:
-              | "banner added"
-              | "An internal error adding the banner"
-              | "An internal error occured";
+            | "banner added"
+            | "An internal error adding the banner"
+            | "An internal error occured";
           }) => {
             setIsSubmitting(false);
             if (result.status == "banner added") {
@@ -228,7 +225,7 @@ export default function AdminPage() {
                           <div className="p-1">
                             <Card>
                               <CardContent className="flex aspect-square items-center justify-center p-6">
-                                  <Image fill={true} src={banner?.imageUrl} alt="banner" />
+                                <Image fill={true} src={banner?.imageUrl} alt="banner" />
 
                               </CardContent>
                             </Card>

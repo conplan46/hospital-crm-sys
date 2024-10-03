@@ -1,8 +1,10 @@
 "use client";
 import { useQuery } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
+import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import NoPriv from "~/components/no-privilages";
+import Loading from "../loading";
 
 export default function RootLayout({
   children,
@@ -14,7 +16,21 @@ export default function RootLayout({
   useEffect(() => {
     setIsClient(true);
   }, []);
+
+  const callBackUrl = usePathname();
   const { data: session, status } = useSession();
+  if (status === "unauthenticated") {
+    void signIn(undefined, { callbackUrl: callBackUrl });
+  }
+
+  if (status === "loading") {
+    return (
+      <>
+        <Loading />
+        <h1>Authenticating</h1>
+      </>
+    )
+  }
   const isAdminQuery = useQuery({
     queryKey: ["isAdmin"],
     queryFn: async () => {
@@ -29,9 +45,10 @@ export default function RootLayout({
       return data.isAdmin;
     },
   });
-  if (isClient && isAdminQuery?.data && isAdminQuery.isFetched) {
+
+  if (isClient && isAdminQuery?.data && isAdminQuery?.isFetched) {
     return (
-        <section>{children}</section>
+      <section>{children}</section>
     );
   } else if (!isAdminQuery?.data && isClient && isAdminQuery.isFetched) {
     return <NoPriv />;
