@@ -1,5 +1,4 @@
 "use client";
-import { Card, CardContent } from "src/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -20,6 +19,9 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
+import { Card, CardContent, CardFooter } from "../components/ui/card";
+import { Button } from "src/components/ui/button";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import {
   Accordion,
   AccordionItem,
@@ -45,6 +47,30 @@ export default function HomePage() {
     setIsClient(true);
   }, []);
 
+  const [currentAdIndex, setCurrentAdIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentAdIndex(
+        (prevIndex) => (prevIndex + 1) % (bannersQuery?.data?.length ?? 0),
+      );
+    }, 5000);
+    return () => clearInterval(timer);
+  }, []);
+
+  const nextAd = () => {
+    setCurrentAdIndex(
+      (prevIndex) => (prevIndex + 1) % (bannersQuery?.data?.length ?? 0),
+    );
+  };
+
+  const prevAd = () => {
+    setCurrentAdIndex(
+      (prevIndex) =>
+        (prevIndex - 1 + (bannersQuery?.data?.length ?? 0)) %
+        (bannersQuery?.data?.length ?? 0),
+    );
+  };
   const toast = useToast();
   const topProductsQuery = useQuery({
     queryKey: ["top-products"],
@@ -98,60 +124,80 @@ export default function HomePage() {
   }
   if (isClient && bannersQuery.isFetched) {
     return (
-      <div className="flex w-screen flex-col items-center">
-        <Carousel className="w-full max-w-xs">
-          <CarouselContent>
-            {bannersQuery?.data?.map((banner, index) => (
-              <CarouselItem key={index} className="basis-full">
-                <div className="p-1">
-                  <Card>
-                    <CardContent className="flex aspect-square  items-center justify-center p-6">
-                      <Image
-                        src={banner?.imageUrl}
-                        //className="w-{600} h-{600}"
-                        width={600}
-                        height={600}
-                        alt="banner"
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
+      <div className="container mx-auto px-4 py-8">
+        <section className="mb-12">
+          <h2 className="mb-4 text-2xl font-bold">Featured Ads</h2>
+          <div className="relative">
+            <div className="overflow-hidden rounded-lg">
+              <div
+                className="flex transition-transform duration-300 ease-in-out"
+                style={{ transform: `translateX(-${currentAdIndex * 100}%)` }}
+              >
+                {bannersQuery?.data?.map((ad) => (
+                  <div key={ad.id} className="w-full flex-shrink-0">
+                    <Image
+                      src={ad.imageUrl}
+                      alt={`${ad.id}`}
+                      width={800}
+                      height={400}
+                      className="h-auto w-full"
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute left-4 top-1/2 -translate-y-1/2 transform"
+              onClick={prevAd}
+            >
+              <ChevronLeft className="h-4 w-4" />
+              <span className="sr-only">Previous ad</span>
+            </Button>
+            <Button
+              variant="outline"
+              size="icon"
+              className="absolute right-4 top-1/2 -translate-y-1/2 transform"
+              onClick={nextAd}
+            >
+              <ChevronRight className="h-4 w-4" />
+              <span className="sr-only">Next ad</span>
+            </Button>
+          </div>
+        </section>
 
-          <CarouselPrevious />
-          <CarouselNext />
-        </Carousel>
-        <div className="m-3">
-          <h1 className="btn btn-ghost text-xl">Top products</h1>
-          <Wrap>
-            <WrapItem>
-              <InventoryPurchaseItem
-                id={5}
-                title={"Drug 1"}
-                description={"some description"}
-                invCount={"7"}
-              />
-            </WrapItem>
-            <WrapItem>
-              <InventoryPurchaseItem
-                id={5}
-                title={"Drug 1"}
-                description={"some description"}
-                invCount={"7"}
-              />
-            </WrapItem>
-            <WrapItem>
-              <InventoryPurchaseItem
-                id={5}
-                title={"Drug 1"}
-                description={"some description"}
-                invCount={"7"}
-              />
-            </WrapItem>
-          </Wrap>
-        </div>
+        <section>
+          <h2 className="mb-4 text-2xl font-bold">Top Products</h2>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+            {topProductsQuery.data?.map((item, index) => (
+              <Card key={item.products.productId}>
+                <CardContent className="p-4">
+                  <Image
+                    src={item.products.imageUrl}
+                    alt={item.products.name}
+                    width={200}
+                    height={200}
+                    className="mb-4 h-auto w-full rounded-md"
+                  />
+                  <h3 className="mb-2 text-lg font-semibold">
+                    {item.products.name}
+                  </h3>
+                  <div className="mb-2 flex items-center">
+                    <Star className="mr-1 h-4 w-4 text-yellow-400" />
+                    <span>{2}</span>
+                  </div>
+                  <p className="font-bold">
+                    ${item.products.averagePrice.toFixed(2)}
+                  </p>
+                </CardContent>
+                <CardFooter>
+                  <Button className="w-full">Add to Cart</Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        </section>
       </div>
     );
   }

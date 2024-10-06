@@ -1,64 +1,80 @@
+import { eq } from "drizzle-orm";
+import { inventory, products } from "drizzle/schema";
 import { QueryResult } from "pg";
-import { pool } from "utils/db-pool";
+import { db, pool } from "utils/db-pool";
 import { Product } from "utils/used-types";
 
 export async function POST(request: Request) {
-  const client = await pool.connect();
   try {
     const data = await request.formData();
-    const productTitle = data.get("productTitle");
-    const productDescription = data.get("productDescription");
-    const inventoryCount = data.get("inventoryCount");
-    const estId = data.get("estId");
-    const getProductQuery: QueryResult<Product> = await client.query(
-      "SELECT * FROM products WHERE name = $1",
-      [productTitle],
+    const productTitle = data.get("productTitle")?.toString();
+    const productDescription = data.get("productDescription")?.toString();
+    const productImageUrl = data.get("productImageUrl")?.toString();
+    const productManufacturer = data.get("productManufacturer")?.toString();
+    const inventoryCount = Number(data.get("inventoryCount")?.toString());
+    const estId = Number(data.get("estId")?.toString());
+    const price = Number(data.get("productPrice")?.toString());
+    const dosages: Array<string> = JSON.parse(
+      data.get("dosages")?.toString() as string,
     );
-    if (getProductQuery?.rows.length > 0) {
-      const res = await client.query(
-        "INSERT INTO inventory (est_id,product_id,inventory_count) VALUES($1,$2,$3) RETURNING id",
-        [estId, getProductQuery?.rows[0]?.product_id,inventoryCount],
-      );
+    console.log({ dosages });
+    const getProductQuery = await db
+      .select()
+      .from(products)
+      .where(eq(products.name, productTitle as string));
 
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (res.rows[0].id) {
+    if (getProductQuery?.[0]?.productId) {
+      const res = await db
+        .insert(inventory)
+        .values({
+          estId: estId,
+          productId: getProductQuery?.[0]?.productId,
+          inventoryCount: inventoryCount,
+        })
+        .returning({ id: inventory.id });
+
+      if (res?.[0]?.id) {
         return Response.json({
           status:
             "product exists in the pharmaceutuical database but has been added to the inventory",
         });
       }
     } else {
-      const product = await client.query(
-        "INSERT INTO products(name,description) VALUES($1,$2) RETURNING product_id",
-        [productTitle, productDescription],
-      );
-      const inventoryEntry = await client.query(
-        "INSERT INTO inventory (est_id,product_id,inventory_count) VALUES($1,$2,$3) RETURNING id",
-        [
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          estId,
+      const product = await db
+        .insert(products)
+        .values({
+          name: productTitle as string,
+          description: productDescription as string,
+          dosage: dosages,
+          averagePrice: price,
+          manufacturer: productManufacturer as string,
+          imageUrl: productImageUrl as string,
+        })
+        .returning({ id: products.productId });
+      if (product?.[0]?.id) {
+        const inventoryEntry = await db
+          .insert(inventory)
+          .values({
+            estId,
+            productId: product?.[0]?.id,
+            inventoryCount: inventoryCount,
+          })
+          .returning({ id: inventory.id });
 
-          // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-          product?.rows[0]?.product_id,
-          inventoryCount
-        ],
-      );
-
-      // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-      if (inventoryEntry.rows[0].id) {
-        return Response.json({
-          status: "Item added to inventory and new product added to registry",
-        });
-      } else {
-        return Response.json({
-          status: "An internal error occured while adding inventory",
-        });
+        if (inventoryEntry?.[0]?.id) {
+          return Response.json({
+            status: "Item added to inventory and new product added to registry",
+          });
+        } else {
+          return Response.json({
+            status: "An internal error occured while adding inventory",
+          });
+        }
       }
     }
   } catch (e) {
     console.error(e);
     return Response.json({ status: "An internal error occured" });
   } finally {
-    client.release();
   }
 }

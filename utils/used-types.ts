@@ -201,6 +201,11 @@ const inventoryItemSchema = z.object({
   productTitle: z.string(),
   productDescription: z.string(),
   inventoryCount: z.number(),
+  productManufacturer:z.string(),
+  dosages:z.string(),
+  price:z.number(),
+
+  drugImage: z.custom<FileList>().nullish(),
 });
 export interface IInventoryItem {
   id: number;

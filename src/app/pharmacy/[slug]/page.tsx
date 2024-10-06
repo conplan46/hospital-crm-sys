@@ -25,6 +25,7 @@ import {
   ModalCloseButton,
 } from "@chakra-ui/react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { products, inventory } from "drizzle/schema";
 import { signIn, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -52,9 +53,7 @@ export default function PharmacyView({ params }: { params: { slug: string } }) {
 
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [inventory, setInventory] = useState<Array<IInventoryItem> | undefined>(
-    undefined,
-  );
+
   const { isOpen, onOpen, onClose } = useDisclosure();
   const inventoryQuery = useQuery({
     queryKey: ["inventory"],
@@ -66,7 +65,10 @@ export default function PharmacyView({ params }: { params: { slug: string } }) {
         });
         const data = (await res.json()) as {
           status: string;
-          inventory: Array<IInventoryItem>;
+          inventory: Array<{
+            inventory: typeof inventory.$inferSelect;
+            products: typeof products.$inferSelect;
+          }>;
         };
         return data.inventory;
       } catch (e) {
@@ -97,7 +99,10 @@ export default function PharmacyView({ params }: { params: { slug: string } }) {
       <>
         <div className="flex w-screen flex-col items-center justify-center">
           {inventoryQuery?.data?.length ??
-          new Array<IInventoryItem>().length > 0 ? (
+          new Array<{
+            inventory: typeof inventory.$inferSelect;
+            products: typeof products.$inferSelect;
+          }>().length > 0 ? (
             <Heading size="mb" m={6}>
               Current inventory
             </Heading>
@@ -115,11 +120,14 @@ export default function PharmacyView({ params }: { params: { slug: string } }) {
                 {inventoryQuery.data?.map((item, index: number) => {
                   return (
                     <InventoryPurchaseItem
+                      dosage={item?.products?.dosage as string[]}
+                      image={item.products.imageUrl}
                       key={index}
-                      id={item.id}
-                      title={item.name}
-                      description={item.description}
-                      invCount={item.inventory_count}
+                      type={" "}
+                      id={item.inventory.id}
+                      title={item.products.name}
+                      description={item.products.description}
+                      price={item.products.averagePrice}
                     />
                   );
                 })}

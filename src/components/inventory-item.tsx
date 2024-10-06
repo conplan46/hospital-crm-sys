@@ -7,7 +7,17 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
+import {
+  Card,
+  CardFooter,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "./ui/card";
+import { Badge } from "./ui/badge";
+import { Info, Pill, DollarSign, Building2 } from "lucide-react";
 export function InventoryItem({
   title,
   id,
@@ -39,7 +49,7 @@ export function InventoryItem({
 
             <Button
               className="btn "
-                colorScheme="red"
+              colorScheme="red"
               isLoading={isDeleting}
               onClick={() => {
                 setIsDeleting(true);
@@ -85,32 +95,57 @@ export function InventoryPurchaseItem({
   title,
   id,
   description,
-  invCount,
+  price,
+  dosage,
+  image,
+  type,
 }: {
   title: string;
   id: number;
+  image: string;
+  dosage: Array<string>;
+  type: string;
   description: string;
-  invCount: string;
+  price: number;
 }) {
   return (
-    <WrapItem>
-      <div className="card m-2 w-96 bg-base-100 shadow-xl">
-        <div className="skeleton h-32 w-96"></div>
-        <div className="card-body">
-          <h2 className="card-title">{title}</h2>
-          <p>{description}</p>
-          <Stat>
-            <StatLabel>inventory count</StatLabel>
-            <StatNumber>{invCount}</StatNumber>
-          </Stat>
-          <div className="card-actions justify-end">
-            <Link href={`/pharmacy/drug/${id}`} className="btn bg-[#285430]">
-              purchase
-            </Link>
+    <Card key={id} className="flex flex-col">
+      <CardHeader>
+        <div className="relative mb-4 aspect-square">
+          <Image
+            src={image}
+            alt={title}
+            layout="fill"
+            objectFit="cover"
+            className="rounded-md"
+          />
+        </div>
+        <CardTitle className="text-xl font-bold">{title}</CardTitle>
+        <Badge variant={type === "Prescription" ? "destructive" : "secondary"}>
+          {type}
+        </Badge>
+      </CardHeader>
+      <CardContent className="flex-grow">
+        <p className="mb-4 text-sm text-muted-foreground"></p>
+        <div className="space-y-2">
+          <div className="flex items-center">
+            <Pill className="mr-2 h-4 w-4 text-primary" />
+            <span className="text-sm">Dosage: {dosage}</span>
+          </div>
+          <div className="flex items-center">
+            <DollarSign className="mr-2 h-4 w-4 text-primary" />
+            <span className="text-sm font-semibold">{price}</span>
           </div>
         </div>
-      </div>
-    </WrapItem>
+      </CardContent>
+      <CardFooter>
+        <Button className="w-full">
+          <Link href={`/pharmacy/drug/${id}`} className="flex items-center">
+            <Info className="mr-2 h-4 w-4" /> More Information
+          </Link>
+        </Button>
+      </CardFooter>
+    </Card>
   );
 }
 export function ProductComponent({
