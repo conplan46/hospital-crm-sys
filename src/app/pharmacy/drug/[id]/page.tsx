@@ -101,8 +101,8 @@ export default function PharmacyDrugPage({
                 <div>
                   <div className="relative mb-4 aspect-square">
                     <Image
-                      src={inventoryItemQuery?.data?.[0]?.products?.imageUrl}
-                      alt={inventoryItemQuery?.data?.[0]?.products?.name}
+                      src={inventoryItemQuery?.data?.[0]?.products?.imageUrl as string}
+                      alt={inventoryItemQuery?.data?.[0]?.products?.name as string}
                       layout="fill"
                       objectFit="cover"
                       className="rounded-md"
