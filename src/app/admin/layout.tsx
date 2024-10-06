@@ -17,20 +17,6 @@ export default function RootLayout({
     setIsClient(true);
   }, []);
 
-  const callBackUrl = usePathname();
-  const { data: session, status } = useSession();
-  if (status === "unauthenticated") {
-    void signIn(undefined, { callbackUrl: callBackUrl });
-  }
-
-  if (status === "loading") {
-    return (
-      <>
-        <Loading />
-        <h1>Authenticating</h1>
-      </>
-    )
-  }
   const isAdminQuery = useQuery({
     queryKey: ["isAdmin"],
     queryFn: async () => {
@@ -45,6 +31,20 @@ export default function RootLayout({
       return data.isAdmin;
     },
   });
+  const callBackUrl = usePathname();
+  const { data: session, status } = useSession();
+  if (status === "unauthenticated") {
+    void signIn(undefined, { callbackUrl: callBackUrl });
+  }
+
+  if (status === "loading") {
+    return (
+      <>
+        <Loading />
+        <h1>Authenticating</h1>
+      </>
+    )
+  }
 
   if (isClient && isAdminQuery?.data && isAdminQuery?.isFetched) {
     return (

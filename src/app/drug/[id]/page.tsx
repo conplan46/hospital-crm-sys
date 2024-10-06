@@ -103,7 +103,7 @@ export default function DrugPage({ params }: { params: { id: string } }) {
                 <h3 className="mb-2 text-lg font-semibold">Packaging</h3>
                 <div className="relative aspect-square">
                   <Image
-                    src={productQuery?.data?.[0]?.imageUrl as string}
+                    src={productQuery?.data?.[0]?.imageUrl??""}
                     alt="Aspirin packaging"
                     layout="fill"
                     objectFit="cover"

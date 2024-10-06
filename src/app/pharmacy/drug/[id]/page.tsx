@@ -1,4 +1,5 @@
 "use client";
+/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import { Skeleton, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
@@ -101,8 +102,10 @@ export default function PharmacyDrugPage({
                 <div>
                   <div className="relative mb-4 aspect-square">
                     <Image
-                      src={inventoryItemQuery?.data?.[0]?.products?.imageUrl as string}
-                      alt={inventoryItemQuery?.data?.[0]?.products?.name as string}
+                      src={
+                        inventoryItemQuery?.data?.[0]?.products?.imageUrl ?? ""
+                      }
+                      alt={inventoryItemQuery?.data?.[0]?.products?.name ?? ""}
                       layout="fill"
                       objectFit="cover"
                       className="rounded-md"

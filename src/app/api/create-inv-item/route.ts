@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
+/* eslint-disable  @typescript-eslint/no-unsafe-assignment */
 import { eq } from "drizzle-orm";
 import { inventory, products } from "drizzle/schema";
 import { QueryResult } from "pg";
@@ -14,9 +16,7 @@ export async function POST(request: Request) {
     const inventoryCount = Number(data.get("inventoryCount")?.toString());
     const estId = Number(data.get("estId")?.toString());
     const price = Number(data.get("productPrice")?.toString());
-    const dosages: Array<string> = JSON.parse(
-      data.get("dosages")?.toString() as string,
-    );
+    const dosages: Array<string> = JSON.parse(data.get("dosages") as string);
     console.log({ dosages });
     const getProductQuery = await db
       .select()

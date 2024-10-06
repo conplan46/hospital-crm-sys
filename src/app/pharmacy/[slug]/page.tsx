@@ -120,7 +120,7 @@ export default function PharmacyView({ params }: { params: { slug: string } }) {
                 {inventoryQuery.data?.map((item, index: number) => {
                   return (
                     <InventoryPurchaseItem
-                      dosage={item?.products?.dosage as string[]}
+                      dosage={item?.products?.dosage?? new Array<string>()}
                       image={item.products.imageUrl}
                       key={index}
                       type={" "}
