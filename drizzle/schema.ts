@@ -44,6 +44,7 @@ export const inventory = pgTable("inventory", {
   // You can use { mode: "bigint" } if numbers are exceeding js number limitations
   inventoryCount: bigint("inventory_count", { mode: "number" }).notNull(),
   topProduct: boolean("top_product").default(false),
+  price: real("price").notNull(),
 });
 
 export const labs = pgTable("labs", {

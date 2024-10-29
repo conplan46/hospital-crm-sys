@@ -1,5 +1,5 @@
 "use client";
-import { Card, CardContent } from "src/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
 import {
   Carousel,
   CarouselContent,
@@ -7,6 +7,12 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "src/components/ui/carousel";
+
+import { Button as ButtonShad } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
+import { Plus, X } from "lucide-react";
 import {
   Modal,
   ModalOverlay,
@@ -44,19 +50,20 @@ import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import Loading from "../loading";
 import { z } from "zod";
-import { BannerForm } from "utils/used-types";
+import { AddInvItem, BannerForm } from "utils/used-types";
 import { SubmitHandler, useForm } from "react-hook-form";
 import storage from "utils/firebase-config";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { QueryClient, useQuery, useQueryClient } from "@tanstack/react-query";
 import { adBanner } from "drizzle/schema";
 import Image from "next/image";
+import { ADDRCONFIG } from "dns";
 export default function AdminPage() {
   const callBackUrl = usePathname();
   const queryClient = useQueryClient();
   const bannersQuery = useQuery({
     queryKey: ["banners"],
-    queryFn: async function() {
+    queryFn: async function () {
       try {
         const res = await fetch("/api/get-banners");
         const data = (await res.json()) as {
@@ -84,6 +91,12 @@ export default function AdminPage() {
     formState: { errors },
   } = useForm<BannerForm>();
   const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const {
+    isOpen: isOpenProductComp,
+    onOpen: onOpenProductComp,
+    onClose: onCloseProductComp,
+  } = useDisclosure();
   const { data: session, status } = useSession();
   const [isClient, setIsClient] = useState(false);
   const [demoStats, setDemoStats] = useState<{
@@ -117,9 +130,9 @@ export default function AdminPage() {
         .then(
           (result: {
             status:
-            | "banner added"
-            | "An internal error adding the banner"
-            | "An internal error occured";
+              | "banner added"
+              | "An internal error adding the banner"
+              | "An internal error occured";
           }) => {
             setIsSubmitting(false);
             if (result.status == "banner added") {
@@ -185,6 +198,11 @@ export default function AdminPage() {
   if (status === "authenticated" && isClient) {
     return (
       <Suspense fallback={<Loading />}>
+        <AddProductComponent
+          isOpenProductComp={isOpenProductComp}
+          onOpenProductComp={onOpenProductComp}
+          onCloseProductComp={onCloseProductComp}
+        />
         <Modal onClose={onClose} size="full" isOpen={isOpen}>
           <ModalOverlay />
           <ModalContent>
@@ -225,8 +243,11 @@ export default function AdminPage() {
                           <div className="p-1">
                             <Card>
                               <CardContent className="flex aspect-square items-center justify-center p-6">
-                                <Image fill={true} src={banner?.imageUrl} alt="banner" />
-
+                                <Image
+                                  fill={true}
+                                  src={banner?.imageUrl}
+                                  alt="banner"
+                                />
                               </CardContent>
                             </Card>
                           </div>
@@ -306,6 +327,22 @@ export default function AdminPage() {
               <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
                 <div className="m-2 flex justify-between">
                   <h1 className="default-font m-2 text-4xl text-black">
+                    Add product
+                  </h1>
+                </div>{" "}
+                <Button
+                  className="default-font btn btn-outline ml-4 mt-4"
+                  onClick={() => {
+                    onOpenProductComp();
+                  }}
+                >
+                  Add
+                </Button>
+              </div>
+
+              <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
+                <div className="m-2 flex justify-between">
+                  <h1 className="default-font m-2 text-4xl text-black">
                     Manage Clinicians
                   </h1>
                 </div>{" "}
@@ -367,4 +404,271 @@ export default function AdminPage() {
       </Suspense>
     );
   }
+}
+function AddProductComponent({
+  isOpenProductComp,
+  onOpenProductComp,
+  onCloseProductComp,
+}: {
+  isOpenProductComp: boolean;
+  onOpenProductComp: () => void;
+  onCloseProductComp: () => void;
+}) {
+  const toast = useToast();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<AddInvItem>();
+  const onSubmit: SubmitHandler<AddInvItem> = async (data) => {
+    try {
+      console.log(data);
+      setIsSubmitting(true);
+
+      const formData = new FormData();
+
+      const storageRef = ref(
+        storage,
+        `drug-product-images/${data?.drugImage?.[0]?.name}`,
+      );
+
+      const snapshot = await uploadBytes(
+        storageRef,
+        data?.drugImage?.[0] as Blob,
+      );
+      const url = await getDownloadURL(snapshot.ref);
+      console.log(url);
+      console.log(dosages);
+      if (url && dosages?.length > 0) {
+        formData.append("productTitle", data.productTitle);
+        formData.append("productImageUrl", url);
+        formData.append("productPrice", `${data.price}`);
+        formData.append("productManufacturer", data.productManufacturer);
+        formData.append("dosages", JSON.stringify(dosages));
+        formData.append("productDescription", data.productDescription);
+        fetch("/api/create-product", { method: "POST", body: formData })
+          .then((data) => data.json())
+          .then((data: { status: string }) => {
+            if (
+              data.status === "Product added to the pharmaceutuical database"
+            ) {
+              toast({
+                description: "Item Added",
+                status: "success",
+                duration: 9000,
+                isClosable: true,
+              });
+              //void queryClient.invalidateQueries({ queryKey: ["inventory"] });
+            } else if (
+              data.status == "product exists in the pharmaceutuical database"
+            ) {
+              toast({
+                description: data.status,
+                status: "success",
+                duration: 9000,
+                isClosable: true,
+              });
+            } else {
+              toast({
+                description: data.status,
+                status: "error",
+                duration: 9000,
+                isClosable: true,
+              });
+            }
+            setIsSubmitting(false);
+          })
+          .catch((err) => {
+            setIsSubmitting(false);
+
+            console.error(err);
+            toast({
+              description: "An error occurred",
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          });
+      } else {
+        setIsSubmitting(false);
+        toast({
+          description: "An error occured upload the product image",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    } catch (e) {
+      console.error(e);
+
+      toast({
+        description: "An error occurred",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  };
+  const [dosages, setDosages] = useState<string[]>([]);
+  const [newDosage, setNewDosage] = useState("");
+
+  const addDosage = () => {
+    if (newDosage.trim() !== "") {
+      setDosages([...dosages, newDosage.trim()]);
+      setNewDosage("");
+    }
+  };
+
+  const removeDosage = (index: number) => {
+    setDosages(dosages.filter((_, i) => i !== index));
+  };
+
+  return (
+    <Modal isOpen={isOpenProductComp} onClose={onCloseProductComp}>
+      <ModalOverlay />
+      <ModalContent>
+        <ModalHeader>Add item</ModalHeader>
+        <ModalCloseButton />
+        <ModalBody>
+          <Center>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="mx-auto max-w-2xl space-y-6 rounded-lg bg-white p-6 shadow"
+            >
+              <h2 className="mb-6 text-center text-2xl font-bold">
+                Add New Product
+              </h2>
+              <FormControl isInvalid={Boolean(errors.drugImage)}>
+                <div className="space-y-2">
+                  <Label htmlFor="drugImage">Drug Product Image</Label>
+                  <Input
+                    {...register("drugImage", {
+                      required: "drug product image is required",
+                    })}
+                    id="drugImage"
+                    type="file"
+                    accept="image/*"
+                    required
+                  />
+                </div>
+              </FormControl>
+              <FormControl isInvalid={Boolean(errors.productTitle)}>
+                <div className="space-y-2">
+                  <Label htmlFor="drugName">Drug Product Name</Label>
+                  <Input
+                    {...register("productTitle", {
+                      required: "name is required",
+                    })}
+                    id="drugName"
+                    placeholder="Enter drug name"
+                    required
+                  />
+
+                  <FormErrorMessage>
+                    {errors?.productTitle?.message}
+                  </FormErrorMessage>
+                </div>
+
+                <FormErrorMessage>
+                  {errors?.productTitle?.message}
+                </FormErrorMessage>
+              </FormControl>
+
+              <FormControl isInvalid={Boolean(errors.productDescription)}>
+                <div className="space-y-2">
+                  <Label htmlFor="drugDescription">
+                    Drug Product Description
+                  </Label>
+                  <Textarea
+                    {...register("productDescription", {
+                      required: "description is required",
+                    })}
+                    id="drugDescription"
+                    placeholder="Enter drug description"
+                    required
+                  />
+
+                  <FormErrorMessage>
+                    {errors?.productDescription?.message}
+                  </FormErrorMessage>
+                </div>
+              </FormControl>
+              <FormControl isInvalid={Boolean(errors?.productManufacturer)}>
+                <div className="space-y-2">
+                  <Label htmlFor="manufacturer">Manufacturer</Label>
+                  <Input
+                    id="manufacturer"
+                    {...register("productManufacturer", {
+                      required: "product manufacturer required",
+                    })}
+                    placeholder="Enter manufacturer name"
+                    required
+                  />
+                  <FormErrorMessage>
+                    {errors?.productManufacturer?.message}
+                  </FormErrorMessage>
+                </div>
+              </FormControl>
+
+              <div className="space-y-2">
+                <Label>Dosages</Label>
+                <div className="flex space-x-2">
+                  <Input
+                    value={newDosage}
+                    onChange={(e) => setNewDosage(e.target.value)}
+                    placeholder="Enter dosage (e.g., 500mg)"
+                  />
+                  <ButtonShad type="button" onClick={addDosage} size="icon">
+                    <Plus className="h-4 w-4" />
+                  </ButtonShad>
+                </div>
+                <div className="mt-2 space-y-2">
+                  {dosages.map((dosage, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center space-x-2 rounded bg-gray-100 p-2"
+                    >
+                      <span>{dosage}</span>
+                      <ButtonShad
+                        type="button"
+                        onClick={() => removeDosage(index)}
+                        size="icon"
+                        variant="ghost"
+                      >
+                        <X className="h-4 w-4" />
+                      </ButtonShad>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <FormControl isInvalid={Boolean(errors.price)}>
+                <div className="space-y-2">
+                  <Label htmlFor="averagePrice">Average Price</Label>
+                  <Input
+                    {...register("price", {
+                      required: "price is required",
+                    })}
+                    id="averagePrice"
+                    type="number"
+                    step="0.01"
+                    min="0"
+                    placeholder="Enter average price"
+                    required
+                  />
+                  <FormErrorMessage>{errors?.price?.message}</FormErrorMessage>
+                </div>
+              </FormControl>
+
+              <Button isLoading={isSubmitting} type="submit" className="w-full">
+                Add Drug Product
+              </Button>
+            </form>
+          </Center>
+        </ModalBody>
+      </ModalContent>
+    </Modal>
+  );
 }

@@ -1,6 +1,21 @@
 "use client";
 
-import storage from "utils/firebase-config";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "~/components/ui/table";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import { Edit, Trash2 } from "lucide-react";
 import {
   Tooltip,
   Heading,
@@ -15,10 +30,10 @@ import {
   useDisclosure,
   Skeleton,
 } from "@chakra-ui/react";
-import { Button as ButtonShad } from "../../../components/ui/button";
-import { Input } from "../../../components/ui/input";
-import { Label } from "../../../components/ui/label";
-import { Textarea } from "../../../components/ui/textarea";
+import { Button as ButtonShad } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
+import { Label } from "~/components/ui/label";
+import { Textarea } from "~/components/ui/textarea";
 import { Plus, X } from "lucide-react";
 import {
   Modal,
@@ -39,6 +54,7 @@ import { AddInvItem, IInventoryItem } from "utils/used-types";
 import Loading from "~/app/loading";
 import { InventoryItem } from "~/components/inventory-item";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import { inventory, products } from "drizzle/schema";
 export default function PharmacyDashBoard({
   params,
 }: {
@@ -60,11 +76,124 @@ export default function PharmacyDashBoard({
   } = useForm<AddInvItem>();
   const queryClient = useQueryClient();
 
+  const [editingInventory, setEditingInventory] = useState<{
+    inventory: typeof inventory.$inferSelect;
+    products: typeof products.$inferSelect;
+  } | null>(null);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [quantity, setQuantity] = useState<number | null>(
+    editingInventory?.inventory?.inventoryCount ?? 0,
+  );
+
+  console.log({ editingInventory });
+  const [price, setPrice] = useState<number | null>(
+    editingInventory?.inventory?.price ?? 0,
+  );
   const toast = useToast();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [inventory, setInventory] = useState<Array<IInventoryItem> | undefined>(
-    undefined,
-  );
+  const handleEditProduct = () => {
+    console.log({ editingInventory });
+    const formData = new FormData();
+
+    if (editingInventory) {
+      formData.append(
+        "price",
+        `${price ?? editingInventory?.inventory?.price}`,
+      );
+      formData.append(
+        "inventoryCount",
+        `${quantity ?? editingInventory?.inventory?.inventoryCount}`,
+      );
+      formData.append("estId", params.slug);
+
+      formData.append("invId", `${editingInventory?.inventory?.id}`);
+      fetch("/api/edit-inventory", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((data: { status: string }) => {
+          if (data.status === "Updated") {
+            toast({
+              description: "Item updated",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+
+            setEditingInventory(null);
+            setIsEditDialogOpen(false);
+            setQuantity(0);
+
+            setPrice(0);
+            void queryClient.invalidateQueries({ queryKey: ["inventory"] });
+          } else {
+            toast({
+              description: data.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+          setIsSubmitting(false);
+        })
+        .catch((err) => {
+          setIsSubmitting(false);
+
+          console.error(err);
+          toast({
+            description: "An error occurred",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        });
+    }
+  };
+
+  const handleDeleteProduct = () => {
+    if (editingInventory) {
+      const formData = new FormData();
+      formData.append("estId", params.slug);
+
+      formData.append("invId", `${editingInventory?.inventory?.id}`);
+      fetch("/api/delete-inventory", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((data: { status: string }) => {
+          if (data.status === "inventory item deleted") {
+            toast({
+              description: "Item updated",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+
+            setEditingInventory(null);
+            setIsEditDialogOpen(false);
+            setQuantity(0);
+
+            setPrice(0);
+            void queryClient.invalidateQueries({ queryKey: ["inventory"] });
+          } else {
+            toast({
+              description: data.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+          setIsSubmitting(false);
+        })
+        .catch((err) => {
+          setIsSubmitting(false);
+
+          console.error(err);
+          toast({
+            description: "An error occurred",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        });
+    }
+  };
   const { isOpen, onOpen, onClose } = useDisclosure();
   const inventoryQuery = useQuery({
     queryKey: ["inventory"],
@@ -76,7 +205,10 @@ export default function PharmacyDashBoard({
         });
         const data = (await res.json()) as {
           status: string;
-          inventory: Array<IInventoryItem>;
+          inventory: Array<{
+            inventory: typeof inventory.$inferSelect;
+            products: typeof products.$inferSelect;
+          }>;
         };
         return data.inventory;
       } catch (e) {
@@ -99,34 +231,15 @@ export default function PharmacyDashBoard({
 
       const formData = new FormData();
 
-      const storageRef = ref(
-        storage,
-        `drug-product-images/${data?.drugImage?.[0]?.name}`,
-      );
-
-      const snapshot = await uploadBytes(
-        storageRef,
-        data?.drugImage?.[0] as Blob,
-      );
-      const url = await getDownloadURL(snapshot.ref);
-      console.log(url);
-      console.log(dosages);
-      if (url && dosages?.length > 0) {
+      if (true) {
         formData.append("productTitle", data.productTitle);
-        formData.append("productImageUrl", url);
         formData.append("productPrice", `${data.price}`);
-        formData.append("productManufacturer", data.productManufacturer);
-        formData.append("dosages", JSON.stringify(dosages));
-        formData.append("productDescription", data.productDescription);
         formData.append("inventoryCount", `${data.inventoryCount}`);
         formData.append("estId", params.slug);
         fetch("/api/create-inv-item", { method: "POST", body: formData })
           .then((data) => data.json())
           .then((data: { status: string }) => {
-            if (
-              data.status ===
-              "Item added to inventory and new product added to registry"
-            ) {
+            if (data.status === "Added to the inventory") {
               toast({
                 description: "Item Added",
                 status: "success",
@@ -202,49 +315,6 @@ export default function PharmacyDashBoard({
   if (isClient && status == "authenticated") {
     return (
       <>
-        <div className="flex w-screen flex-col items-center justify-center">
-          <Tooltip label="Add products" hasArrow arrowSize={15}>
-            <div
-              onClick={() => {
-                onOpen();
-              }}
-              className="btn flex h-24 w-24 items-center justify-center rounded-lg border"
-            >
-              <FaPlus />
-            </div>
-          </Tooltip>
-
-          {inventoryQuery?.data?.length ??
-          new Array<IInventoryItem>().length > 0 ? (
-            <Heading size="mb" m={6}>
-              Current inventory
-            </Heading>
-          ) : (
-            <Heading size="mb" m={6}>
-              No inventory to show
-            </Heading>
-          )}
-          <Skeleton
-            className="h-screen w-screen"
-            isLoaded={inventoryQuery.isFetched}
-          >
-            <Center>
-              <Wrap>
-                {inventoryQuery.data?.map((item, index: number) => {
-                  return (
-                    <InventoryItem
-                      key={index}
-                      id={item.id}
-                      title={item.name}
-                      description={item.description}
-                      invCount={parseInt(item.inventory_count)}
-                    />
-                  );
-                })}
-              </Wrap>
-            </Center>
-          </Skeleton>
-        </div>
         <Modal isOpen={isOpen} onClose={onClose}>
           <ModalOverlay />
           <ModalContent>
@@ -254,25 +324,11 @@ export default function PharmacyDashBoard({
               <Center>
                 <form
                   onSubmit={handleSubmit(onSubmit)}
-                  className="mx-auto max-w-2xl space-y-6 rounded-lg bg-white p-6 shadow"
+                  className="mx-auto max-w-2xl space-y-6 bg-white p-6"
                 >
                   <h2 className="mb-6 text-center text-2xl font-bold">
-                    Add New Drug Product
+                    Add Inventory
                   </h2>
-                  <FormControl isInvalid={Boolean(errors.drugImage)}>
-                    <div className="space-y-2">
-                      <Label htmlFor="drugImage">Drug Product Image</Label>
-                      <Input
-                        {...register("drugImage", {
-                          required: "drug product image is required",
-                        })}
-                        id="drugImage"
-                        type="file"
-                        accept="image/*"
-                        required
-                      />
-                    </div>
-                  </FormControl>
                   <FormControl isInvalid={Boolean(errors.productTitle)}>
                     <div className="space-y-2">
                       <Label htmlFor="drugName">Drug Product Name</Label>
@@ -295,76 +351,9 @@ export default function PharmacyDashBoard({
                     </FormErrorMessage>
                   </FormControl>
 
-                  <FormControl isInvalid={Boolean(errors.productDescription)}>
-                    <div className="space-y-2">
-                      <Label htmlFor="drugDescription">
-                        Drug Product Description
-                      </Label>
-                      <Textarea
-                        {...register("productDescription", {
-                          required: "description is required",
-                        })}
-                        id="drugDescription"
-                        placeholder="Enter drug description"
-                        required
-                      />
-
-                      <FormErrorMessage>
-                        {errors?.productDescription?.message}
-                      </FormErrorMessage>
-                    </div>
-                  </FormControl>
-                  <FormControl isInvalid={Boolean(errors?.productManufacturer)}>
-                    <div className="space-y-2">
-                      <Label htmlFor="manufacturer">Manufacturer</Label>
-                      <Input
-                        id="manufacturer"
-                        {...register("productManufacturer", {
-                          required: "product manufacturer required",
-                        })}
-                        placeholder="Enter manufacturer name"
-                        required
-                      />
-                      <FormErrorMessage>
-                        {errors?.productManufacturer?.message}
-                      </FormErrorMessage>
-                    </div>
-                  </FormControl>
-
-                  <div className="space-y-2">
-                    <Label>Dosages</Label>
-                    <div className="flex space-x-2">
-                      <Input
-                        value={newDosage}
-                        onChange={(e) => setNewDosage(e.target.value)}
-                        placeholder="Enter dosage (e.g., 500mg)"
-                      />
-                      <ButtonShad type="button" onClick={addDosage} size="icon">
-                        <Plus className="h-4 w-4" />
-                      </ButtonShad>
-                    </div>
-                    <div className="mt-2 space-y-2">
-                      {dosages.map((dosage, index) => (
-                        <div
-                          key={index}
-                          className="flex items-center space-x-2 rounded bg-gray-100 p-2"
-                        >
-                          <span>{dosage}</span>
-                          <ButtonShad
-                            type="button"
-                            onClick={() => removeDosage(index)}
-                            size="icon"
-                            variant="ghost"
-                          >
-                            <X className="h-4 w-4" />
-                          </ButtonShad>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
                   <FormControl isInvalid={Boolean(errors.price)}>
                     <div className="space-y-2">
-                      <Label htmlFor="averagePrice">Average Price</Label>
+                      <Label htmlFor="averagePrice">Price</Label>
                       <Input
                         {...register("price", {
                           required: "price is required",
@@ -413,6 +402,146 @@ export default function PharmacyDashBoard({
             </ModalBody>
           </ModalContent>
         </Modal>
+
+        <div className="container mx-auto p-4">
+          <h1 className="mb-6 text-3xl font-bold">Pharmacy Dashboard</h1>
+
+          <div className="mb-6 flex items-center justify-between">
+            <h2 className="text-2xl font-semibold">Inventory</h2>
+            <ButtonShad
+              onClick={() => {
+                onOpen();
+              }}
+            >
+              <Plus className="mr-2 h-4 w-4" /> Add New Product
+            </ButtonShad>
+          </div>
+          <Skeleton
+            className="h-screen w-screen"
+            isLoaded={inventoryQuery.isFetched}
+          >
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Name</TableHead>
+                  <TableHead>Quantity</TableHead>
+                  <TableHead>Price</TableHead>
+                  <TableHead>Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {inventoryQuery.data?.map((item, index: number) => {
+                  return (
+                    <TableRow key={item?.inventory?.id}>
+                      <TableCell>{item?.products?.name}</TableCell>
+                      <TableCell>{item?.inventory?.inventoryCount}</TableCell>
+                      <TableCell>
+                        ${item?.inventory?.price.toFixed(2)}
+                      </TableCell>
+                      <TableCell>
+                        <Dialog
+                          open={isEditDialogOpen}
+                          onOpenChange={setIsEditDialogOpen}
+                        >
+                          <DialogTrigger asChild>
+                            <ButtonShad
+                              variant="outline"
+                              size="sm"
+                              className="mr-2"
+                              onClick={() => setEditingInventory(item)}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </ButtonShad>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Edit Product</DialogTitle>
+                            </DialogHeader>
+                            {editingInventory && (
+                              <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label
+                                    htmlFor="edit-name"
+                                    className="text-right"
+                                  >
+                                    Name
+                                  </Label>
+                                  <Input
+                                    id="edit-name"
+                                    value={editingInventory.products.name}
+                                    disabled={true}
+                                    className="col-span-3"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label
+                                    htmlFor="edit-quantity"
+                                    className="text-right"
+                                  >
+                                    Quantity
+                                  </Label>
+                                  <Input
+                                    id="edit-quantity"
+                                    type="number"
+                                    value={
+                                      quantity ??
+                                      editingInventory?.inventory
+                                        ?.inventoryCount
+                                    }
+                                    placeholder={`${editingInventory?.inventory?.inventoryCount}`}
+                                    onChange={(e) =>
+                                      setQuantity(parseInt(e.target.value))
+                                    }
+                                    className="col-span-3"
+                                  />
+                                </div>
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                  <Label
+                                    htmlFor="edit-price"
+                                    className="text-right"
+                                  >
+                                    Price
+                                  </Label>
+                                  <Input
+                                    id="edit-price"
+                                    type="number"
+                                    step="0.01"
+                                    placeholder={`${editingInventory?.inventory?.price}`}
+                                    value={
+                                      price ??
+                                      editingInventory?.inventory?.price
+                                    }
+                                    onChange={(e) =>
+                                      setPrice(parseFloat(e.target.value))
+                                    }
+                                    className="col-span-3"
+                                  />
+                                </div>
+                              </div>
+                            )}
+                            <ButtonShad onClick={handleEditProduct}>
+                              Save Changes
+                            </ButtonShad>
+                          </DialogContent>
+                        </Dialog>
+                        <ButtonShad
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => {
+                            setEditingInventory(item);
+                            handleDeleteProduct();
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </ButtonShad>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Skeleton>
+        </div>
       </>
     );
   }
