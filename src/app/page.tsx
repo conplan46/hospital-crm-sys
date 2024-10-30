@@ -1,4 +1,4 @@
-"use client";
+"udse client";
 import {
   Carousel,
   CarouselContent,

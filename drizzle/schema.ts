@@ -62,6 +62,8 @@ export const adBanner = pgTable("ad_banners", {
   id: serial("id").primaryKey().notNull(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
+  productLink:varchar("product_url", { length: 255 }).notNull(),
+  title:varchar("image_url", { length: 255 }).notNull()
 });
 export const pharmacy = pgTable("pharmacy", {
   id: serial("id").primaryKey().notNull(),

@@ -1,13 +1,13 @@
-import { pool } from "utils/db-pool";
+import { doctors } from "drizzle/schema";
+import { db, pool } from "utils/db-pool";
 
 export async function GET(request: Request) {
   try {
-    const getDoctors = await pool.query("SELECT * FROM doctors");
+    const getDoctors = await db.select().from(doctors);
 
-    if (getDoctors?.rows && getDoctors.rows.length >= 0) {
-      console.log(getDoctors?.rows)
-      return Response.json({ status: "success", doctors: getDoctors.rows })
-
+    if (getDoctors && getDoctors.length >= 0) {
+      console.log(getDoctors);
+      return Response.json({ status: "success", doctors: getDoctors });
     } else {
       return Response.json({ status: "fetching doctors failed" });
     }

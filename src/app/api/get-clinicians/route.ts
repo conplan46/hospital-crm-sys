@@ -1,20 +1,20 @@
+import { clinicians } from "drizzle/schema";
 import { type NextApiRequest, type NextApiResponse } from "next";
-import { pool } from "utils/db-pool";
+import { db, pool } from "utils/db-pool";
 
 export async function GET(request: Request) {
-	try {
-		const getClinicians = await pool.query("SELECT * FROM clinicians");
+  try {
+    const getClinicians = await db.select().from(clinicians);
 
-		if (getClinicians?.rows && getClinicians.rows.length >= 0) {
-			console.log(getClinicians?.rows)
-			return Response.json({ status: "success", clinicians: getClinicians.rows })
+    if (getClinicians && getClinicians.length >= 0) {
+      console.log(getClinicians);
+      return Response.json({ status: "success", clinicians: getClinicians });
+    } else {
+      return Response.json({ status: "fetching clinicians failed" });
+    }
+  } catch (e) {
+    console.error(e);
 
-		} else {
-			return Response.json({ status: "fetching clinicians failed" });
-		}
-	} catch (e) {
-		console.error(e);
-
-		return Response.json({ status: "An internal error occured" });
-	}
+    return Response.json({ status: "An internal error occured" });
+  }
 }
