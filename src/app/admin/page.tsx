@@ -76,14 +76,108 @@ import {
   clinicians,
   clinics,
   doctors,
+  inventory,
   labs,
   pharmacy,
+  products,
 } from "drizzle/schema";
 import Image from "next/image";
 import { ADDRCONFIG } from "dns";
 export default function AdminPage() {
   const callBackUrl = usePathname();
   const queryClient = useQueryClient();
+  const [bannerFile, setBannerFile] = useState<File>();
+  const [productLink, setProductLink] = useState<string>();
+  const handlePromoteProduct = async (
+    invId: number,
+    estId: number,
+    promoted: boolean | null,
+  ) => {
+    try {
+      const formData = new FormData();
+      formData.append("estId", `${estId}`);
+
+      formData.append("invId", `${invId}`);
+
+      if (!promoted) {
+        const res = await fetch("/api/promote-product", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await res.json()) as { status: string };
+        if (data.status == "Product promoted") {
+          toast({
+            description: "An error occured fetching the inventory",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            description: data.status,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        }
+      } else {
+        const res = await fetch("/api/unpromote-product", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await res.json()) as { status: string };
+        if (data.status == "Product unpromoted") {
+          toast({
+            description: "An error occured fetching the inventory",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        } else {
+          toast({
+            description: data.status,
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        }
+      }
+    } catch (e) {
+      console.error(e);
+      toast({
+        description: "An error occured fetching the inventory",
+        status: "error",
+        duration: 9000,
+        isClosable: true,
+      });
+    }
+  };
+  const adminInventoryQuery = useQuery({
+    queryKey: ["admin-inventory"],
+    queryFn: async function () {
+      try {
+        const res = await fetch("/api/get-admin-inventory", {
+          method: "GET",
+        });
+        const data = (await res.json()) as {
+          status: string;
+          inventory: Array<{
+            inventory: typeof inventory.$inferSelect;
+            products: typeof products.$inferSelect;
+          }>;
+        };
+        return data.inventory;
+      } catch (e) {
+        console.error(e);
+        toast({
+          description: "An error occured fetching the inventory",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    },
+  });
   const doctorsQuery = useQuery({
     queryKey: ["doctors"],
     queryFn: async function () {
@@ -260,11 +354,11 @@ export default function AdminPage() {
   const toast = useToast();
   const [loading, setLoading] = useState(false);
 
-  const onSubmit: SubmitHandler<BannerForm> = async (data) => {
+  const onSubmitBanner: SubmitHandler<BannerForm> = async () => {
     setIsSubmitting(true);
-    const storageRef = ref(storage, `banners/${data?.banner?.[0]?.name}`);
+    const storageRef = ref(storage, `banners/${bannerFile?.name}`);
 
-    const snapshot = await uploadBytes(storageRef, data?.banner?.[0] as Blob);
+    const snapshot = await uploadBytes(storageRef, bannerFile as Blob);
     const url = await getDownloadURL(snapshot.ref);
     if (!url) {
       toast({
@@ -276,6 +370,7 @@ export default function AdminPage() {
     } else {
       const formData = new FormData();
       formData.append("banner", url);
+      formData.append("productLink", productLink ?? "");
       fetch("/api/create-banner", { method: "POST", body: formData })
         .then((data) => data.json())
         .then(
@@ -361,29 +456,6 @@ export default function AdminPage() {
             <ModalCloseButton />
             <ModalBody>
               <h1 className="btn btn-ghost text-xl">Add Banner</h1>
-              <form
-                onSubmit={handleSubmit(onSubmit)}
-                className="form-control m-4"
-              >
-                <FormControl m={4} isInvalid={Boolean(errors.banner)}>
-                  <FormLabel className="font-bold text-black" htmlFor="name">
-                    Banner image
-                  </FormLabel>
-                  <input
-                    {...register("banner", {
-                      required: "banner is required",
-                    })}
-                    type="file"
-                    className="file-input file-input-bordered w-full max-w-xs"
-                  />
-
-                  <FormErrorMessage>{errors?.banner?.message}</FormErrorMessage>
-                </FormControl>
-
-                <Button type="submit" isLoading={isSubmitting}>
-                  Submit
-                </Button>
-              </form>
               <h1 className="btn btn-ghost text-xl">Current Banners</h1>
               <Carousel className="ml-5 w-full max-w-xs">
                 {bannersQuery?.data?.length != 0 ? (
@@ -426,7 +498,7 @@ export default function AdminPage() {
             </ModalFooter>
           </ModalContent>
         </Modal>
-        <main className="p-4">
+        {/*<main className="p-4">
           <Skeleton isLoaded={!loading}>
             <Center className="flex flex-col">
               <h1 className="btn btn-ghost text-xl">Admin Dashboard</h1>
@@ -551,21 +623,28 @@ export default function AdminPage() {
               </div>
             </Wrap>
           </Skeleton>
-        </main>
+        </main>*/}
         <div className="container mx-auto p-4">
           <h1 className="mb-6 text-3xl font-bold">Admin Dashboard</h1>
           <Tabs defaultValue="doctors">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8">
+            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 my-8">
               <TabsTrigger value="doctors">Doctors</TabsTrigger>
               <TabsTrigger value="pharmacies">Pharmacies</TabsTrigger>
               <TabsTrigger value="clinics">Clinics</TabsTrigger>
               <TabsTrigger value="clinicians">Clinicians</TabsTrigger>
               <TabsTrigger value="labs">Labs</TabsTrigger>
-              <TabsTrigger value="products">Products</TabsTrigger>
+              <TabsTrigger
+                onClick={() => {
+                  onOpenProductComp();
+                }}
+                value="products"
+              >
+                Products
+              </TabsTrigger>
               <TabsTrigger value="promote">Promote</TabsTrigger>
               <TabsTrigger value="adbanners">Ad Banners</TabsTrigger>
             </TabsList>
-            <TabsContent value="doctors">
+            <TabsContent className="m-4" value="doctors">
               <Card>
                 <CardHeader>
                   <CardTitle>Registered Doctors</CardTitle>
@@ -609,7 +688,10 @@ export default function AdminPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
+
+                        <TableHead>Establishment Id</TableHead>
                         <TableHead>Name</TableHead>
+
                         <TableHead>Phone Number</TableHead>
 
                         <TableHead>Location</TableHead>
@@ -620,6 +702,8 @@ export default function AdminPage() {
                         (pharmacy, index) => {
                           return (
                             <TableRow key={pharmacy.id}>
+
+                              <TableCell>{pharmacy.id}</TableCell>
                               <TableCell>{pharmacy.estname}</TableCell>
                               <TableCell>{pharmacy.phonenumber}</TableCell>
 
@@ -747,6 +831,8 @@ export default function AdminPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
+
+                        <TableHead>Establishment Id</TableHead>
                         <TableHead>Description</TableHead>
                         <TableHead>Price</TableHead>
                         <TableHead>Status</TableHead>
@@ -754,19 +840,33 @@ export default function AdminPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {products.map((product) => (
-                        <TableRow key={product.id}>
-                          <TableCell>{product.name}</TableCell>
-                          <TableCell>{product.description}</TableCell>
-                          <TableCell>${product.price.toFixed(2)}</TableCell>
+                      {adminInventoryQuery?.data?.map((inv, index) => (
+                        <TableRow key={inv?.inventory?.id}>
+                          <TableCell>{inv?.products?.name}</TableCell>
+
+                          <TableCell>{inv?.inventory?.estId}</TableCell>
+                          <TableCell>{inv?.products?.description}</TableCell>
                           <TableCell>
-                            {product.promoted ? "Promoted" : "Not Promoted"}
+                            ${inv?.inventory?.price.toFixed(2)}
+                          </TableCell>
+                          <TableCell>
+                            {inv?.inventory?.topProduct
+                              ? "Promoted"
+                              : "Not Promoted"}
                           </TableCell>
                           <TableCell>
                             <Button
-                              onClick={() => handlePromoteProduct(product.id)}
+                              onClick={() =>
+                                handlePromoteProduct(
+                                  inv?.inventory.id,
+                                  inv?.inventory?.estId,
+                                  inv?.inventory?.topProduct??false,
+                                )
+                              }
                             >
-                              {product.promoted ? "Unpromote" : "Promote"}
+                              {inv?.inventory?.topProduct
+                                ? "Unpromote"
+                                : "Promote"}
                             </Button>
                           </TableCell>
                         </TableRow>
@@ -807,55 +907,42 @@ export default function AdminPage() {
                       Add New Ad Banner
                     </h3>
                     <form
-                      onSubmit={(e) => {
-                        e.preventDefault();
-                        handleAddAdBanner();
-                      }}
-                      className="space-y-4"
+                      onSubmit={handleSubmit(onSubmitBanner)}
+                      className="form-control m-4 space-y-4"
                     >
-                      <div>
-                        <Label htmlFor="bannerTitle">Title</Label>
+                      <FormControl m={4} isInvalid={Boolean(errors.banner)}>
+                        <Label htmlFor="bannerImage">Banner image</Label>
+
                         <Input
-                          id="bannerTitle"
-                          value={newAdBanner.title}
-                          onChange={(e) =>
-                            setNewAdBanner({
-                              ...newAdBanner,
-                              title: e.target.value,
-                            })
-                          }
+                          onChange={(e) => {
+                            setBannerFile(e?.target?.files?.[0]);
+                          }}
+                          type="file"
                           required
                         />
-                      </div>
-                      <div>
-                        <Label htmlFor="bannerImageUrl">Image URL</Label>
+
+                        <FormErrorMessage>
+                          {errors?.banner?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+
+                      <FormControl m={4} isInvalid={Boolean(errors.banner)}>
+                        <Label htmlFor="productLink">Product Link</Label>
                         <Input
-                          id="bannerImageUrl"
-                          value={newAdBanner.imageUrl}
-                          onChange={(e) =>
-                            setNewAdBanner({
-                              ...newAdBanner,
-                              imageUrl: e.target.value,
-                            })
-                          }
+                          id="productLink"
+                          value={productLink}
+                          onChange={(e) => setProductLink(e?.target?.value)}
                           required
                         />
-                      </div>
-                      <div>
-                        <Label htmlFor="bannerLink">Link</Label>
-                        <Input
-                          id="bannerLink"
-                          value={newAdBanner.link}
-                          onChange={(e) =>
-                            setNewAdBanner({
-                              ...newAdBanner,
-                              link: e.target.value,
-                            })
-                          }
-                          required
-                        />
-                      </div>
-                      <Button type="submit">Add Ad Banner</Button>
+
+                        <FormErrorMessage>
+                          {errors?.banner?.message}
+                        </FormErrorMessage>
+                      </FormControl>
+
+                      <Button type="submit" isLoading={isSubmitting}>
+                        Add Ad Banner
+                      </Button>
                     </form>
                   </div>
                 </CardContent>
