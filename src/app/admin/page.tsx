@@ -498,132 +498,7 @@ export default function AdminPage() {
             </ModalFooter>
           </ModalContent>
         </Modal>
-        {/*<main className="p-4">
-          <Skeleton isLoaded={!loading}>
-            <Center className="flex flex-col">
-              <h1 className="btn btn-ghost text-xl">Admin Dashboard</h1>
-              <Wrap>
-                <WrapItem>
-                  <Stat className="m-2 rounded-lg border-2 p-2">
-                    <StatLabel>Doctors</StatLabel>
-                    <StatNumber>{demoStats?.doctorCount}</StatNumber>
-                  </Stat>
-                </WrapItem>
-
-                <WrapItem>
-                  <Stat className="m-2 rounded-lg border-2 p-2">
-                    <StatLabel>Pharmacies</StatLabel>{" "}
-                    <StatNumber>{demoStats?.pharmaciesCount}</StatNumber>
-                  </Stat>
-                </WrapItem>
-
-                <WrapItem>
-                  <Stat className="m-2 rounded-lg border-2 p-2">
-                    <StatLabel>Clinics</StatLabel>{" "}
-                    <StatNumber>{demoStats?.clinicsCount}</StatNumber>
-                  </Stat>
-                </WrapItem>
-
-                <WrapItem>
-                  <Stat className="m-2 rounded-lg border-2 p-2">
-                    <StatLabel>Clinicians</StatLabel>{" "}
-                    <StatNumber>{demoStats?.clinicianCount}</StatNumber>
-                  </Stat>
-                </WrapItem>
-              </Wrap>
-            </Center>
-            <Wrap className="flex items-center justify-center">
-              <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
-                <div className="m-2 flex justify-between">
-                  <h1 className="default-font m-2 text-4xl text-black">
-                    Manage Doctors
-                  </h1>
-                </div>{" "}
-                <Link
-                  target="_blank"
-                  href="/admin/doctors"
-                  className="default-font btn btn-outline ml-4 mt-4"
-                >
-                  head in
-                </Link>
-              </div>
-              <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
-                <div className="m-2 flex justify-between">
-                  <h1 className="default-font m-2 text-4xl text-black">
-                    Add product
-                  </h1>
-                </div>{" "}
-                <Button
-                  className="default-font btn btn-outline ml-4 mt-4"
-                  onClick={() => {
-                    onOpenProductComp();
-                  }}
-                >
-                  Add
-                </Button>
-              </div>
-
-              <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
-                <div className="m-2 flex justify-between">
-                  <h1 className="default-font m-2 text-4xl text-black">
-                    Manage Clinicians
-                  </h1>
-                </div>{" "}
-                <Link
-                  target="_blank"
-                  href="/admin/clinicians"
-                  className="default-font btn btn-outline ml-4 mt-4"
-                >
-                  head in
-                </Link>
-              </div>
-              <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
-                <div className="m-2 flex justify-between">
-                  <h1 className="default-font m-2 text-4xl text-black">
-                    Manage Clinics
-                  </h1>
-                </div>{" "}
-                <Link
-                  target="_blank"
-                  href="/admin/clinics"
-                  className=" default-font btn btn-outline ml-4 mt-4"
-                >
-                  head in
-                </Link>
-              </div>
-
-              <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
-                <div className="m-2 flex justify-between">
-                  <h1 className="default-font m-2 text-4xl text-black">
-                    Manage Pharmacies
-                  </h1>
-                </div>{" "}
-                <Link
-                  target="_blank"
-                  href="/admin/pharmacies"
-                  className="default-font btn btn-outline ml-4 mt-4"
-                >
-                  head in
-                </Link>
-              </div>
-              <div className="border-grey mt-6 rounded-3xl border-x border-y bg-white p-6">
-                <div className="m-2 flex justify-between">
-                  <h1 className="default-font m-2 text-4xl text-black">
-                    Manage Ads
-                  </h1>
-                </div>{" "}
-                <Button
-                  onClick={() => {
-                    onOpen();
-                  }}
-                  className=" default-font btn btn-outline ml-4 mt-4"
-                >
-                  head in
-                </Button>
-              </div>
-            </Wrap>
-          </Skeleton>
-        </main>*/}
+        
         <div className="container mx-auto p-4">
           <h1 className="mb-6 text-3xl font-bold">Admin Dashboard</h1>
           <Tabs defaultValue="doctors">
@@ -890,11 +765,11 @@ export default function AdminPage() {
                       >
                         <img
                           src={banner.imageUrl}
-                          alt={banner.title}
+                          alt={"banner"}
                           className="h-16 w-32 rounded object-cover"
                         />
                         <div>
-                          <h3 className="font-semibold">{banner.title}</h3>
+                          <h3 className="font-semibold">{}</h3>
                           <p className="text-sm text-muted-foreground">
                             Link: {banner.productLink}
                           </p>
