@@ -5,7 +5,7 @@ export async function POST(request: Request) {
   try {
     const data = await request.formData();
     const bannerUrl = data.get("banner") as string;
-    const productLink = data.get("productLink");
+    const productLink = data.get("productLink") as string;
     const banner = await db
       .insert(adBanner)
       .values({ imageUrl: bannerUrl, productLink: productLink })
