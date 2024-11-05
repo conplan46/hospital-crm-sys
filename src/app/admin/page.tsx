@@ -1,11 +1,21 @@
 "use client";
 import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "~/components/ui/dialog";
+import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
+
 import {
   Carousel,
   CarouselContent,
@@ -28,7 +38,7 @@ import { Label } from "~/components/ui/label";
 import { Textarea } from "~/components/ui/textarea";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "~/components/ui/tabs";
-import { Plus, X } from "lucide-react";
+import { Plus, X, ShieldCheck } from "lucide-react";
 import {
   Modal,
   ModalOverlay,
@@ -84,6 +94,33 @@ import {
 import Image from "next/image";
 import { ADDRCONFIG } from "dns";
 export default function AdminPage() {
+  const [validTill, setValidTill] = useState<Date | undefined>(undefined);
+
+  const [openVerifyPharmacy, setOpenVerifyPharmacy] = useState(false);
+  const verifyPharmacy = async (id: number) => {
+    if (validTill && id) {
+      const formData = new FormData();
+      formData.append("validTill", validTill.toDateString());
+      formData.append("id", `${id}`);
+      const req = await fetch("/api/verify-pharmacy", {
+        method: "POST",
+        body: formData,
+      });
+      const data = await req.json();
+      if (data.status == "success") {
+        toast({ description: "Pharmacy Verified", status: "success" });
+        setValidTill(undefined)
+        setOpenVerifyPharmacy(false)
+      } else {
+        toast({ status: "error", description: data.status });
+      }
+    } else {
+      toast({
+        status: "error",
+        description: "You cannnot submit an empty valid till date field",
+      });
+    }
+  };
   const callBackUrl = usePathname();
   const queryClient = useQueryClient();
   const [bannerFile, setBannerFile] = useState<File>();
@@ -498,11 +535,11 @@ export default function AdminPage() {
             </ModalFooter>
           </ModalContent>
         </Modal>
-        
+
         <div className="container mx-auto p-4">
           <h1 className="mb-6 text-3xl font-bold">Admin Dashboard</h1>
           <Tabs defaultValue="doctors">
-            <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 my-8">
+            <TabsList className="my-8 grid w-full grid-cols-4 lg:grid-cols-8">
               <TabsTrigger value="doctors">Doctors</TabsTrigger>
               <TabsTrigger value="pharmacies">Pharmacies</TabsTrigger>
               <TabsTrigger value="clinics">Clinics</TabsTrigger>
@@ -532,10 +569,12 @@ export default function AdminPage() {
                         <TableHead>Email</TableHead>
 
                         <TableHead>Location</TableHead>
+
+                        <TableHead>Verify</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {doctorsQuery?.data?.doctors.map((doctor, index) => {
+                      {doctorsQuery?.data?.doctors?.map((doctor, index) => {
                         return (
                           <TableRow key={doctor.id}>
                             <TableCell>{`${doctor.firstname} ${doctor.lastname}`}</TableCell>
@@ -545,6 +584,15 @@ export default function AdminPage() {
 
                             <TableCell>
                               {doctor.primaryareaofspeciality}
+                            </TableCell>
+                            <TableCell>
+                              <ButtonShad
+                                onClick={() => {
+                                  onOpen();
+                                }}
+                              >
+                                <ShieldCheck className="mr-2 h-4 w-4" /> Verify
+                              </ButtonShad>
                             </TableCell>
                           </TableRow>
                         );
@@ -563,26 +611,125 @@ export default function AdminPage() {
                   <Table>
                     <TableHeader>
                       <TableRow>
-
                         <TableHead>Establishment Id</TableHead>
                         <TableHead>Name</TableHead>
 
                         <TableHead>Phone Number</TableHead>
 
                         <TableHead>Location</TableHead>
+
+                        <TableHead>Facility Registration Number</TableHead>
+                        <TableHead>License Number</TableHead>
+
+                        <TableHead>Verify</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {pharmaciesQuery?.data?.pharmacies.map(
+                      {pharmaciesQuery?.data?.pharmacies?.map(
                         (pharmacy, index) => {
                           return (
                             <TableRow key={pharmacy.id}>
-
                               <TableCell>{pharmacy.id}</TableCell>
                               <TableCell>{pharmacy.estname}</TableCell>
                               <TableCell>{pharmacy.phonenumber}</TableCell>
 
                               <TableCell>{pharmacy.location}</TableCell>
+                              <TableCell>
+                                {pharmacy.facilityRegistrationNumber}
+                              </TableCell>
+                              <TableCell>{pharmacy.licenseNumber}</TableCell>
+
+                              <TableCell>
+                                <Dialog
+                                  open={openVerifyPharmacy}
+                                  onOpenChange={setOpenVerifyPharmacy}
+                                >
+                                  <DialogTrigger asChild>
+                                    <ButtonShad>
+                                      <ShieldCheck className="mr-2 h-4 w-4" />{" "}
+                                      Verify
+                                    </ButtonShad>
+                                  </DialogTrigger>
+                                  <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                      <DialogTitle>
+                                        Set Valid Until Date
+                                      </DialogTitle>
+                                      <DialogDescription>
+                                        Please visit the website at{" "}
+                                        <a
+                                          href="https://practice.pharmacyboardkenya.org/LicenseStatus?register=facilities&ftype=retail"
+                                          target="_blank"
+                                          className="text-primary hover:underline"
+                                        >
+                                          Pharmacy Board kenya
+                                        </a>{" "}
+                                        search{" "}
+                                        {pharmacy?.facilityRegistrationNumber}{" "}
+                                        and click view details and check if the
+                                        following details and correspond to the
+                                        user information and fill the in the
+                                        valid date in the field below with the
+                                        valid until date.
+                                        <Table>
+                                          <TableHeader>
+                                            <TableRow>
+                                              <TableHead>Name</TableHead>
+
+                                              <TableHead>Location</TableHead>
+
+                                              <TableHead>
+                                                Facility Registration Number
+                                              </TableHead>
+                                              <TableHead>
+                                                License Number
+                                              </TableHead>
+                                            </TableRow>
+                                          </TableHeader>
+                                          <TableBody>
+                                            <TableRow key={pharmacy.id}>
+                                              <TableCell>
+                                                {pharmacy.estname}
+                                              </TableCell>
+
+                                              <TableCell>
+                                                {pharmacy.location}
+                                              </TableCell>
+                                              <TableCell>
+                                                {
+                                                  pharmacy.facilityRegistrationNumber
+                                                }
+                                              </TableCell>
+                                              <TableCell>
+                                                {pharmacy.licenseNumber}
+                                              </TableCell>
+                                            </TableRow>
+                                          </TableBody>
+                                        </Table>
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <div>
+                                      <Input
+                                        type="date"
+                                        onChange={(e) => {
+                                          setValidTill(
+                                            e?.target?.valueAsDate??undefined,
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                    <DialogFooter>
+                                      <Button
+                                        onClick={() => {
+                                          verifyPharmacy(pharmacy?.id);
+                                        }}
+                                      >
+                                        Verify
+                                      </Button>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
+                              </TableCell>
                             </TableRow>
                           );
                         },
@@ -605,16 +752,26 @@ export default function AdminPage() {
                         <TableHead>Phone Number</TableHead>
 
                         <TableHead>Location</TableHead>
+                        <TableHead>Verify</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {clinicsQuery?.data?.clinics.map((clinic, index) => {
+                      {clinicsQuery?.data?.clinics?.map((clinic, index) => {
                         return (
                           <TableRow key={clinic.id}>
                             <TableCell>{clinic.estname}</TableCell>
                             <TableCell>{clinic.phonenumber}</TableCell>
 
                             <TableCell>{clinic.location}</TableCell>
+                            <TableCell>
+                              <ButtonShad
+                                onClick={() => {
+                                  onOpen();
+                                }}
+                              >
+                                <ShieldCheck className="mr-2 h-4 w-4" /> Verify
+                              </ButtonShad>
+                            </TableCell>
                           </TableRow>
                         );
                       })}
@@ -641,7 +798,7 @@ export default function AdminPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {cliniciansQuery?.data?.clinicians.map(
+                      {cliniciansQuery?.data?.clinicians?.map(
                         (clinician, index) => {
                           return (
                             <TableRow key={clinician.id}>
@@ -680,7 +837,7 @@ export default function AdminPage() {
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {labsQuery?.data?.labs.map((lab, index) => {
+                      {labsQuery?.data?.labs?.map((lab, index) => {
                         return (
                           <TableRow key={lab.id}>
                             <TableCell>{lab?.estname}</TableCell>
@@ -735,7 +892,7 @@ export default function AdminPage() {
                                 handlePromoteProduct(
                                   inv?.inventory.id,
                                   inv?.inventory?.estId,
-                                  inv?.inventory?.topProduct??false,
+                                  inv?.inventory?.topProduct ?? false,
                                 )
                               }
                             >
@@ -1050,7 +1207,7 @@ function AddProductComponent({
                   </ButtonShad>
                 </div>
                 <div className="mt-2 space-y-2">
-                  {dosages.map((dosage, index) => (
+                  {dosages?.map((dosage, index) => (
                     <div
                       key={index}
                       className="flex items-center space-x-2 rounded bg-gray-100 p-2"

@@ -787,60 +787,35 @@ function ClinicianComponent({
       formData.append("phoneNumber", phoneNumber);
       formData.append("countyOfPractice", data.countyOfPractice);
       formData.append("primaryAreaOfSpeciality", data.primaryAreaOfSpeciality);
-      const storageRef = ref(
-        storage,
-        `licenses/${data?.practicingLicense?.[0]?.name}`,
-      );
+      formData.append("practicingLicense", data.practicingLicenseNumber);
 
-      const snapshot = await uploadBytes(
-        storageRef,
-        data?.practicingLicense?.[0] as Blob,
-      );
-      const url = await getDownloadURL(snapshot.ref);
-      if (!url) {
-        toast({
-          description: "Error uploading practicing license",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      } else {
-        formData.append("practicingLicense", url);
-        fetch("/api/create-clinician", { method: "POST", body: formData })
-          .then((data) => data.json())
-          .then(
-            (result: {
-              status:
-                | "clinician added"
-                | "An internal error adding the clinician"
-                | "An internal error occured";
-            }) => {
-              if (result.status == "clinician added") {
-                setIsSubmitting(false);
-                toast({
-                  title: "Data received.",
-                  description: "We've created a clinician account for you.",
-                  status: "success",
-                  duration: 9000,
-                  isClosable: true,
-                });
-                void router.push("/");
-                //if user was added successfully sign up with new use and redirect to new-user page
-              } else {
-                setIsSubmitting(false);
+      fetch("/api/create-clinician", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((result: { status: string }) => {
+          if (result.status == "clinician added") {
+            setIsSubmitting(false);
+            toast({
+              title: "Data received.",
+              description: "We've created a clinician account for you.",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            void router.push("/");
+            //if user was added successfully sign up with new use and redirect to new-user page
+          } else {
+            setIsSubmitting(false);
 
-                toast({
-                  title: "Error",
-                  description: result.status,
-                  status: "error",
-                  duration: 9000,
-                  isClosable: true,
-                });
-              }
-            },
-          )
-          .catch((err) => console.error(err));
-      }
+            toast({
+              title: "Error",
+              description: result.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+        })
+        .catch((err) => console.error(err));
     }
   };
 
@@ -945,7 +920,6 @@ function ClinicianComponent({
                 County of practice
               </FormLabel>
               <Input
-                className="w-full"
                 placeholder="County of practice"
                 {...register("countyOfPractice", {
                   required: "field is required",
@@ -955,20 +929,23 @@ function ClinicianComponent({
                 {errors?.countyOfPractice?.message}
               </FormErrorMessage>
             </FormControl>
-            <FormControl m={4} isInvalid={Boolean(errors.practicingLicense)}>
+            <FormControl
+              m={4}
+              isInvalid={Boolean(errors.practicingLicenseNumber)}
+            >
               <FormLabel className="font-bold text-black" htmlFor="name">
-                Practicing license
+                Practicing license Number
               </FormLabel>
-              <input
-                {...register("practicingLicense", {
-                  required: "practicing license is required",
+              <Input
+                {...register("practicingLicenseNumber", {
+                  required: "practicing license number is required",
                 })}
-                type="file"
-                className="file-input file-input-bordered w-full max-w-xs"
+                placeholder="enter practicing license number"
+                type="text"
               />
 
               <FormErrorMessage>
-                {errors?.practicingLicense?.message}
+                {errors?.practicingLicenseNumber?.message}
               </FormErrorMessage>
             </FormControl>
             <Button
@@ -1021,53 +998,39 @@ function PharmacyComponent({
       formData.append("email", session?.user?.email);
       formData.append("phoneNumber", phoneNumber);
       formData.append("location", data.location);
-      const storageRef = ref(
-        storage,
-        `licenses/${data?.practicingLicense?.[0]?.name}`,
+      formData.append("licenseNumber", data.licenseNumber);
+      formData.append(
+        "facilityRegistrationNumber",
+        data.facilityRegistrationNumber,
       );
 
-      const snapshot = await uploadBytes(
-        storageRef,
-        data?.practicingLicense?.[0] as Blob,
-      );
-      const url = await getDownloadURL(snapshot.ref);
-      if (!url) {
-        toast({
-          description: "Error uploading practicing license",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      } else {
-        formData.append("practicingLicense", url);
-        fetch("/api/create-pharmacy", { method: "POST", body: formData })
-          .then((data) => data.json())
-          .then((result: { status: string }) => {
-            if (result.status == "pharmacy added") {
-              setIsSubmitting(false);
-              toast({
-                title: "Data received.",
-                description: "We've created a Pharmacy account for you.",
-                status: "success",
-                duration: 9000,
-                isClosable: true,
-              });
-              void router.push("/");
-              //if user was added successfully sign up with new use and redirect to new-user page
-            } else {
-              setIsSubmitting(false);
+      fetch("/api/create-pharmacy", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((result: { status: string }) => {
+          if (result.status == "pharmacy added") {
+            setIsSubmitting(false);
+            toast({
+              title: "Data received.",
+              description: "We've created a Pharmacy account for you.",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            void router.push("/");
+            //if user was added successfully sign up with new use and redirect to new-user page
+          } else {
+            setIsSubmitting(false);
 
-              toast({
-                title: "Error",
-                description: result.status,
-                status: "error",
-                duration: 9000,
-                isClosable: true,
-              });
-            }
-          })
-          .catch((err) => console.error(err));
-      }
+            toast({
+              title: "Error",
+              description: result.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+        })
+        .catch((err) => console.error(err));
     }
   };
   return (
@@ -1098,21 +1061,42 @@ function PharmacyComponent({
 
           <FormControl
             className="mb-6"
-            isInvalid={Boolean(errors.practicingLicense)}
+            isInvalid={Boolean(errors.licenseNumber)}
           >
             <FormLabel className="font-bold text-black" htmlFor="name">
-              Practicing license
+              License Number
             </FormLabel>
-            <input
-              {...register("practicingLicense", {
-                required: "practicing license is required",
+            <Input
+              className="w-full"
+              placeholder="Enter license number"
+              {...register("licenseNumber", {
+                required: "license number is required",
               })}
-              type="file"
-              className="file-input file-input-bordered w-full max-w-xs"
+              type="text"
             />
 
             <FormErrorMessage>
-              {errors?.practicingLicense?.message}
+              {errors?.licenseNumber?.message}
+            </FormErrorMessage>
+          </FormControl>
+          <FormControl
+            className="mb-6"
+            isInvalid={Boolean(errors.facilityRegistrationNumber)}
+          >
+            <FormLabel className="font-bold text-black" htmlFor="name">
+              Facility Registration Number
+            </FormLabel>
+            <Input
+              className="w-full"
+              {...register("facilityRegistrationNumber", {
+                required: "facility registration number required",
+              })}
+              placeholder="Enter Facility Registration Number"
+              type="text"
+            />
+
+            <FormErrorMessage>
+              {errors?.facilityRegistrationNumber?.message}
             </FormErrorMessage>
           </FormControl>
           <label className="form-control mb-4 w-full max-w-xs">
@@ -1121,7 +1105,10 @@ function PharmacyComponent({
             </div>
             <input
               type="text"
-              placeholder="Type here"
+              {...register("location", {
+                required: "establishment location is required ",
+              })}
+              placeholder="Enter establishment location"
               className="input input-bordered w-full max-w-xs"
             />
           </label>

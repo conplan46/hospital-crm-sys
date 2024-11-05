@@ -13,6 +13,7 @@ import {
   primaryKey,
   decimal,
   real,
+  date,
 } from "drizzle-orm/pg-core";
 
 export const products = pgTable(
@@ -21,7 +22,7 @@ export const products = pgTable(
     productId: serial("product_id").primaryKey().notNull(),
     name: text("name").notNull(),
     description: text("description").notNull(),
-    dosage: text('dosage').array(),
+    dosage: text("dosage").array(),
     averagePrice: real("average_price").notNull(),
     manufacturer: text("manufacturer").notNull(),
     imageUrl: varchar("image_url", { length: 255 }).notNull(),
@@ -62,17 +63,18 @@ export const adBanner = pgTable("ad_banners", {
   id: serial("id").primaryKey().notNull(),
   imageUrl: varchar("image_url", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-  productLink:varchar("product_url", { length: 255 }).notNull(),
+  productLink: varchar("product_url", { length: 255 }).notNull(),
 });
 export const pharmacy = pgTable("pharmacy", {
   id: serial("id").primaryKey().notNull(),
-  licenseDocumentLink: varchar("license_document_link", {
-    length: 255,
-  }).notNull(),
   estname: varchar("estname", { length: 255 }).notNull(),
   phonenumber: varchar("phonenumber", { length: 15 }).notNull(),
   location: varchar("location", { length: 255 }).notNull(),
   userid: integer("userid").references(() => users.id),
+  verified: boolean("verified").default(false),
+  facilityRegistrationNumber: varchar("facility_registration_number"),
+  licenseNumber: varchar("license_number"),
+  validTill: date("valid_till"),
 });
 
 export const patients = pgTable("patients", {
@@ -189,10 +191,10 @@ export const clinicians = pgTable("clinicians", {
     length: 255,
   }).notNull(),
   countyofpractice: varchar("countyofpractice", { length: 255 }).notNull(),
-  licenseDocumentLink: varchar("license_document_link", {
-    length: 255,
-  }).notNull(),
+  verified: boolean("verified").default(false),
+  practiceLicenseNumber: varchar("practiceLicenseNumber"),
   userid: integer("userid").references(() => users.id),
+  validTill: date("valid_till"),
 });
 
 export const schemaMigrations = pgTable("schema_migrations", {
@@ -213,6 +215,8 @@ export const doctors = pgTable("doctors", {
   licenseDocumentLink: varchar("license_document_link", {
     length: 255,
   }).notNull(),
+
+  verified: boolean("verified"),
   userid: integer("userid").references(() => users.id),
 });
 
@@ -226,6 +230,8 @@ export const clinics = pgTable("clinics", {
   phonenumber: varchar("phonenumber", { length: 15 }).notNull(),
   location: varchar("location", { length: 255 }).notNull(),
   userid: integer("userid").references(() => users.id),
+
+  verified: boolean("verified"),
 });
 
 export const verificationToken = pgTable(

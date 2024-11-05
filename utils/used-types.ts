@@ -1,4 +1,11 @@
-import { clinicians, clinics, doctors, patients, pharmacy, users } from "drizzle/schema";
+import {
+  clinicians,
+  clinics,
+  doctors,
+  patients,
+  pharmacy,
+  users,
+} from "drizzle/schema";
 import { z } from "zod";
 
 export type Clinicians = Array<Clinician>;
@@ -114,14 +121,16 @@ type Merge<T extends object> = {
 } & {
   [k in NonCommonKeys<T>]?: PickTypeOf<T, k>;
 };
-export type UserDataDrizzle = Array<{
-        users: typeof users.$inferSelect;
-        clinics?: typeof clinics.$inferSelect;
-        clinicians?: typeof clinicians.$inferSelect;
-        doctors?:typeof doctors.$inferSelect;
-        pharmacy?:typeof pharmacy.$inferSelect;
-        patients?:typeof patients.$inferSelect;
-      }>|undefined;
+export type UserDataDrizzle =
+  | Array<{
+      users: typeof users.$inferSelect;
+      clinics?: typeof clinics.$inferSelect;
+      clinicians?: typeof clinicians.$inferSelect;
+      doctors?: typeof doctors.$inferSelect;
+      pharmacy?: typeof pharmacy.$inferSelect;
+      patients?: typeof patients.$inferSelect;
+    }>
+  | undefined;
 type PickTypeOf<T, K extends string | number | symbol> =
   K extends AllKeys<T> ? PickType<T, K> : never;
 
@@ -133,7 +142,7 @@ const clinicianOnboardingSchema = z.object({
   primaryAreaOfSpeciality: z.string(),
   location: z.string(),
   countyOfPractice: z.string(),
-  practicingLicense: z.custom<FileList>().nullish(),
+  practicingLicenseNumber: z.string(),
 });
 export type ClinicianDataForm = z.infer<typeof clinicianOnboardingSchema>;
 const clinicOnboardingDataSchema = z.object({
@@ -171,7 +180,8 @@ const pharmacyOnboardingDataSchema = z.object({
   phoneNumber: z.string(),
   location: z.string(),
   businessName: z.string(),
-  practicingLicense: z.custom<FileList>().nullish(),
+  facilityRegistrationNumber: z.string(),
+  licenseNumber: z.string(),
 });
 const patientBookingDataSchema = z.object({
   patientName: z.string(),
@@ -201,9 +211,9 @@ const inventoryItemSchema = z.object({
   productTitle: z.string(),
   productDescription: z.string(),
   inventoryCount: z.number(),
-  productManufacturer:z.string(),
-  dosages:z.string(),
-  price:z.number(),
+  productManufacturer: z.string(),
+  dosages: z.string(),
+  price: z.number(),
 
   drugImage: z.custom<FileList>().nullish(),
 });
