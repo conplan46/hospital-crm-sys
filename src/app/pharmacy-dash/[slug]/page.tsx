@@ -55,6 +55,7 @@ import Loading from "~/app/loading";
 import { InventoryItem } from "~/components/inventory-item";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { inventory, products } from "drizzle/schema";
+import NoPriv from "~/components/no-privilages";
 export default function PharmacyDashBoard({
   params,
 }: {
@@ -195,6 +196,27 @@ export default function PharmacyDashBoard({
     }
   };
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const isVerified = useQuery({
+    queryKey: [`pharmacy-${params?.slug}-verified`],
+    queryFn: async function () {
+      try {
+        const res = await fetch("/api/is-pharmacy-verified", {
+          method: "POST",
+          body: JSON.stringify({ estId: params.slug }),
+        });
+        const data = (await res.json()) as { verified: boolean };
+        return data;
+      } catch (e) {
+        console.error(e);
+        toast({
+          description: "An error occured fetching the inventory",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    },
+  });
   const inventoryQuery = useQuery({
     queryKey: ["inventory"],
     queryFn: async function () {
@@ -311,6 +333,9 @@ export default function PharmacyDashBoard({
   }
   if (!isClient) {
     return <Loading />;
+  }
+  if (!isVerified?.data?.verified) {
+    return <NoPriv />;
   }
   if (isClient && status == "authenticated") {
     return (
