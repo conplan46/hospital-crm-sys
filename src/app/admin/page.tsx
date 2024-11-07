@@ -106,7 +106,7 @@ export default function AdminPage() {
         method: "POST",
         body: formData,
       });
-      const data = await req.json();
+      const data = await req.json() as {status:string};
       if (data.status == "success") {
         toast({ description: "Pharmacy Verified", status: "success" });
         setValidTill(undefined)
@@ -721,7 +721,7 @@ export default function AdminPage() {
                                     <DialogFooter>
                                       <Button
                                         onClick={() => {
-                                          verifyPharmacy(pharmacy?.id);
+                                          void verifyPharmacy(pharmacy?.id);
                                         }}
                                       >
                                         Verify
