@@ -88,29 +88,275 @@ import {
   doctors,
   inventory,
   labs,
+  nurse,
   pharmacy,
   products,
+  users,
 } from "drizzle/schema";
 import Image from "next/image";
-import { ADDRCONFIG } from "dns";
+import { verify } from "crypto";
 export default function AdminPage() {
   const [validTill, setValidTill] = useState<Date | undefined>(undefined);
 
   const [openVerifyPharmacy, setOpenVerifyPharmacy] = useState(false);
-  const verifyPharmacy = async (id: number) => {
-    if (validTill && id) {
+
+  const [openVerifyDoctor, setOpenVerifyDoctor] = useState(false);
+
+  const [openVerifyClinician, setOpenVerifyClinician] = useState(false);
+
+  const [openVerifyNurse, setOpenVerifyNurse] = useState(false);
+
+  const [openVerifyClinic, setOpenVerifyClinic] = useState(false);
+
+  const verifyNurse = async (id: number, verified: boolean | null) => {
+    if (verified) {
       const formData = new FormData();
-      formData.append("validTill", validTill.toDateString());
+      formData.append("id", `${id}`);
+      formData.append("verified", `${verified}`);
+      const req = await fetch("/api/verify-nurse", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await req.json()) as { status: string };
+      if (data.status == "success") {
+        toast({ description: "Nurse Unverified", status: "success" });
+        setValidTill(undefined);
+        setOpenVerifyNurse(false);
+      } else {
+        toast({ status: "error", description: data.status });
+      }
+    } else {
+      if (id && validTill) {
+        const formData = new FormData();
+        formData.append("id", `${id}`);
+
+        formData.append("validTill", validTill.toDateString());
+        const req = await fetch("/api/verify-nurse", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await req.json()) as { status: string };
+        if (data.status == "success") {
+          toast({ description: "Nurse Verified", status: "success" });
+          setValidTill(undefined);
+          setOpenVerifyNurse(false);
+        } else {
+          toast({ status: "error", description: data.status });
+        }
+      } else {
+        toast({
+          status: "error",
+          description: "You cannnot submit an empty valid till date",
+        });
+      }
+    }
+  };
+  const verifyDoctor = async (id: number, verified: boolean | null) => {
+    if (verified) {
+      const formData = new FormData();
+      formData.append("id", `${id}`);
+
+      formData.append("verified", `${verified}`);
+      const req = await fetch("/api/verify-doctor", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await req.json()) as { status: string };
+      if (data.status == "success") {
+        toast({ description: "Doctor Unverified", status: "success" });
+        setValidTill(undefined);
+        setOpenVerifyDoctor(false);
+      } else {
+        toast({ status: "error", description: data.status });
+      }
+    } else {
+      if (validTill && id) {
+        const formData = new FormData();
+        formData.append("validTill", validTill.toDateString());
+        formData.append("id", `${id}`);
+        const req = await fetch("/api/verify-doctor", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await req.json()) as { status: string };
+        if (data.status == "success") {
+          toast({ description: "Doctor Verified", status: "success" });
+          setValidTill(undefined);
+          setOpenVerifyDoctor(false);
+        } else {
+          toast({ status: "error", description: data.status });
+        }
+      } else {
+        toast({
+          status: "error",
+          description: "You cannnot submit an empty valid till date field",
+        });
+      }
+    }
+  };
+
+  const verifyClinic = async (id: number, verified: boolean | null) => {
+    if (verified) {
+      const formData = new FormData();
+      formData.append("verified", `${verified}`);
+      formData.append("id", `${id}`);
+      const req = await fetch("/api/verify-clinic", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await req.json()) as { status: string };
+      if (data.status == "success") {
+        toast({ description: "Pharmacy unVerified", status: "success" });
+        setValidTill(undefined);
+        setOpenVerifyPharmacy(false);
+      } else {
+        toast({ status: "error", description: data.status });
+      }
+    } else {
+      if (validTill && id) {
+        const formData = new FormData();
+        formData.append("validTill", validTill.toDateString());
+        formData.append("id", `${id}`);
+        const req = await fetch("/api/verify-clinic", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await req.json()) as { status: string };
+        if (data.status == "success") {
+          toast({ description: "Pharmacy Verified", status: "success" });
+          setValidTill(undefined);
+          setOpenVerifyPharmacy(false);
+        } else {
+          toast({ status: "error", description: data.status });
+        }
+      } else {
+        toast({
+          status: "error",
+          description: "You cannnot submit an empty valid till date field",
+        });
+      }
+    }
+  };
+
+  const verifyClinician = async (id: number, verified: boolean | null) => {
+    if (verified) {
+      const formData = new FormData();
+      formData.append("verified", `${verified}`);
+      formData.append("id", `${id}`);
+      const req = await fetch("/api/verify-clinician", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await req.json()) as { status: string };
+      if (data.status == "success") {
+        toast({ description: "Clinician Unverified", status: "success" });
+        setValidTill(undefined);
+        setOpenVerifyPharmacy(false);
+      } else {
+        toast({ status: "error", description: data.status });
+      }
+    } else {
+      if (validTill && id) {
+        const formData = new FormData();
+        formData.append("validTill", validTill.toDateString());
+        formData.append("id", `${id}`);
+        const req = await fetch("/api/verify-clinician", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await req.json()) as { status: string };
+        if (data.status == "success") {
+          toast({ description: "Clinician Verified", status: "success" });
+          setValidTill(undefined);
+          setOpenVerifyPharmacy(false);
+        } else {
+          toast({ status: "error", description: data.status });
+        }
+      } else {
+        toast({
+          status: "error",
+          description: "You cannnot submit an empty valid till date field",
+        });
+      }
+    }
+  };
+
+  const verifyPharmacy = async (id: number, verified: boolean | null) => {
+    if (verified) {
+      const formData = new FormData();
+      formData.append("verified", `${verified}`);
       formData.append("id", `${id}`);
       const req = await fetch("/api/verify-pharmacy", {
         method: "POST",
         body: formData,
       });
-      const data = await req.json() as {status:string};
+      const data = (await req.json()) as { status: string };
       if (data.status == "success") {
-        toast({ description: "Pharmacy Verified", status: "success" });
-        setValidTill(undefined)
-        setOpenVerifyPharmacy(false)
+        toast({ description: "Pharmacy unverified", status: "success" });
+        setValidTill(undefined);
+        setOpenVerifyPharmacy(false);
+      } else {
+        toast({ status: "error", description: data.status });
+      }
+    } else {
+      if (validTill && id) {
+        const formData = new FormData();
+        formData.append("validTill", validTill.toDateString());
+        formData.append("id", `${id}`);
+        const req = await fetch("/api/verify-pharmacy", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await req.json()) as { status: string };
+        if (data.status == "success") {
+          toast({ description: "Pharmacy Verified", status: "success" });
+          setValidTill(undefined);
+          setOpenVerifyPharmacy(false);
+        } else {
+          toast({ status: "error", description: data.status });
+        }
+      } else {
+        toast({
+          status: "error",
+          description: "You cannnot submit an empty valid till date field",
+        });
+      }
+    }
+  };
+
+  const verifyLab = async (id: number,verified:boolean|null) => {
+    if(verified){
+
+      const formData = new FormData();
+      formData.append("verified", `${verified}`);
+      formData.append("id", `${id}`);
+      const req = await fetch("/api/verify-lab", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await req.json()) as { status: string };
+      if (data.status == "success") {
+        toast({ description: "Lab unverified", status: "success" });
+        setValidTill(undefined);
+        setOpenVerifyPharmacy(false);
+      } else {
+        toast({ status: "error", description: data.status });
+      }
+    }else{
+
+    if (validTill && id) {
+      const formData = new FormData();
+      formData.append("validTill", validTill.toDateString());
+      formData.append("id", `${id}`);
+      const req = await fetch("/api/verify-lab", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await req.json()) as { status: string };
+      if (data.status == "success") {
+        toast({ description: "Lab Verified", status: "success" });
+        setValidTill(undefined);
+        setOpenVerifyPharmacy(false);
       } else {
         toast({ status: "error", description: data.status });
       }
@@ -119,6 +365,7 @@ export default function AdminPage() {
         status: "error",
         description: "You cannnot submit an empty valid till date field",
       });
+    }
     }
   };
   const callBackUrl = usePathname();
@@ -197,7 +444,7 @@ export default function AdminPage() {
           method: "GET",
         });
         const data = (await res.json()) as {
-          status: string;
+          status: string | undefined;
           inventory: Array<{
             inventory: typeof inventory.$inferSelect;
             products: typeof products.$inferSelect;
@@ -224,8 +471,11 @@ export default function AdminPage() {
           method: "GET",
         });
         const data = (await req.json()) as {
-          status: string;
-          doctors: Array<typeof doctors.$inferSelect>;
+          status: string | undefined;
+          doctors: Array<{
+            doctors: typeof doctors.$inferSelect;
+            users: typeof users.$inferSelect;
+          }>;
         };
         console.log({ data });
         return data;
@@ -240,6 +490,34 @@ export default function AdminPage() {
       }
     },
   });
+  const nurseQuery = useQuery({
+    queryKey: ["nurses"],
+    queryFn: async function () {
+      try {
+        const req = await fetch("/api/get-nurses", {
+          headers: { "Content-Type": "application/json" },
+          method: "GET",
+        });
+        const data = (await req.json()) as {
+          nurses: Array<{
+            nurse: typeof nurse.$inferSelect;
+            users: typeof users.$inferSelect;
+          }>;
+        };
+        console.log({ data });
+        return data;
+      } catch (e) {
+        console.error(e);
+        toast({
+          description: "An error occured fetching nurses",
+          status: "error",
+          duration: 9000,
+          isClosable: true,
+        });
+      }
+    },
+  });
+
   const pharmaciesQuery = useQuery({
     queryKey: ["pharmacies"],
     queryFn: async function () {
@@ -249,10 +527,12 @@ export default function AdminPage() {
           method: "GET",
         });
         const data = (await req.json()) as {
-          status: string;
-          pharmacies: Array<typeof pharmacy.$inferSelect>;
+          pharmacies: Array<{
+            pharmacy: typeof pharmacy.$inferSelect;
+            users: typeof users.$inferSelect;
+          }>;
         };
-        console.log({ data });
+        console.log({ pharmacies: data });
         return data;
       } catch (e) {
         console.error(e);
@@ -274,8 +554,10 @@ export default function AdminPage() {
           method: "GET",
         });
         const data = (await req.json()) as {
-          status: string;
-          clinics: Array<typeof clinics.$inferSelect>;
+          clinics: Array<{
+            clinics: typeof clinics.$inferSelect;
+            users: typeof users.$inferSelect;
+          }>;
         };
         console.log({ data });
         return data;
@@ -300,10 +582,12 @@ export default function AdminPage() {
           method: "GET",
         });
         const data = (await req.json()) as {
-          status: string;
-          clinicians: Array<typeof clinicians.$inferSelect>;
+          clinicians: Array<{
+            clinicans: typeof clinicians.$inferSelect;
+            users: typeof users.$inferSelect;
+          }>;
         };
-        console.log({ data });
+        console.log({ clinicians: data });
         return data;
       } catch (e) {
         console.error(e);
@@ -326,8 +610,10 @@ export default function AdminPage() {
           method: "GET",
         });
         const data = (await req.json()) as {
-          status: string;
-          labs: Array<typeof labs.$inferSelect>;
+          labs: Array<{
+            labs: typeof labs.$inferSelect;
+            users: typeof users.$inferSelect;
+          }>;
         };
         console.log({ data });
         return data;
@@ -541,6 +827,8 @@ export default function AdminPage() {
           <Tabs defaultValue="doctors">
             <TabsList className="my-8 grid w-full grid-cols-4 lg:grid-cols-8">
               <TabsTrigger value="doctors">Doctors</TabsTrigger>
+
+              <TabsTrigger value="nurses">Nurses</TabsTrigger>
               <TabsTrigger value="pharmacies">Pharmacies</TabsTrigger>
               <TabsTrigger value="clinics">Clinics</TabsTrigger>
               <TabsTrigger value="clinicians">Clinicians</TabsTrigger>
@@ -576,23 +864,237 @@ export default function AdminPage() {
                     <TableBody>
                       {doctorsQuery?.data?.doctors?.map((doctor, index) => {
                         return (
-                          <TableRow key={doctor.id}>
-                            <TableCell>{`${doctor.firstname} ${doctor.lastname}`}</TableCell>
-                            <TableCell>{doctor.phonenumber}</TableCell>
-
-                            <TableCell>{doctor.countyofpractice}</TableCell>
-
+                          <TableRow key={doctor.doctors.id}>
+                            <TableCell>{`${doctor.doctors.firstname} ${doctor.doctors.lastname}`}</TableCell>
+                            <TableCell>{doctor.users?.email}</TableCell>
+                            <TableCell>{doctor.doctors.phonenumber}</TableCell>
                             <TableCell>
-                              {doctor.primaryareaofspeciality}
+                              {doctor.doctors.countyofpractice}
                             </TableCell>
                             <TableCell>
-                              <ButtonShad
-                                onClick={() => {
-                                  onOpen();
-                                }}
+                              {doctor.doctors.primaryareaofspeciality}
+                            </TableCell>
+                            <TableCell>
+                              <Dialog
+                                open={openVerifyDoctor}
+                                onOpenChange={setOpenVerifyDoctor}
                               >
-                                <ShieldCheck className="mr-2 h-4 w-4" /> Verify
-                              </ButtonShad>
+                                <DialogTrigger asChild>
+                                  <ButtonShad>
+                                    <ShieldCheck className="mr-2 h-4 w-4" />{" "}
+                                    {doctor?.doctors.verified
+                                      ? "Unverify"
+                                      : "Verified"}
+                                  </ButtonShad>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      Set Valid Until Date
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      Please visit the website at{" "}
+                                      <a
+                                        href="https://osp.nckenya.com/LicenseStatus"
+                                        target="_blank"
+                                        className="text-primary hover:underline"
+                                      >
+                                        NCK Register
+                                      </a>{" "}
+                                      search{" "}
+                                      {doctor?.doctors?.practiceLicenseNumber}{" "}
+                                      and click view details and check if the
+                                      following details and correspond to the
+                                      user information and fill the in the valid
+                                      date in the field below with the valid
+                                      until date.
+                                      <Table>
+                                        <TableHeader>
+                                          <TableRow>
+                                            <TableHead>Name</TableHead>
+
+                                            <TableHead>Location</TableHead>
+
+                                            <TableHead>
+                                              License Number
+                                            </TableHead>
+                                          </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                          <TableRow key={doctor.doctors?.id}>
+                                            <TableCell>{`${doctor.doctors?.firstname} ${doctor.doctors.lastname}`}</TableCell>
+
+                                            <TableCell>
+                                              {doctor.doctors.countyofpractice}
+                                            </TableCell>
+                                            <TableCell>
+                                              {
+                                                doctor.doctors
+                                                  .practiceLicenseNumber
+                                              }
+                                            </TableCell>
+                                            <TableCell>
+                                              {
+                                                doctor.doctors
+                                                  .practiceLicenseNumber
+                                              }
+                                            </TableCell>
+                                          </TableRow>
+                                        </TableBody>
+                                      </Table>
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div>
+                                    <Input
+                                      type="date"
+                                      onChange={(e) => {
+                                        setValidTill(
+                                          e?.target?.valueAsDate ?? undefined,
+                                        );
+                                      }}
+                                    />
+                                  </div>
+                                  <DialogFooter>
+                                    <Button
+                                      onClick={() => {
+                                        void verifyDoctor(
+                                          doctor.doctors?.id,
+                                          doctor?.doctors?.verified,
+                                        );
+                                      }}
+                                    >
+                                      {doctor?.doctors?.verified
+                                        ? "Unveriy"
+                                        : "Verify"}
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            </TableCell>{" "}
+                          </TableRow>
+                        );
+                      })}
+                    </TableBody>
+                  </Table>
+                </CardContent>
+              </Card>
+            </TabsContent>
+            <TabsContent className="m-4" value="nurses">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Registered Nurses</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Email</TableHead>
+                        <TableHead>Number</TableHead>
+                        <TableHead>License Number</TableHead>
+                        <TableHead>Verify</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {nurseQuery?.data?.nurses?.map((nurse, index) => {
+                        return (
+                          <TableRow key={nurse.nurse.id}>
+                            <TableCell>{`${nurse.nurse.firstname} ${nurse.nurse.lastname}`}</TableCell>
+                            <TableCell>{nurse.users.email}</TableCell>
+                            <TableCell>{nurse.nurse.phonenumber}</TableCell>
+
+                            <TableCell>
+                              {nurse.nurse.countyofpractice}
+                            </TableCell>
+
+                            <TableCell>
+                              <Dialog
+                                open={openVerifyNurse}
+                                onOpenChange={setOpenVerifyNurse}
+                              >
+                                <DialogTrigger asChild>
+                                  <ButtonShad>
+                                    <ShieldCheck className="mr-2 h-4 w-4" />{" "}
+                                    {nurse?.nurse?.verified
+                                      ? "Unverify"
+                                      : "Verify"}
+                                  </ButtonShad>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      Set Valid Until Date
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      Please visit the website at{" "}
+                                      <a
+                                        href="https://osp.nckenya.com/LicenseStatus"
+                                        target="_blank"
+                                        className="text-primary hover:underline"
+                                      >
+                                        NCK Register
+                                      </a>{" "}
+                                      search{" "}
+                                      {nurse?.nurse?.practiceLicenseNumber} and
+                                      click view details and check if the
+                                      following details and correspond to the
+                                      user information and fill the in the valid
+                                      date in the field below with the valid
+                                      until date.
+                                      <Table>
+                                        <TableHeader>
+                                          <TableRow>
+                                            <TableHead>Name</TableHead>
+
+                                            <TableHead>Location</TableHead>
+
+                                            <TableHead>
+                                              License Number
+                                            </TableHead>
+                                          </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                          <TableRow key={nurse.nurse.id}>
+                                            <TableCell>{`${nurse.nurse.firstname} ${nurse.nurse.lastname}`}</TableCell>
+
+                                            <TableCell>
+                                              {nurse.nurse.countyofpractice}
+                                            </TableCell>
+                                            <TableCell>
+                                              {
+                                                nurse.nurse
+                                                  .practiceLicenseNumber
+                                              }
+                                            </TableCell>
+                                          </TableRow>
+                                        </TableBody>
+                                      </Table>
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div>
+                                    <Input
+                                      type="date"
+                                      onChange={(e) => {
+                                        setValidTill(
+                                          e?.target?.valueAsDate ?? undefined,
+                                        );
+                                      }}
+                                    />
+                                  </div>
+                                  <DialogFooter>
+                                    <Button
+                                      onClick={() => {
+                                        void verifyNurse(
+                                          nurse?.nurse?.id,
+                                          nurse?.nurse?.verified,
+                                        );
+                                      }}
+                                    >
+                                      Verify
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
                             </TableCell>
                           </TableRow>
                         );
@@ -612,6 +1114,7 @@ export default function AdminPage() {
                     <TableHeader>
                       <TableRow>
                         <TableHead>Establishment Id</TableHead>
+                        <TableHead>Email</TableHead>
                         <TableHead>Name</TableHead>
 
                         <TableHead>Phone Number</TableHead>
@@ -628,16 +1131,25 @@ export default function AdminPage() {
                       {pharmaciesQuery?.data?.pharmacies?.map(
                         (pharmacy, index) => {
                           return (
-                            <TableRow key={pharmacy.id}>
-                              <TableCell>{pharmacy.id}</TableCell>
-                              <TableCell>{pharmacy.estname}</TableCell>
-                              <TableCell>{pharmacy.phonenumber}</TableCell>
-
-                              <TableCell>{pharmacy.location}</TableCell>
+                            <TableRow key={pharmacy?.pharmacy.id}>
+                              <TableCell>{pharmacy?.pharmacy.id}</TableCell>
+                              <TableCell>{}</TableCell>
                               <TableCell>
-                                {pharmacy.facilityRegistrationNumber}
+                                {pharmacy?.pharmacy.estname}
                               </TableCell>
-                              <TableCell>{pharmacy.licenseNumber}</TableCell>
+                              <TableCell>
+                                {pharmacy?.pharmacy.phonenumber}
+                              </TableCell>
+
+                              <TableCell>
+                                {pharmacy?.pharmacy.location}
+                              </TableCell>
+                              <TableCell>
+                                {pharmacy?.pharmacy.facilityRegistrationNumber}
+                              </TableCell>
+                              <TableCell>
+                                {pharmacy?.pharmacy.licenseNumber}
+                              </TableCell>
 
                               <TableCell>
                                 <Dialog
@@ -647,7 +1159,9 @@ export default function AdminPage() {
                                   <DialogTrigger asChild>
                                     <ButtonShad>
                                       <ShieldCheck className="mr-2 h-4 w-4" />{" "}
-                                      Verify
+                                      {pharmacy?.pharmacy?.verified
+                                        ? "Unverify"
+                                        : "Verify"}
                                     </ButtonShad>
                                   </DialogTrigger>
                                   <DialogContent className="sm:max-w-[425px]">
@@ -665,7 +1179,10 @@ export default function AdminPage() {
                                           Pharmacy Board kenya
                                         </a>{" "}
                                         search{" "}
-                                        {pharmacy?.facilityRegistrationNumber}{" "}
+                                        {
+                                          pharmacy?.pharmacy
+                                            ?.facilityRegistrationNumber
+                                        }{" "}
                                         and click view details and check if the
                                         following details and correspond to the
                                         user information and fill the in the
@@ -687,21 +1204,27 @@ export default function AdminPage() {
                                             </TableRow>
                                           </TableHeader>
                                           <TableBody>
-                                            <TableRow key={pharmacy.id}>
+                                            <TableRow
+                                              key={pharmacy?.pharmacy.id}
+                                            >
                                               <TableCell>
-                                                {pharmacy.estname}
+                                                {pharmacy?.pharmacy.estname}
                                               </TableCell>
 
                                               <TableCell>
-                                                {pharmacy.location}
+                                                {pharmacy?.pharmacy.location}
                                               </TableCell>
                                               <TableCell>
                                                 {
-                                                  pharmacy.facilityRegistrationNumber
+                                                  pharmacy?.pharmacy
+                                                    .facilityRegistrationNumber
                                                 }
                                               </TableCell>
                                               <TableCell>
-                                                {pharmacy.licenseNumber}
+                                                {
+                                                  pharmacy?.pharmacy
+                                                    .licenseNumber
+                                                }
                                               </TableCell>
                                             </TableRow>
                                           </TableBody>
@@ -713,7 +1236,7 @@ export default function AdminPage() {
                                         type="date"
                                         onChange={(e) => {
                                           setValidTill(
-                                            e?.target?.valueAsDate??undefined,
+                                            e?.target?.valueAsDate ?? undefined,
                                           );
                                         }}
                                       />
@@ -721,10 +1244,15 @@ export default function AdminPage() {
                                     <DialogFooter>
                                       <Button
                                         onClick={() => {
-                                          void verifyPharmacy(pharmacy?.id);
+                                          void verifyPharmacy(
+                                            pharmacy?.pharmacy?.id,
+                                            pharmacy?.pharmacy?.verified,
+                                          );
                                         }}
                                       >
-                                        Verify
+                                        {pharmacy?.pharmacy?.verified
+                                          ? "Unverify"
+                                          : "Verify"}
                                       </Button>
                                     </DialogFooter>
                                   </DialogContent>
@@ -758,19 +1286,101 @@ export default function AdminPage() {
                     <TableBody>
                       {clinicsQuery?.data?.clinics?.map((clinic, index) => {
                         return (
-                          <TableRow key={clinic.id}>
-                            <TableCell>{clinic.estname}</TableCell>
-                            <TableCell>{clinic.phonenumber}</TableCell>
+                          <TableRow key={clinic?.clinics.id}>
+                            <TableCell>{clinic?.clinics.estname}</TableCell>
+                            <TableCell>{clinic?.clinics.phonenumber}</TableCell>
 
-                            <TableCell>{clinic.location}</TableCell>
+                            <TableCell>{clinic?.clinics.location}</TableCell>
                             <TableCell>
-                              <ButtonShad
-                                onClick={() => {
-                                  onOpen();
-                                }}
+                              <Dialog
+                                open={openVerifyClinic}
+                                onOpenChange={setOpenVerifyClinic}
                               >
-                                <ShieldCheck className="mr-2 h-4 w-4" /> Verify
-                              </ButtonShad>
+                                <DialogTrigger asChild>
+                                  <ButtonShad>
+                                    <ShieldCheck className="mr-2 h-4 w-4" />{" "}
+                                    Verify
+                                  </ButtonShad>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      Set Valid Until Date
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      Please visit the website at{" "}
+                                      <a
+                                        href="https://practice.pharmacyboardkenya.org/LicenseStatus?register=facilities&ftype=retail"
+                                        target="_blank"
+                                        className="text-primary hover:underline"
+                                      >
+                                        Pharmacy Board kenya
+                                      </a>{" "}
+                                      search{" "}
+                                      {clinic?.clinics?.practiceLicenseNumber}{" "}
+                                      and click view details and check if the
+                                      following details and correspond to the
+                                      user information and fill the in the valid
+                                      date in the field below with the valid
+                                      until date.
+                                      <Table>
+                                        <TableHeader>
+                                          <TableRow>
+                                            <TableHead>Name</TableHead>
+
+                                            <TableHead>Location</TableHead>
+
+                                            <TableHead>
+                                              License Number
+                                            </TableHead>
+                                          </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                          <TableRow key={clinic.clinics.id}>
+                                            <TableCell>
+                                              {clinic.clinics.estname}
+                                            </TableCell>
+
+                                            <TableCell>
+                                              {clinic?.clinics.location}
+                                            </TableCell>
+                                            <TableCell>
+                                              {
+                                                clinic?.clinics
+                                                  ?.practiceLicenseNumber
+                                              }
+                                            </TableCell>
+                                          </TableRow>
+                                        </TableBody>
+                                      </Table>
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div>
+                                    <Input
+                                      type="date"
+                                      onChange={(e) => {
+                                        setValidTill(
+                                          e?.target?.valueAsDate ?? undefined,
+                                        );
+                                      }}
+                                    />
+                                  </div>
+                                  <DialogFooter>
+                                    <Button
+                                      onClick={() => {
+                                        void verifyClinic(
+                                          clinic?.clinics?.id,
+                                          clinic?.clinics?.verified,
+                                        );
+                                      }}
+                                    >
+                                      {clinic?.clinics?.verified
+                                        ? "Unverify"
+                                        : "Verify"}
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
                             </TableCell>
                           </TableRow>
                         );
@@ -791,26 +1401,130 @@ export default function AdminPage() {
                       <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Phone Number</TableHead>
-
+                        <TableHead>Email</TableHead>
                         <TableHead>Location</TableHead>
 
                         <TableHead>Primary Area of Speciality</TableHead>
+                        <TableHead>Verify</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {cliniciansQuery?.data?.clinicians?.map(
                         (clinician, index) => {
                           return (
-                            <TableRow key={clinician.id}>
-                              <TableCell>{`${clinician.firstname} ${clinician.lastname}`}</TableCell>
-                              <TableCell>{clinician.phonenumber}</TableCell>
-
+                            <TableRow key={clinician?.clinicans?.id}>
+                              <TableCell>{`${clinician?.clinicans?.firstname} ${clinician?.clinicans?.lastname}`}</TableCell>
                               <TableCell>
-                                {clinician.countyofpractice}
+                                {clinician?.clinicans?.phonenumber}
+                              </TableCell>
+                              <TableCell>{clinician?.users?.email}</TableCell>
+                              <TableCell>
+                                {clinician?.clinicans?.countyofpractice}
                               </TableCell>
 
                               <TableCell>
-                                {clinician.primaryareaofspeciality}
+                                {clinician?.clinicans?.primaryareaofspeciality}
+                              </TableCell>
+                              <TableCell>
+                                <Dialog
+                                  open={openVerifyClinician}
+                                  onOpenChange={setOpenVerifyClinician}
+                                >
+                                  <DialogTrigger asChild>
+                                    <ButtonShad>
+                                      <ShieldCheck className="mr-2 h-4 w-4" />{" "}
+                                      {clinician?.clinicans?.verified
+                                        ? "Unverify"
+                                        : "Verify"}
+                                    </ButtonShad>
+                                  </DialogTrigger>
+                                  <DialogContent className="sm:max-w-[425px]">
+                                    <DialogHeader>
+                                      <DialogTitle>
+                                        Set Valid Until Date
+                                      </DialogTitle>
+                                      <DialogDescription>
+                                        Please visit the website at{" "}
+                                        <a
+                                          href="https://portal.clinicalofficerscouncil.org/LicenseStatus"
+                                          target="_blank"
+                                          className="text-primary hover:underline"
+                                        >
+                                          Clinical Officer Registry
+                                        </a>{" "}
+                                        search{" "}
+                                        {
+                                          clinician?.clinicans
+                                            ?.practiceLicenseNumber
+                                        }{" "}
+                                        and click view details and check if the
+                                        following details and correspond to the
+                                        user information and fill the in the
+                                        valid date in the field below with the
+                                        valid until date.
+                                        <Table>
+                                          <TableHeader>
+                                            <TableRow>
+                                              <TableHead>Name</TableHead>
+
+                                              <TableHead>Location</TableHead>
+
+                                              <TableHead>
+                                                License Number
+                                              </TableHead>
+                                            </TableRow>
+                                          </TableHeader>
+                                          <TableBody>
+                                            <TableRow
+                                              key={clinician?.clinicans?.id}
+                                            >
+                                              <TableCell>
+                                                {`${clinician?.clinicans?.firstname} ${clinician?.clinicans?.lastname}`}
+                                              </TableCell>
+
+                                              <TableCell>
+                                                {
+                                                  clinician?.clinicans
+                                                    ?.countyofpractice
+                                                }
+                                              </TableCell>
+                                              <TableCell>
+                                                {
+                                                  clinician?.clinicans
+                                                    ?.practiceLicenseNumber
+                                                }
+                                              </TableCell>
+                                            </TableRow>
+                                          </TableBody>
+                                        </Table>
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <div>
+                                      <Input
+                                        type="date"
+                                        onChange={(e) => {
+                                          setValidTill(
+                                            e?.target?.valueAsDate ?? undefined,
+                                          );
+                                        }}
+                                      />
+                                    </div>
+                                    <DialogFooter>
+                                      <Button
+                                        onClick={() => {
+                                          void verifyClinician(
+                                            clinician?.clinicans.id,
+                                            clinician?.clinicans?.verified,
+                                          );
+                                        }}
+                                      >
+                                        {clinician?.clinicans?.verified
+                                          ? "Unverify"
+                                          : "Verify"}
+                                      </Button>
+                                    </DialogFooter>
+                                  </DialogContent>
+                                </Dialog>
                               </TableCell>
                             </TableRow>
                           );
@@ -832,18 +1546,104 @@ export default function AdminPage() {
                       <TableRow>
                         <TableHead>Name</TableHead>
                         <TableHead>Phone Number</TableHead>
-
+                        <TableHead>Email</TableHead>
                         <TableHead>Location</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
                       {labsQuery?.data?.labs?.map((lab, index) => {
                         return (
-                          <TableRow key={lab.id}>
-                            <TableCell>{lab?.estname}</TableCell>
-                            <TableCell>{lab?.phonenumber}</TableCell>
+                          <TableRow key={lab?.labs?.id}>
+                            <TableCell>{lab?.labs?.estname}</TableCell>
+                            <TableCell>{lab?.labs?.phonenumber}</TableCell>
+                            <TableCell>{lab?.users?.email}</TableCell>
+                            <TableCell>{lab?.labs?.location}</TableCell>
+                            <TableCell>
+                              <Dialog
+                                open={openVerifyClinician}
+                                onOpenChange={setOpenVerifyClinician}
+                              >
+                                <DialogTrigger asChild>
+                                  <ButtonShad>
+                                    <ShieldCheck className="mr-2 h-4 w-4" />{" "}
+                                    {lab?.labs?.verified
+                                      ? "Unverify"
+                                      : "Verify"}
+                                  </ButtonShad>
+                                </DialogTrigger>
+                                <DialogContent className="sm:max-w-[425px]">
+                                  <DialogHeader>
+                                    <DialogTitle>
+                                      Set Valid Until Date
+                                    </DialogTitle>
+                                    <DialogDescription>
+                                      Please visit the website at{" "}
+                                      <a
+                                        href="https://portal.clinicalofficerscouncil.org/LicenseStatus"
+                                        target="_blank"
+                                        className="text-primary hover:underline"
+                                      >
+                                        Clinical Officer Registry
+                                      </a>{" "}
+                                      search {lab?.labs?.practiceLicenseNumber}{" "}
+                                      and click view details and check if the
+                                      following details and correspond to the
+                                      user information and fill the in the valid
+                                      date in the field below with the valid
+                                      until date.
+                                      <Table>
+                                        <TableHeader>
+                                          <TableRow>
+                                            <TableHead>Name</TableHead>
 
-                            <TableCell>{lab?.location}</TableCell>
+                                            <TableHead>Location</TableHead>
+
+                                            <TableHead>
+                                              License Number
+                                            </TableHead>
+                                          </TableRow>
+                                        </TableHeader>
+                                        <TableBody>
+                                          <TableRow key={lab?.labs?.id}>
+                                            <TableCell>
+                                              {lab?.labs?.estname}
+                                            </TableCell>
+
+                                            <TableCell>
+                                              {lab?.labs?.location}
+                                            </TableCell>
+                                            <TableCell>
+                                              {lab.labs.practiceLicenseNumber}
+                                            </TableCell>
+                                          </TableRow>
+                                        </TableBody>
+                                      </Table>
+                                    </DialogDescription>
+                                  </DialogHeader>
+                                  <div>
+                                    <Input
+                                      type="date"
+                                      onChange={(e) => {
+                                        setValidTill(
+                                          e?.target?.valueAsDate ?? undefined,
+                                        );
+                                      }}
+                                    />
+                                  </div>
+                                  <DialogFooter>
+                                    <Button
+                                      onClick={() => {
+                                        void verifyLab(lab?.labs?.id,lab?.labs?.verified);
+                                      }}
+                                    >
+                                      {lab?.labs?.verified
+                                        ? "Unverify"
+                                        : "Verify"}
+                                    </Button>
+                                  </DialogFooter>
+                                </DialogContent>
+                              </Dialog>
+                            </TableCell>
                           </TableRow>
                         );
                       })}

@@ -51,9 +51,13 @@ export const inventory = pgTable("inventory", {
 export const labs = pgTable("labs", {
   id: serial("id").primaryKey().notNull(),
   estname: varchar("estname", { length: 255 }).notNull(),
-  licenseDocumentLink: varchar("license_document_link", {
+  practiceLicenseNumber: varchar("practice_license_number", {
     length: 255,
   }).notNull(),
+
+  verified: boolean("verified").default(false),
+
+  validTill: date("valid_till"),
   services: jsonb("services"),
   phonenumber: varchar("phonenumber", { length: 15 }).notNull(),
   location: varchar("location", { length: 255 }).notNull(),
@@ -215,23 +219,43 @@ export const doctors = pgTable("doctors", {
   licenseDocumentLink: varchar("license_document_link", {
     length: 255,
   }).notNull(),
+  practiceLicenseNumber: varchar("practice_license_number", {
+    length: 255,
+  }).notNull(),
 
-  verified: boolean("verified"),
+  validTill: date("valid_till"),
+  verified: boolean("verified").default(false),
+  userid: integer("userid").references(() => users.id),
+});
+
+export const nurse = pgTable("nurse", {
+  id: serial("id").primaryKey().notNull(),
+  firstname: varchar("firstname", { length: 255 }),
+  lastname: varchar("lastname", { length: 255 }).notNull(),
+  phonenumber: varchar("phonenumber", { length: 15 }).notNull(),
+  countyofpractice: varchar("countyofpractice", { length: 255 }).notNull(),
+  practiceLicenseNumber: varchar("practice_license_number", {
+    length: 255,
+  }).notNull(),
+  verified: boolean("verified").default(false),
+  validTill: date("valid_till"),
   userid: integer("userid").references(() => users.id),
 });
 
 export const clinics = pgTable("clinics", {
   id: serial("id").primaryKey().notNull(),
   estname: varchar("estname", { length: 255 }).notNull(),
-  licenseDocumentLink: varchar("license_document_link", {
+  practiceLicenseNumber: varchar("practice_license_number", {
     length: 255,
   }).notNull(),
   services: jsonb("services"),
+
+  validTill: date("valid_till"),
   phonenumber: varchar("phonenumber", { length: 15 }).notNull(),
   location: varchar("location", { length: 255 }).notNull(),
   userid: integer("userid").references(() => users.id),
 
-  verified: boolean("verified"),
+  verified: boolean("verified").default(false),
 });
 
 export const verificationToken = pgTable(

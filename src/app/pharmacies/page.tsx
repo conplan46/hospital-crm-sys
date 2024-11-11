@@ -34,7 +34,7 @@ export default function PharmacyPage() {
     queryKey: ["pharmacies"],
     queryFn: async function () {
       try {
-        const res = await fetch("/api/get-pharmacies");
+        const res = await fetch("/api/get-verified-pharmacies");
         const data = (await res.json()) as {
           status: string;
           pharmacies: Array<Pharmacy>;

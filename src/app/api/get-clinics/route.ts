@@ -1,19 +1,19 @@
-import { clinics } from "drizzle/schema";
+import { eq } from "drizzle-orm";
+import { clinics, users } from "drizzle/schema";
 import { db, pool } from "utils/db-pool";
 
 export async function GET(request: Request) {
   try {
-    const getClinics = await db.select().from(clinics);
+    const getClinics = await db
+      .select()
+      .from(clinics)
+      .innerJoin(users, eq(users.id, clinics.userid));
 
-    if (getClinics && getClinics.length >= 0) {
-      console.log(getClinics);
-      return Response.json({ status: "success", clinics: getClinics });
-    } else {
-      return Response.json({ status: "fetching clinicians failed" });
-    }
+    console.log(getClinics);
+    return Response.json({ clinics: getClinics });
   } catch (e) {
     console.error(e);
 
-    return Response.json({ status: "An internal error occured" });
+    return Response.error();
   }
 }

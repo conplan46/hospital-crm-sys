@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { pharmacy } from "drizzle/schema";
+import { clinicians } from "drizzle/schema";
 import { db } from "utils/db-pool";
 
 export async function POST(request: Request) {
@@ -7,33 +7,32 @@ export async function POST(request: Request) {
     const data = await request.formData();
     const validTillDate = data.get("validTill")?.toString();
     const id = Number(data.get("id")?.toString());
-
     const verified = Boolean(data.get("verified")?.toString());
     if (verified) {
-      const verified = await db
-        .update(pharmacy)
+      const unVerified = await db
+        .update(clinicians)
         .set({ validTill: null, verified: false })
-        .where(eq(pharmacy.id, id))
-        .returning({ id: pharmacy.id });
-      if (verified?.[0]?.id) {
+        .where(eq(clinicians.id, id))
+        .returning({ id: clinicians.id });
+      if (unVerified?.[0]?.id) {
         return Response.json({ status: "success" });
       } else {
         return Response.json({
-          status: "an error occured verifying the pharmacy",
+          status: "an error occured verifying the clincian",
         });
       }
     } else {
       if (id && validTillDate) {
         const verified = await db
-          .update(pharmacy)
+          .update(clinicians)
           .set({ validTill: validTillDate, verified: true })
-          .where(eq(pharmacy.id, id))
-          .returning({ id: pharmacy.id });
+          .where(eq(clinicians.id, id))
+          .returning({ id: clinicians.id });
         if (verified?.[0]?.id) {
           return Response.json({ status: "success" });
         } else {
           return Response.json({
-            status: "an error occured verifying the pharmacy",
+            status: "an error occured verifying the clincian",
           });
         }
       } else {

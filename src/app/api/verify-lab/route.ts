@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { pharmacy } from "drizzle/schema";
+import { labs } from "drizzle/schema";
 import { db } from "utils/db-pool";
 
 export async function POST(request: Request) {
@@ -11,29 +11,29 @@ export async function POST(request: Request) {
     const verified = Boolean(data.get("verified")?.toString());
     if (verified) {
       const verified = await db
-        .update(pharmacy)
+        .update(labs)
         .set({ validTill: null, verified: false })
-        .where(eq(pharmacy.id, id))
-        .returning({ id: pharmacy.id });
+        .where(eq(labs.id, id))
+        .returning({ id: labs.id });
       if (verified?.[0]?.id) {
         return Response.json({ status: "success" });
       } else {
         return Response.json({
-          status: "an error occured verifying the pharmacy",
+          status: "an error occured verifying the lab",
         });
       }
     } else {
       if (id && validTillDate) {
         const verified = await db
-          .update(pharmacy)
+          .update(labs)
           .set({ validTill: validTillDate, verified: true })
-          .where(eq(pharmacy.id, id))
-          .returning({ id: pharmacy.id });
+          .where(eq(labs.id, id))
+          .returning({ id: labs.id });
         if (verified?.[0]?.id) {
           return Response.json({ status: "success" });
         } else {
           return Response.json({
-            status: "an error occured verifying the pharmacy",
+            status: "an error occured verifying the lab",
           });
         }
       } else {
