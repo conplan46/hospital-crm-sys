@@ -124,7 +124,7 @@ export default function HomePage() {
   }
   if (isClient && bannersQuery.isFetched) {
     return (
-      <div className="container mx-auto px-4 py-8 w-screen">
+      <div className="container mx-auto w-screen px-4 py-8">
         <section className="mb-12">
           <h2 className="mb-4 text-2xl font-bold">Featured Ads</h2>
           <div className="relative">
@@ -134,7 +134,10 @@ export default function HomePage() {
                 style={{ transform: `translateX(-${currentAdIndex * 100}%)` }}
               >
                 {bannersQuery?.data?.map((ad) => (
-                  <div key={ad.id} className="w-full lg:w-[768px] flex-shrink-0">
+                  <div
+                    key={ad.id}
+                    className="w-full flex-shrink-0 lg:w-[768px]"
+                  >
                     <Link href={ad.productLink}>
                       <Image
                         src={ad.imageUrl}
@@ -184,7 +187,6 @@ export default function HomePage() {
                       alt={item.products.name}
                       width={200}
                       height={200}
-                      fit
                     />
                     <h3 className="mb-2 text-lg font-semibold">
                       {item.products.name}
