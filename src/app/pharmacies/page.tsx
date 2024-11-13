@@ -1,10 +1,12 @@
 "use client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+
+import { Badge } from "~/components/ui/badge";
+import { MapPin, Clock, Phone, Star } from "lucide-react";
+
 import {
   Button,
-  Card,
-  CardBody,
-  CardFooter,
   Heading,
   ListItem,
   Skeleton,
@@ -22,6 +24,7 @@ import Loading from "../loading";
 import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
 import Image from "next/image";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";
+import { pharmacy } from "drizzle/schema";
 
 export default function PharmacyPage() {
   const [isClient, setIsClient] = useState(false);
@@ -37,13 +40,13 @@ export default function PharmacyPage() {
         const res = await fetch("/api/get-verified-pharmacies");
         const data = (await res.json()) as {
           status: string;
-          pharmacies: Array<Pharmacy>;
+          pharmacies: Array<typeof pharmacy.$inferSelect>;
         };
         return data?.pharmacies;
       } catch (e) {
         console.error(e);
         toast({
-          description: "An error occured fetching the inventory",
+          description: "An error occured fetching Verified Pharmacies",
           status: "error",
           duration: 9000,
           isClosable: true,
@@ -71,22 +74,25 @@ export default function PharmacyPage() {
             No Pharmacies to show
           </Heading>
         )}
-        <Wrap>
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
           {pharmacyQuery?.data?.map((pharmacy, index) => {
             return (
               <>
-                <WrapItem>
-                  <PharmacyComponent
-                    key={index}
-                    router={router}
-                    id={pharmacy?.id}
-                    name={pharmacy?.estname}
-                  />
-                </WrapItem>
+                <PharmacyComponent
+                  key={index}
+                  router={router}
+                  id={pharmacy?.id}
+                  name={pharmacy?.estname}
+                  isOpen={true}
+                  rating={0}
+                  location={pharmacy?.location}
+                  hours={"0800-1200"}
+                  phone={pharmacy?.phonenumber}
+                />
               </>
             );
           })}
-        </Wrap>
+        </div>
       </Skeleton>
     );
   }
@@ -95,43 +101,61 @@ function PharmacyComponent({
   name,
   id,
   router,
+  location,
+  isOpen,
+  hours,
+  phone,
+  rating,
 }: {
   name: string;
   id: number;
   router: AppRouterInstance;
+  isOpen: boolean;
+  location: string;
+  hours: string;
+  phone: string;
+  rating: number;
 }) {
   return (
-    <Card
-      direction={{ base: "column", sm: "row" }}
-      overflow="hidden"
-      variant="outline"
-    >
-      <Image
-        height={200}
-        width={200}
-        //maxW={{ base: "100%", sm: "200px" }}
-        src={placeholder}
-        alt="placeholder"
-      />{" "}
-      <Stack>
-        <CardBody>
-          <Heading size="md">{name}</Heading>
-
-          <UnorderedList></UnorderedList>
-        </CardBody>
-
-        <CardFooter>
+    <Card className="m-2" key={id}>
+      <CardHeader>
+        <CardTitle className="flex items-start justify-between">
+          <span>{name}</span>
+          <Badge variant={isOpen ? "default" : "destructive"}>
+            {isOpen ? "Open" : "Closed"}
+          </Badge>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div className="flex items-start">
+            <MapPin className="mr-2 mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" />
+            <span>{location}</span>
+          </div>
+          <div className="flex items-center">
+            <Clock className="mr-2 h-5 w-5 text-muted-foreground" />
+            <span>{hours}</span>
+          </div>
+          <div className="flex items-center">
+            <Phone className="mr-2 h-5 w-5 text-muted-foreground" />
+            <span>{phone}</span>
+          </div>
+          <div className="flex items-center">
+            <Star className="mr-2 h-5 w-5 text-yellow-400" />
+            <span>{rating.toFixed(1)}</span>
+          </div>
+        </div>
+        <div className="mt-4 flex justify-between">
           <Button
             onClick={() => {
               void router.push(`/pharmacy/${id}`);
             }}
-            variant="solid"
-            colorScheme="blue"
+            variant="outline"
           >
-            View inventory
+            View
           </Button>
-        </CardFooter>
-      </Stack>
+        </div>
+      </CardContent>
     </Card>
   );
 }

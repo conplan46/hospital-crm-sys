@@ -6,8 +6,8 @@ import { env } from "~/env";
 
 const sslBool =
   env.NODE_ENV == "development" ||
-    process.env.VERCEL_ENV == "preview" ||
-    process.env.VERCEL_ENV == "development"
+  process.env.VERCEL_ENV == "preview" ||
+  process.env.VERCEL_ENV == "development"
     ? true
     : true;
 
@@ -25,7 +25,7 @@ export const pool = new Pool({
   connectionString: env?.DB_CONNECTION,
   max: 20,
   ssl: sslBool,
-})
+});
 //export const db = drizzle(client);
 const sql = neon(env?.DB_CONNECTION);
 export const db = drizzle(sql, { logger: true });

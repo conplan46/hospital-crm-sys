@@ -5,6 +5,7 @@ import { inventory, products } from "drizzle/schema";
 import { QueryResult } from "pg";
 import { db, pool } from "utils/db-pool";
 import { Product } from "utils/used-types";
+import { env } from "~/env";
 
 export async function POST(request: Request) {
   try {
@@ -30,11 +31,13 @@ export async function POST(request: Request) {
           inventoryCount: inventoryCount,
         })
         .returning({ id: inventory.id });
-
       if (res?.[0]?.id) {
+        await db
+          .update(inventory)
+          .set({ productUrl: `${env?.NEXTAUTH_URL}/pharmacy/${res?.[0]?.id}` });
+
         return Response.json({
-          status:
-            "Added to the inventory",
+          status: "Added to the inventory",
         });
       }
     } else {

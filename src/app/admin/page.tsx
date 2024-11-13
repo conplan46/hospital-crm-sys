@@ -150,6 +150,8 @@ export default function AdminPage() {
         });
       }
     }
+
+    void queryClient.invalidateQueries({ queryKey: ["nurses"] });
   };
   const verifyDoctor = async (id: number, verified: boolean | null) => {
     if (verified) {
@@ -193,6 +195,8 @@ export default function AdminPage() {
         });
       }
     }
+
+    void queryClient.invalidateQueries({ queryKey: ["doctors"] });
   };
 
   const verifyClinic = async (id: number, verified: boolean | null) => {
@@ -236,6 +240,8 @@ export default function AdminPage() {
         });
       }
     }
+
+    void queryClient.invalidateQueries({ queryKey: ["clinics"] });
   };
 
   const verifyClinician = async (id: number, verified: boolean | null) => {
@@ -279,6 +285,8 @@ export default function AdminPage() {
         });
       }
     }
+
+    void queryClient.invalidateQueries({ queryKey: ["clinicians"] });
   };
 
   const verifyPharmacy = async (id: number, verified: boolean | null) => {
@@ -322,11 +330,11 @@ export default function AdminPage() {
         });
       }
     }
+    void queryClient.invalidateQueries({ queryKey: ["pharmacies"] });
   };
 
-  const verifyLab = async (id: number,verified:boolean|null) => {
-    if(verified){
-
+  const verifyLab = async (id: number, verified: boolean | null) => {
+    if (verified) {
       const formData = new FormData();
       formData.append("verified", `${verified}`);
       formData.append("id", `${id}`);
@@ -342,45 +350,46 @@ export default function AdminPage() {
       } else {
         toast({ status: "error", description: data.status });
       }
-    }else{
-
-    if (validTill && id) {
-      const formData = new FormData();
-      formData.append("validTill", validTill.toDateString());
-      formData.append("id", `${id}`);
-      const req = await fetch("/api/verify-lab", {
-        method: "POST",
-        body: formData,
-      });
-      const data = (await req.json()) as { status: string };
-      if (data.status == "success") {
-        toast({ description: "Lab Verified", status: "success" });
-        setValidTill(undefined);
-        setOpenVerifyPharmacy(false);
-      } else {
-        toast({ status: "error", description: data.status });
-      }
     } else {
-      toast({
-        status: "error",
-        description: "You cannnot submit an empty valid till date field",
-      });
+      if (validTill && id) {
+        const formData = new FormData();
+        formData.append("validTill", validTill.toDateString());
+        formData.append("id", `${id}`);
+        const req = await fetch("/api/verify-lab", {
+          method: "POST",
+          body: formData,
+        });
+        const data = (await req.json()) as { status: string };
+        if (data.status == "success") {
+          toast({ description: "Lab Verified", status: "success" });
+          setValidTill(undefined);
+          setOpenVerifyPharmacy(false);
+        } else {
+          toast({ status: "error", description: data.status });
+        }
+      } else {
+        toast({
+          status: "error",
+          description: "You cannnot submit an empty valid till date field",
+        });
+      }
     }
-    }
+    void queryClient.invalidateQueries({ queryKey: ["labs"] });
   };
   const callBackUrl = usePathname();
   const queryClient = useQueryClient();
   const [bannerFile, setBannerFile] = useState<File>();
   const [productLink, setProductLink] = useState<string>();
+  const [loading, setLoading] = useState(false);
   const handlePromoteProduct = async (
     invId: number,
     estId: number,
     promoted: boolean | null,
   ) => {
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("estId", `${estId}`);
-
       formData.append("invId", `${invId}`);
 
       if (!promoted) {
@@ -389,10 +398,11 @@ export default function AdminPage() {
           body: formData,
         });
         const data = (await res.json()) as { status: string };
+        setLoading(false);
         if (data.status == "Product promoted") {
           toast({
-            description: "An error occured fetching the inventory",
-            status: "error",
+            description: "Product promotion succesful",
+            status: "success",
             duration: 9000,
             isClosable: true,
           });
@@ -410,10 +420,12 @@ export default function AdminPage() {
           body: formData,
         });
         const data = (await res.json()) as { status: string };
+
+        setLoading(false);
         if (data.status == "Product unpromoted") {
           toast({
-            description: "An error occured fetching the inventory",
-            status: "error",
+            description: data.status,
+            status: "success",
             duration: 9000,
             isClosable: true,
           });
@@ -426,6 +438,7 @@ export default function AdminPage() {
           });
         }
       }
+      void queryClient.invalidateQueries({ queryKey: ["admin-inventory"] });
     } catch (e) {
       console.error(e);
       toast({
@@ -675,7 +688,6 @@ export default function AdminPage() {
     pharmaciesCount: string;
   }>();
   const toast = useToast();
-  const [loading, setLoading] = useState(false);
 
   const onSubmitBanner: SubmitHandler<BannerForm> = async () => {
     setIsSubmitting(true);
@@ -733,32 +745,6 @@ export default function AdminPage() {
   };
   useEffect(() => {
     setIsClient(true);
-    setLoading(true);
-    fetch("/api/get-demographic-stats", {
-      headers: { "Content-Type": "application/json" },
-      method: "GET",
-    })
-      .then((data) => data.json())
-      .then(
-        (data: {
-          status: string;
-          doctorCount: string;
-          clinicsCount: string;
-          clinicianCount: string;
-          pharmaciesCount: string;
-        }) => {
-          setDemoStats(data);
-          console.log(data);
-        },
-      )
-      .catch((err) => {
-        toast({
-          status: "error",
-          description: "An error occured fetching data",
-        });
-        console.error(err);
-      });
-    setLoading(false);
   }, []);
   console.log({ session });
   if (status == "loading") {
@@ -1633,7 +1619,10 @@ export default function AdminPage() {
                                   <DialogFooter>
                                     <Button
                                       onClick={() => {
-                                        void verifyLab(lab?.labs?.id,lab?.labs?.verified);
+                                        void verifyLab(
+                                          lab?.labs?.id,
+                                          lab?.labs?.verified,
+                                        );
                                       }}
                                     >
                                       {lab?.labs?.verified
@@ -1688,6 +1677,7 @@ export default function AdminPage() {
                           </TableCell>
                           <TableCell>
                             <Button
+                              isLoading={loading}
                               onClick={() =>
                                 handlePromoteProduct(
                                   inv?.inventory.id,

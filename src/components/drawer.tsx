@@ -66,7 +66,7 @@ export default function DrawerLayout({
       });
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as { status: string; isAdmin: boolean };
-      console.log({data});
+      console.log({ data });
       return data.isAdmin;
     },
   });
@@ -253,9 +253,7 @@ function HeaderNew({
   const urlObj = constructUrl(role, id);
   return (
     <div className="navbar bg-base-100">
-      <div className="navbar-start">
-        {isAdmin ? <AdminNav role={role} /> : <UserNav role={role} />}
-      </div>
+      <div className="navbar-start">{<UserNav role={role} />}</div>
       <div className="navbar-center">
         <Link href="/" className="btn btn-ghost text-xl">
           Hospital CRM
@@ -288,6 +286,16 @@ function HeaderNew({
                 Profile
               </Link>
             </li>
+
+            {isAdmin ? (
+              <li>
+                <Link href="/admin" className="justify-between">
+                  Admin Panel
+                </Link>
+              </li>
+            ) : (
+              ""
+            )}
             <LogoutButton />
             <li>
               <Link href={{ pathname: urlObj?.href }}>{urlObj?.linkText}</Link>

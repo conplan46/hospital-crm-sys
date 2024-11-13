@@ -3,6 +3,7 @@ import {
   clinicians,
   clinics,
   doctors,
+  nurse,
   patients,
   pharmacy,
   users,
@@ -32,6 +33,7 @@ export async function POST(request: Request) {
           doctors?: typeof doctors.$inferSelect;
           pharmacy?: typeof pharmacy.$inferSelect;
           patients?: typeof patients.$inferSelect;
+          nurse?: typeof nurse.$inferSelect;
         }>
       | undefined = undefined;
     if (user?.length > 0) {
@@ -85,12 +87,11 @@ export async function POST(request: Request) {
 
           break;
         case "nurse":
-          /*  query = await client.query(
-            "SELECT * from nurses INNER JOIN users ON nurses.userid = users.id WHERE userid = $1",
-            [user?.rows[0].id],
-          ); */
-          //query = await db.select().from(nurse).innerJoin(users,eq(nurses,eq(nurse)))
-
+          query = await db
+            .select()
+            .from(nurse)
+            .innerJoin(users, eq(nurse.userid, users.id))
+            .where(eq(nurse.userid, user?.[0].id));
           break;
         case "patient":
           query = await db
@@ -113,7 +114,6 @@ export async function POST(request: Request) {
           ); */
           //query = await db.select().from(pharmacist)
           break;
-
 
         default:
           return new Response("No matching cases found", { status: 404 });

@@ -7,7 +7,7 @@ export async function GET(request: Request) {
     const getPharmacies = await db
       .select()
       .from(pharmacy)
-      .innerJoin(pharmacy, eq(pharmacy.userid, users.id));
+      .innerJoin(users, eq(pharmacy.userid, users.id));
 
     console.log(getPharmacies);
     return Response.json({ pharmacies: getPharmacies });

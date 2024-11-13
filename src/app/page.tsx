@@ -135,13 +135,15 @@ export default function HomePage() {
               >
                 {bannersQuery?.data?.map((ad) => (
                   <div key={ad.id} className="w-full flex-shrink-0">
-                    <Image
-                      src={ad.imageUrl}
-                      alt={`${ad.id}`}
-                      width={800}
-                      height={400}
-                      className="h-auto w-full"
-                    />
+                    <Link href={ad.productLink}>
+                      <Image
+                        src={ad.imageUrl}
+                        alt={`${ad.id}`}
+                        width={800}
+                        height={400}
+                        className="h-auto w-full"
+                      />
+                    </Link>
                   </div>
                 ))}
               </div>
@@ -171,30 +173,33 @@ export default function HomePage() {
           <h2 className="mb-4 text-2xl font-bold">Top Products</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {topProductsQuery.data?.map((item, index) => (
-              <Card key={item.products.productId}>
-                <CardContent className="p-4">
-                  <Image
-                    src={item.products.imageUrl}
-                    alt={item.products.name}
-                    width={200}
-                    height={200}
-                    className="mb-4 h-auto w-full rounded-md"
-                  />
-                  <h3 className="mb-2 text-lg font-semibold">
-                    {item.products.name}
-                  </h3>
-                  <div className="mb-2 flex items-center">
-                    <Star className="mr-1 h-4 w-4 text-yellow-400" />
-                    <span>{2}</span>
-                  </div>
-                  <p className="font-bold">
-                    ${item.products.averagePrice.toFixed(2)}
-                  </p>
-                </CardContent>
-                <CardFooter>
-                  <Button className="w-full">Add to Cart</Button>
-                </CardFooter>
-              </Card>
+              <Link
+                href={item.inventory.productUrl ?? "#"}
+                key={item.products.productId}
+              >
+                <Card key={item.products.productId}>
+                  <CardContent className="p-4">
+                    <Image
+                      src={item.products.imageUrl}
+                      alt={item.products.name}
+                      width={200}
+                      height={200}
+                      className="mb-4 h-auto w-full rounded-md"
+                    />
+                    <h3 className="mb-2 text-lg font-semibold">
+                      {item.products.name}
+                    </h3>
+                    <div className="mb-2 flex items-center">
+                      <Star className="mr-1 h-4 w-4 text-yellow-400" />
+                      <span>{2}</span>
+                    </div>
+                    <p className="font-bold">
+                      ${item.products.averagePrice.toFixed(2)}
+                    </p>
+                  </CardContent>
+                  <CardFooter></CardFooter>
+                </Card>
+              </Link>
             ))}
           </div>
         </section>

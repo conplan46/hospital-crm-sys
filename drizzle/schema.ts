@@ -46,6 +46,7 @@ export const inventory = pgTable("inventory", {
   inventoryCount: bigint("inventory_count", { mode: "number" }).notNull(),
   topProduct: boolean("top_product").default(false),
   price: real("price").notNull(),
+  productUrl: varchar("product_url", { length: 255 }),
 });
 
 export const labs = pgTable("labs", {
