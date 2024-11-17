@@ -10,17 +10,36 @@ import {
   MenuDivider,
   Button,
 } from "@chakra-ui/react";
+
+import { Button as Buttonshad } from "~/components/ui/button";
+import { Card, CardContent } from "~/components/ui/card";
+import { Input } from "~/components/ui/input";
 import Link from "next/link";
 import { FaChevronRight, FaCog } from "react-icons/fa";
 import LogoutButton from "./logout-button";
 import { useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { UserDataAl } from "utils/used-types";
-
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "~/components/ui/command";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "~/components/ui/popover";
+import { Search, X } from "lucide-react";
 import { UserDataDrizzle } from "utils/used-types";
 import { atom, useAtom, useSetAtom } from "jotai";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { inventory, products } from "drizzle/schema";
+import Image from "next/image";
 export const userDataAtom = atom<UserDataDrizzle | undefined>(undefined);
 export default function DrawerLayout({
   children,
@@ -250,7 +269,45 @@ function HeaderNew({
   id: number | undefined;
   isAdmin: boolean;
 }) {
+  const [open, setOpen] = useState(false);
+  const [value, setValue] = useState("");
+  const searchMutation = useMutation({
+    mutationKey: [`search-query`],
+    mutationFn: async () => {
+      const formData = new FormData();
+      formData.append("query", value);
+      const res = await fetch("/api/search-products", {
+        method: "POST",
+        body: formData,
+      });
+      const searchResults = (await res.json()) as {
+        results: Array<{
+          products: typeof products.$inferSelect;
+          inventory: typeof inventory.$inferSelect;
+        }>;
+      };
+      console.log(searchResults);
+      setOpen(true);
+      return searchResults;
+    },
+  });
+  const queryClient = useQueryClient();
+  const inputRef = useRef<HTMLInputElement>(null);
   const urlObj = constructUrl(role, id);
+  useEffect(() => {
+    if (value) {
+      queryClient.cancelQueries({ queryKey: ["search-query"] });
+      searchMutation.mutateAsync();
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
+  }, [value]);
+  const handleClear = () => {
+    setValue("");
+    setOpen(false);
+    inputRef.current?.focus();
+  };
   return (
     <div className="navbar bg-base-100">
       <div className="navbar-start">{<UserNav role={role} />}</div>
@@ -260,12 +317,60 @@ function HeaderNew({
         </Link>
       </div>
       <div className="navbar-end">
-        <div className="form-control">
-          <input
-            type="text"
-            placeholder="Search"
-            className="input input-bordered w-24 md:w-auto"
-          />
+        <div className="mx-auto w-full max-w-sm">
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <div className="relative">
+                <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                <Input
+                  ref={inputRef}
+                  placeholder="Search products..."
+                  value={value}
+                  onChange={(e) => setValue(e.target.value)}
+                  className="pl-8 pr-8"
+                />
+                {value && (
+                  <Buttonshad
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={handleClear}
+                  >
+                    <X className="h-4 w-4" />
+                    <span className="sr-only">Clear search</span>
+                  </Buttonshad>
+                )}
+              </div>
+            </PopoverTrigger>
+            <PopoverContent className="w-96 p-6" align="start">
+              {searchMutation?.data?.results?.map((item) => (
+                <Link href={item.inventory.productUrl ?? ""}>
+                  <Card className="overflow-hidden">
+                    <CardContent className="p-0">
+                      <div className="flex flex-col sm:flex-row">
+                        <div className="relative h-48 w-full flex-shrink-0 sm:h-auto sm:w-48">
+                          <Image
+                            src={item?.products?.imageUrl}
+                            alt={item?.products?.name}
+                            layout="fill"
+                            objectFit="cover"
+                            className="rounded-t-lg sm:rounded-l-lg sm:rounded-t-none"
+                          />
+                        </div>
+                        <div className="flex flex-grow flex-col justify-between p-4">
+                          <div>
+                            <h3 className="mb-2 text-lg font-semibold">
+                              {item?.products?.name}
+                            </h3>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
+              ))}
+            </PopoverContent>
+          </Popover>
         </div>
         <div className="dropdown dropdown-end">
           <div

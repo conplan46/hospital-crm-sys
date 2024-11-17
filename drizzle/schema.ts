@@ -55,9 +55,7 @@ export const labs = pgTable("labs", {
   practiceLicenseNumber: varchar("practice_license_number", {
     length: 255,
   }).notNull(),
-
   verified: boolean("verified").default(false),
-
   validTill: date("valid_till"),
   services: jsonb("services"),
   phonenumber: varchar("phonenumber", { length: 15 }).notNull(),
