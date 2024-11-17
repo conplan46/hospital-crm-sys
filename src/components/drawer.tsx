@@ -296,8 +296,8 @@ function HeaderNew({
   const urlObj = constructUrl(role, id);
   useEffect(() => {
     if (value) {
-      queryClient.cancelQueries({ queryKey: ["search-query"] });
-      searchMutation.mutateAsync();
+    void  queryClient.cancelQueries({ queryKey: ["search-query"] });
+      void searchMutation.mutateAsync();
       setOpen(true);
     } else {
       setOpen(false);
@@ -344,7 +344,7 @@ function HeaderNew({
             </PopoverTrigger>
             <PopoverContent className="w-96 p-6" align="start">
               {searchMutation?.data?.results?.map((item) => (
-                <Link href={item.inventory.productUrl ?? ""}>
+                <Link key={item.inventory.productId} href={item.inventory.productUrl ?? ""}>
                   <Card className="overflow-hidden">
                     <CardContent className="p-0">
                       <div className="flex flex-col sm:flex-row">
