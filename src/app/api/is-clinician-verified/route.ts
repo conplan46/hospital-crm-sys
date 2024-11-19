@@ -20,7 +20,7 @@ export async function POST(request: Request) {
     if (isVerified?.[0]?.validTill) {
       return Response.json({ verified: isVerified[0]?.verified && !expired });
     } else {
-      return Response.json({ verified: isVerified[0]?.verified && !expired });
+      return Response.json({ verified: false });
     }
   } catch (e) {
     console.error(e);
