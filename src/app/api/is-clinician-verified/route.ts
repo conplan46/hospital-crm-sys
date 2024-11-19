@@ -11,13 +11,13 @@ export async function POST(request: Request) {
       .from(clinicians)
       .where(eq(clinicians.id, Number(id)));
 
-    const expired = new Date(isVerified?.[0]?.validTill ?? "") > new Date();
+    const expired = new Date() > new Date(isVerified?.[0]?.validTill ?? "");
     if (expired) {
       const unverify = await db
         .update(clinicians)
         .set({ validTill: null, verified: false });
     }
-    if (isVerified?.[0]?.validTill && !expired) {
+    if (isVerified?.[0]?.validTill) {
       return Response.json({ verified: isVerified[0]?.verified && !expired });
     } else {
       return new Response("Error verifying clincian", { status: 404 });
