@@ -20,10 +20,10 @@ export async function POST(request: Request) {
     if (isVerified?.[0]?.validTill) {
       return Response.json({ verified: isVerified[0]?.verified && !expired });
     } else {
-      return new Response("Error verifying clincian", { status: 404 });
+      return Response.json({ verified: isVerified[0]?.verified && !expired });
     }
   } catch (e) {
     console.error(e);
-    return Response.json({ status: "An internal error occured" });
+    return new Response("Error verifying clincian", { status: 404 });
   }
 }
