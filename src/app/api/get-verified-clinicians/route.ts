@@ -8,9 +8,10 @@ export async function GET(request: Request) {
     const getClinicians = await db
       .select()
       .from(clinicians)
-      .innerJoin(users, eq(clinicians.userid, users.id));
+      .innerJoin(users, eq(clinicians.userid, users.id))
+      .where(eq(clinicians.verified, true));
 
-    console.log(getClinicians);
+    console.log({ verifiedClinicians: getClinicians });
     return Response.json({ clinicians: getClinicians });
   } catch (e) {
     console.error(e);

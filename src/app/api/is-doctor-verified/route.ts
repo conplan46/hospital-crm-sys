@@ -1,5 +1,5 @@
 import { eq } from "drizzle-orm";
-import { clinicians } from "drizzle/schema";
+import { clinicians, doctors } from "drizzle/schema";
 import { db } from "utils/db-pool";
 
 export async function POST(request: Request) {
@@ -8,13 +8,13 @@ export async function POST(request: Request) {
     const id = body.get("id".toString());
     const isVerified = await db
       .select()
-      .from(clinicians)
-      .where(eq(clinicians.id, Number(id)));
+      .from(doctors)
+      .where(eq(doctors.id, Number(id)));
 
     const expired = new Date(isVerified?.[0]?.validTill ?? "") > new Date();
     if (expired) {
       const unverify = await db
-        .update(clinicians)
+        .update(doctors)
         .set({ validTill: null, verified: false });
     }
     if (isVerified?.[0]?.validTill && !expired) {

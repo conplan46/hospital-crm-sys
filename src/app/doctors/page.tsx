@@ -1,9 +1,6 @@
 "use client";
 import {
   Button,
-  Card,
-  CardBody,
-  CardFooter,
   Heading,
   ListItem,
   Skeleton,
@@ -15,6 +12,18 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Star, Clock, MapPin } from "lucide-react";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import { Badge } from "~/components/ui/badge";
+
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { type Clinician, type Doctor } from "utils/used-types";
@@ -36,7 +45,7 @@ export default function DoctorsPage() {
   const toast = useToast();
   const doctorsQuery = useQuery({
     queryKey: ["doctors"],
-    queryFn: async function() {
+    queryFn: async function () {
       try {
         const res = await fetch("/api/get-doctors");
         const data = (await res.json()) as {
@@ -85,6 +94,11 @@ export default function DoctorsPage() {
                     handler={doctor?.id}
                     name={`${doctor?.firstname} ${doctor?.lastname}`}
                     areaOfSpeciality={doctor?.primaryareaofspeciality}
+                    rating={0}
+                    location={doctor?.countyofpractice}
+                    description={`Experienced health practitioner. Specializes in ${doctor?.primaryareaofspeciality}`}
+                    availability="available"
+                    doctorId={doctor?.id}
                   />
                 </WrapItem>
               </>
@@ -99,16 +113,44 @@ function DoctorsComponent({
   name,
   areaOfSpeciality,
   handler,
+
+  rating,
+  description,
+  location,
+  availability,
+
+  doctorId,
 }: {
   handler: number | undefined;
   name: string;
   areaOfSpeciality: string;
+  doctorId: number;
+  rating: number;
+  description: string;
+  availability: string;
+  location: string;
 }) {
   const pathName = usePathname();
   const toast = useToast();
   const { data: session, status } = useSession();
   const userDataAtomI = useAtomValue(userDataAtom);
   const { isOpen, onClose, onOpen } = useDisclosure();
+
+  const isDoctorVerified = useQuery({
+    queryKey: ["is-doctor-verified"],
+    queryFn: async () => {
+      const formData = new FormData();
+      formData.append("id", `${doctorId}`);
+      const res = await fetch("/api/is-doctor-verified", {
+        method: "POST",
+        body: formData,
+      });
+      const data = (await res.json()) as { verified: boolean };
+      console.log({ isVerified: data.verified });
+      return data;
+    },
+  });
+  if(isDoctorVerified?.data?.verified){
   return (
     <>
       <Booking
@@ -119,53 +161,63 @@ function DoctorsComponent({
         handler={handler}
       />
 
-      <Card
-        direction={{ base: "column", sm: "row" }}
-        overflow="hidden"
-        variant="outline"
-      >
-        <Image
-          height={200}
-          width={200}
-          //maxW={{ base: "100%", sm: "200px" }}
-          src={placeholder}
-          alt="placeholder"
-        />{" "}
-        <Stack>
-          <CardBody>
-            <Heading size="md">{name}</Heading>
-
-            <Text py="2">Primary Area of Speciality</Text>
-            <UnorderedList>
-              <ListItem>{areaOfSpeciality}</ListItem>;
-            </UnorderedList>
-          </CardBody>
-
-          <CardFooter>
-            <Button
-              onClick={() => {
-                if (userDataAtomI?.[0]?.users.userrole !== "patient") {
-                  toast({
-                    description: "You account is not a patient account",
-                    status: "error",
-                  });
-                } else {
-                  if (status === "unauthenticated") {
-                    void signIn(undefined, { callbackUrl: pathName });
-                  }
-                  if (status === "authenticated") {
-                    onOpen();
-                  }
-                }
-              }}
-              variant="solid"
-              colorScheme="blue"
+      <Card className="mx-auto w-full max-w-md">
+        <CardHeader className="flex flex-row items-center gap-4">
+          <Avatar className="h-16 w-16">
+            <AvatarImage src={name} alt={name} />
+            <AvatarFallback>{name}</AvatarFallback>
+          </Avatar>
+          <div className="flex-1">
+            <CardTitle>{name}</CardTitle>
+            <CardDescription>{areaOfSpeciality}</CardDescription>
+            <div className="mt-1 flex items-center">
+              <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
+              <span className="text-sm font-medium">{rating}</span>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="mb-4 text-sm text-muted-foreground">{description}</p>
+          <div className="flex flex-col gap-2">
+            <Badge
+              variant="secondary"
+              className="flex w-fit items-center gap-1"
             >
-              Book services
-            </Button>
-          </CardFooter>
-        </Stack>
+              <Clock className="h-3 w-3" />
+              <span className="text-xs">{availability}</span>
+            </Badge>
+            <Badge
+              variant="secondary"
+              className="flex w-fit items-center gap-1"
+            >
+              <MapPin className="h-3 w-3" />
+              <span className="text-xs">{location}</span>
+            </Badge>
+          </div>
+        </CardContent>
+        <CardFooter>
+          <Button
+            className="w-full"
+            onClick={() => {
+              if (userDataAtomI?.[0]?.users?.userrole !== "patient") {
+                toast({
+                  description: "You account is not a patient account",
+                  status: "error",
+                });
+              } else {
+                if (status === "unauthenticated") {
+                  void signIn(undefined, { callbackUrl: pathName });
+                }
+                if (status === "authenticated") {
+                  onOpen();
+                }
+              }
+            }}
+          >
+            Book Services
+          </Button>
+        </CardFooter>
       </Card>
     </>
-  );
+  )}
 }
