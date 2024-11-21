@@ -15,7 +15,8 @@ import { UserDataDrizzle } from "utils/used-types";
 export async function POST(request: Request) {
   const client = await pool.connect();
   try {
-    const body = (await request.json()) as { email: string };
+    const body = await request.formData();
+    const email = body.get("email")?.toString();
     console.log(body);
     /*  const user: QueryResult<{ userrole: string; id: number }> =
       await client.query("SELECT userRole, id from users WHERE email = $1", [
@@ -24,7 +25,7 @@ export async function POST(request: Request) {
     const user = await db
       .select()
       .from(users)
-      .where(eq(users.email, body?.email));
+      .where(eq(users.email, email ?? ""));
     let query:
       | Array<{
           users: typeof users.$inferSelect;
