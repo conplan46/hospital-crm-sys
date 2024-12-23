@@ -15,7 +15,7 @@ import { UserDataDrizzle } from "utils/used-types";
 export async function POST(request: Request) {
   const client = await pool.connect();
   try {
-    const body = await request.json();
+    const body = (await request.json()) as { email: string };
     const email = body.email;
     console.log(body);
     /*  const user: QueryResult<{ userrole: string; id: number }> =
