@@ -2,7 +2,7 @@
 import { Center, Heading, Skeleton, Wrap, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { type Product } from "utils/used-types";
+import { productsDataType, type Product } from "utils/used-types";
 import {
   InventoryPurchaseItem,
   ProductComponent,
@@ -19,13 +19,13 @@ export default function PharmDbPage() {
         });
         const data = (await res.json()) as {
           status: string;
-          products: Array<Product>;
+          products: Array<productsDataType>;
         };
         return data.products;
       } catch (e) {
         console.error(e);
         toast({
-          description: "An error occured fetching the inventory",
+          description: "An error occured fetching the products",
           status: "error",
           duration: 9000,
           isClosable: true,

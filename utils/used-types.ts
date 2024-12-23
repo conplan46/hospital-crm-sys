@@ -7,7 +7,39 @@ import {
   users,
 } from "drizzle/schema";
 import { z } from "zod";
-
+import { Prisma } from "@prisma/client";
+const userWithData = Prisma.validator<Prisma.usersDefaultArgs>()({
+  include: {
+    pharmacy: true,
+    patients: true,
+    clinics: true,
+    doctors: true,
+    nurse: true,
+    clinicians: true,
+    labs: true,
+  },
+});
+const labsInd = Prisma.validator<Prisma.labsFindManyArgs>()({});
+const clinicsInd = Prisma.validator<Prisma.clinicsFindManyArgs>()({});
+const cliniciansInd = Prisma.validator<Prisma.cliniciansFindManyArgs>()({});
+const doctorsInd = Prisma.validator<Prisma.doctorsFindManyArgs>()({});
+const productInd = Prisma.validator<Prisma.productsFindManyArgs>()({});
+const findProduct = Prisma.validator<Prisma.productsFindUniqueArgs>()({});
+const topProductsWithInv = Prisma.validator<Prisma.inventoryFindManyArgs>()({
+  include: { products: true },
+});
+export type topProductsWithInvDataType = Prisma.inventoryGetPayload<
+  typeof topProductsWithInv
+>;
+export type findProductDataType = Prisma.productsGetPayload<typeof findProduct>;
+export type productsDataType = Prisma.productsGetPayload<typeof productInd>;
+export type doctorsDataType = Prisma.doctorsGetPayload<typeof doctorsInd>;
+export type cliniciansDataType = Prisma.cliniciansGetPayload<
+  typeof cliniciansInd
+>;
+export type clinicsDataType = Prisma.clinicsGetPayload<typeof clinicsInd>;
+export type UserWithDataType = Prisma.usersGetPayload<typeof userWithData>;
+export type labsDataType = Prisma.labsGetPayload<typeof labsInd>;
 export type Clinicians = Array<Clinician>;
 export interface Clinician {
   id: number;

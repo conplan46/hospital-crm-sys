@@ -3,7 +3,7 @@ import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
 import { Client, Pool } from "pg";
 import { env } from "~/env";
-
+import { PrismaClient } from "@prisma/client";
 const sslBool =
   env.NODE_ENV == "development" ||
   process.env.VERCEL_ENV == "preview" ||
@@ -29,3 +29,19 @@ export const pool = new Pool({
 //export const db = drizzle(client);
 const sql = neon(env?.DB_CONNECTION);
 export const db = drizzle(sql, { logger: true });
+
+const prismaClientSingleton = () => {
+  return new PrismaClient({
+    log: env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
+  });
+};
+
+type PrismaClientSingleton = ReturnType<typeof prismaClientSingleton>;
+
+const globalForPrisma = globalThis as unknown as {
+  prisma: PrismaClientSingleton | undefined;
+};
+
+export const prisma = globalForPrisma.prisma ?? prismaClientSingleton();
+
+if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;

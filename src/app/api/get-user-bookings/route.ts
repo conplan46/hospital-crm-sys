@@ -48,6 +48,8 @@ export async function GET(request: Request) {
                 .from(bookings)
                 .innerJoin(patients, eq(bookings.patientId, patients.id))
                 .where(eq(bookings.clinicHandler, query[0]?.id));
+
+              return Response.json({ bookings: res, status: "success" });
             }
             break;
           case "clinician":
@@ -70,6 +72,8 @@ export async function GET(request: Request) {
                 .from(bookings)
                 .innerJoin(patients, eq(bookings.patientId, patients.id))
                 .where(eq(bookings.clinicianHandler, query[0]?.id));
+
+              return Response.json({ bookings: res, status: "success" });
             }
             break;
           case "doctor":
@@ -92,6 +96,8 @@ export async function GET(request: Request) {
                 .from(bookings)
                 .innerJoin(patients, eq(bookings.patientId, patients.id))
                 .where(eq(bookings.doctorHandler, query[0]?.id));
+
+              return Response.json({ bookings: res, status: "success" });
             }
             break;
           case "patient":
@@ -115,16 +121,12 @@ export async function GET(request: Request) {
                 .from(bookings)
                 .innerJoin(patients, eq(bookings.patientId, patients.id))
                 .where(eq(bookings.patientId, query[0]?.id));
+
+              return Response.json({ bookings: res, status: "success" });
             }
             break;
           default:
-            return new Response("No matching cases found", { status: 404 });
-        }
-        if (res) {
-          console.log(res);
-          return Response.json({ bookings: res, status: "success" });
-        } else {
-          return new Response("No matching records found", { status: 404 });
+            return new Response("No matching cases found");
         }
       } else {
         return new Response("No matching user found", { status: 404 });
@@ -137,7 +139,7 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error(error);
 
-    return Response.json({ status: "An internal error occured" });
+    return new Response("An internal error occured", { status: 500 });
   } finally {
     client.release();
   }

@@ -18,7 +18,7 @@ import {
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import type { Clinic } from "utils/used-types";
+import type { Clinic, clinicsDataType } from "utils/used-types";
 import Loading from "../loading";
 import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
 import Booking from "~/components/booking";
@@ -26,6 +26,7 @@ import { signIn, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useAtom, useAtomValue } from "jotai";
 import { userDataAtom } from "~/components/drawer";
+import { Prisma } from "@prisma/client";
 export default function ClinicsPage() {
   const [isClient, setIsClient] = useState(false);
   useEffect(() => {
@@ -34,18 +35,18 @@ export default function ClinicsPage() {
   const toast = useToast();
   const clinicsQuery = useQuery({
     queryKey: ["clinics"],
-    queryFn: async function() {
+    queryFn: async function () {
       try {
-        const res = await fetch("/api/get-clinics");
+        const res = await fetch("/api/get-verified-clinics");
         const data = (await res.json()) as {
           status: string;
-          clinics: Array<Clinic>;
+          clinics: Array<clinicsDataType>;
         };
         return data?.clinics;
       } catch (e) {
         console.error(e);
         toast({
-          description: "An error occured fetching the inventory",
+          description: "An error occured fetching verified clinics",
           status: "error",
           duration: 9000,
           isClosable: true,
@@ -64,7 +65,7 @@ export default function ClinicsPage() {
         className="h-screen w-screen"
         isLoaded={clinicsQuery?.isFetched}
       >
-        {clinicsQuery?.data?.length ?? new Array<Clinic>().length > 0 ? (
+        {clinicsQuery?.data ?? new Array<clinicsDataType>().length > 0 ? (
           <Heading size="mb" m={6}>
             Registered Clinics
           </Heading>
@@ -80,7 +81,7 @@ export default function ClinicsPage() {
                 <ClinicComponent
                   handler={clinic.id}
                   name={clinic.estname}
-                  services={clinic.services}
+                  services={clinic?.services as Prisma.JsonArray}
                 />
               </WrapItem>
             );
@@ -96,7 +97,7 @@ function ClinicComponent({
   handler,
 }: {
   name: string;
-  services: Array<string>;
+  services: Prisma.JsonArray;
 
   handler: number | undefined;
 }) {
@@ -105,7 +106,7 @@ function ClinicComponent({
   const { data: session, status } = useSession();
   const pathName = usePathname();
   const { isOpen, onClose, onOpen } = useDisclosure();
-  console.log({ role: userDataAtomI?.[0]?.users?.userrole })
+  console.log({ role: userDataAtomI?.userrole });
   return (
     <>
       <Booking
@@ -134,7 +135,7 @@ function ClinicComponent({
             <Text py="2">services</Text>
             <UnorderedList>
               {services.map((service, index) => {
-                return <ListItem key={index}>{service}</ListItem>;
+                return <ListItem key={index}>{service?.toString()}</ListItem>;
               })}
             </UnorderedList>
           </CardBody>
@@ -142,7 +143,7 @@ function ClinicComponent({
           <CardFooter>
             <Button
               onClick={() => {
-                if (userDataAtomI?.[0]?.users?.userrole !== "patient") {
+                if (userDataAtomI?.userrole !== "patient") {
                   toast({
                     description: "You account is not a patient account",
                     status: "error",

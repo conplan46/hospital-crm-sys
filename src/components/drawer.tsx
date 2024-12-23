@@ -8,7 +8,19 @@ import {
   MenuOptionGroup,
   MenuDivider,
   Button,
+  Skeleton,
 } from "@chakra-ui/react";
+import {
+  bookings,
+  clinicians,
+  clinics,
+  doctors,
+  nurse,
+  patients,
+  pharmacy,
+  users,
+} from "drizzle/schema";
+
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -35,10 +47,10 @@ import { Input } from "~/components/ui/input";
 import Link from "next/link";
 import { FaChevronRight, FaCog } from "react-icons/fa";
 import LogoutButton from "./logout-button";
-import { useSession } from "next-auth/react";
+import { signIn, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { UserDataAl } from "utils/used-types";
+import { UserDataAl, UserWithDataType } from "utils/used-types";
 import {
   Command,
   CommandEmpty,
@@ -66,7 +78,7 @@ const navItems = [
   { name: "Doctors", href: "/doctors", icon: Stethoscope },
   { name: "Pharmaceutical Database", href: "/pharm-db", icon: Beaker },
 ];
-export const userDataAtom = atom<UserDataDrizzle | undefined>(undefined);
+export const userDataAtom = atom<UserWithDataType | undefined>(undefined);
 export default function DrawerLayout({
   children,
 }: {
@@ -78,6 +90,7 @@ export default function DrawerLayout({
   }, []);
   const userDataAtomI = useAtom(userDataAtom);
   const setUserData = useSetAtom(userDataAtom);
+
   const { data: session, status } = useSession();
   const path = usePathname();
   const userDataQuery = useQuery({
@@ -91,7 +104,7 @@ export default function DrawerLayout({
       /* :{ status: string; data: UserData } */
       const data = (await res.json()) as {
         status: string;
-        data: UserDataDrizzle;
+        data: UserWithDataType;
       };
       console.log(data);
       if (data.data) {
@@ -101,8 +114,8 @@ export default function DrawerLayout({
     },
   });
   const urlObj = constructUrl(
-    userDataQuery?.data?.[0]?.users?.userrole??"",
-    userDataQuery?.data?.[0]?.users?.id,
+    userDataQuery?.data?.userrole ?? "",
+    userDataQuery?.data?.id,
   );
   const isAdminQuery = useQuery({
     queryKey: ["isAdmin"],
@@ -205,12 +218,20 @@ export default function DrawerLayout({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuItem className="flex-col items-start">
+                  <DropdownMenuItem onClick={()=>{
+      if(status=="unauthenticated"){
+    void signIn(undefined, { callbackUrl: path });
+                    }
+                  }} className="flex-col items-start">
                     <div className="text-sm font-medium">
-                      username@example.com
+                      {status == "authenticated"
+                        ? userDataAtomI[0]?.email ?? "Not logged in"
+                        : "Login"}
                     </div>
                     <div className="text-xs text-muted-foreground">
-                      Administrator
+                      {status == "authenticated"
+                        ? userDataAtomI[0]?.userrole ?? "Not logged in"
+                        : "Login"}
                     </div>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -228,7 +249,7 @@ export default function DrawerLayout({
                   ) : (
                     ""
                   )}
-                 {/*<DropdownMenuItem>
+                  {/*<DropdownMenuItem>
                     <Pill className="mr-2 h-4 w-4" />
                     <span>Prescriptions</span>
                   </DropdownMenuItem>*/}
@@ -258,7 +279,9 @@ export default function DrawerLayout({
             </div>
           </div>
         </nav>
-        <main>{children}</main>
+        <Skeleton isLoaded={userDataQuery?.isFetched}>
+          <main>{children}</main>
+        </Skeleton>
       </>
     );
   }

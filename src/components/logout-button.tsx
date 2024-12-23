@@ -1,10 +1,21 @@
-'use client'
+"use client";
 
-import { signOut } from "next-auth/react"
+import { useAtom } from "jotai";
+import { signOut } from "next-auth/react";
+import { userDataAtom } from "./drawer";
 
 export default function LogoutButton() {
-	return (
-		<li><a onClick={() => { void signOut() }}>Logout</a></li>
-
-	)
+  const [_, setUserData] = useAtom(userDataAtom);
+  return (
+    <li>
+      <a
+        onClick={() => {
+          setUserData(undefined);
+          void signOut();
+        }}
+      >
+        Logout
+      </a>
+    </li>
+  );
 }

@@ -33,18 +33,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Briefcase, MapPin, Phone, Star, User as UserIcon } from "lucide-react";
-import {
-  Booking,
-  Clinic,
-  Clinician,
-  Doctor,
-  Patient,
-  Pharmacy,
-  User,
-  UserDataDrizzle,
-  type UserData,
-  type UserDataAl,
-} from "utils/used-types";
+import { Booking } from "utils/used-types";
 import Loading from "../loading";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -58,40 +47,44 @@ import {
   users,
 } from "drizzle/schema";
 import PatientVitals from "~/components/patients-vitals";
+import { useAtom } from "jotai";
+import { userDataAtom } from "~/components/drawer";
 export default function ProfilePage() {
+  const [userData, _] = useAtom(userDataAtom);
   const callBackUrl = usePathname();
   const { data: session, status } = useSession();
   if (status === "unauthenticated") {
     void signIn(undefined, { callbackUrl: callBackUrl });
   }
+  console.log({ userData });
   const [isClient, setIsClient] = useState(false);
-  const userDataQuery = useQuery({
-    queryKey: ["user-data"],
-    queryFn: async () => {
-      const formData = new FormData();
-      formData.append("email", session?.user?.email ??"");
-      const res = await fetch("/api/get-user-data", {
-        headers: { "Content-Type": "application/json" },
-        body: formData,
-        method: "POST",
-      });
-      /* :{ status: string; data: UserData } */
-      const data = (await res.json()) as {
-        status: string;
-        data: Array<{
-          users: typeof users.$inferSelect;
-          clinics?: typeof clinics.$inferSelect;
-          clinicians?: typeof clinicians.$inferSelect;
-          doctors?: typeof doctors.$inferSelect;
-          pharmacy?: typeof pharmacy.$inferSelect;
-          patients?: typeof patients.$inferSelect;
-          nurse?: typeof nurse.$inferSelect;
-        }>;
-      };
-      console.log(data);
-      return data?.data;
-    },
-  });
+  //const userDataQuery = useQuery({
+  //  queryKey: ["user-data"],
+  //  queryFn: async () => {
+  //    const formData = new FormData();
+  //    formData.append("email", session?.user?.email ?? "");
+  //    const res = await fetch("/api/get-user-data", {
+  //      headers: { "Content-Type": "application/json" },
+  //      body: JSON.stringify({ email: session?.user?.email }),
+  //      method: "POST",
+  //    });
+  //    /* :{ status: string; data: UserData } */
+  //    const data = (await res.json()) as {
+  //      status: string;
+  //      data: Array<{
+  //        users?: typeof users.$inferSelect;
+  //        clinics?: typeof clinics.$inferSelect;
+  //        clinicians?: typeof clinicians.$inferSelect;
+  //        doctors?: typeof doctors.$inferSelect;
+  //        pharmacy?: typeof pharmacy.$inferSelect;
+  //        patients?: typeof patients.$inferSelect;
+  //        nurse?: typeof nurse.$inferSelect;
+  //      }>;
+  //    };
+  //    console.log({ userData: data });
+  //    return data?.data;
+  //  },
+  //});
   const bookingsQuery = useQuery({
     queryKey: ["user-bookings"],
     queryFn: async () => {
@@ -112,22 +105,21 @@ export default function ProfilePage() {
     },
   });
   console.log({ bookingsQuery });
-  const isAdminQuery = useQuery({
-    queryKey: ["isAdmin"],
-    queryFn: async () => {
-      const res = await fetch("/api/is-admin", {
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: session?.user?.email }),
-        method: "POST",
-      });
-      /* :{ status: string; data: UserData } */
-      const data = (await res.json()) as { status: string; isAdmin: boolean };
-      console.log(data);
-      return data.isAdmin;
-    },
-  });
-  console.log({ isAdminQuery });
-  console.log({ userDataQuery });
+  //const isAdminQuery = useQuery({
+  //  queryKey: ["isAdmin"],
+  //  queryFn: async () => {
+  //    const res = await fetch("/api/is-admin", {
+  //      headers: { "Content-Type": "application/json" },
+  //      body: JSON.stringify({ email: session?.user?.email }),
+  //      method: "POST",
+  //    });
+  //    /* :{ status: string; data: UserData } */
+  //    const data = (await res.json()) as { status: string; isAdmin: boolean };
+  //    console.log(data);
+  //    return data.isAdmin;
+  //  },
+  //});
+  //console.log({ isAdminQuery });
   useEffect(() => {
     setIsClient(true);
   }, []);
@@ -140,123 +132,113 @@ export default function ProfilePage() {
   function name(role: string) {
     switch (role) {
       case "doctor":
-        return `${userDataQuery?.data?.[0]?.doctors?.firstname} ${userDataQuery?.data?.[0]?.doctors?.lastname}`;
+        return `${userData?.doctors?.firstname} ${userData?.doctors?.lastname}`;
       case "patient":
-        return userDataQuery?.data?.[0]?.patients?.name;
+        return userData?.patients?.name;
 
       case "clinician":
-        return `${userDataQuery?.data?.[0]?.clinicians?.firstname} ${userDataQuery?.data?.[0]?.clinicians?.lastname}`;
+        return `${userData?.clinicians?.firstname} ${userData?.clinicians?.lastname}`;
     }
   }
   if (isClient && status == "authenticated") {
     return (
       <Skeleton
         className="h-screen w-screen"
-        isLoaded={
-          userDataQuery.isFetched &&
-          isAdminQuery?.isFetched &&
-          bookingsQuery?.isFetched
-        }
+        isLoaded={bookingsQuery?.isFetched}
       >
-       
-                <div>
-           <CardShd className="m-2 w-full max-w-3xl">
-          <CardHeaderShd className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
-            <Avatar className="h-24 w-24">
-              <AvatarImage
-                alt={name(userDataQuery?.data?.[0]?.users?.userrole ?? "")}
-                src={""}
-              />
-              <AvatarFallback>
-                {name(userDataQuery?.data?.[0]?.users?.userrole ?? "")
-                  ?.split(" ")
-                  .map((n) => n[0])
-                  .join("")}
-              </AvatarFallback>
-            </Avatar>
-            <div className="space-y-1 text-center sm:text-left">
-              <CardTitleShd className="text-2xl font-bold">
-                {name(userDataQuery?.data?.[0]?.users?.userrole ?? "")}
-              </CardTitleShd>
-              <CardDescriptionShd className="text-md">
-                {userDataQuery?.data?.[0]?.users.userrole}
-              </CardDescriptionShd>
-            </div>
-          </CardHeaderShd>
-          <CardContentShd className="space-y-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <div className="flex items-center space-x-2">
-                  <Phone className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="phone"
-                    value={
-                      userDataQuery?.data?.[0]?.pharmacy?.phonenumber ??
-                      userDataQuery?.data?.[0]?.clinicians?.phonenumber ??
-                      userDataQuery?.data?.[0]?.clinics?.phonenumber ??
-                      userDataQuery?.data?.[0]?.doctors?.phonenumber ??
-                      userDataQuery?.data?.[0]?.patients?.phonenumber ??
-                      userDataQuery?.data?.[0]?.nurse?.phonenumber
-                    }
-                    readOnly
-                  />
+        <div>
+          <CardShd className="m-2 w-full max-w-3xl">
+            <CardHeaderShd className="flex flex-col items-center space-y-4 sm:flex-row sm:space-x-4 sm:space-y-0">
+              <Avatar className="h-24 w-24">
+                <AvatarImage alt={name(userData?.userrole ?? "")} src={""} />
+                <AvatarFallback>
+                  {name(userData?.userrole ?? "")
+                    ?.split(" ")
+                    .map((n) => n[0])
+                    .join("")}
+                </AvatarFallback>
+              </Avatar>
+              <div className="space-y-1 text-center sm:text-left">
+                <CardTitleShd className="text-2xl font-bold">
+                  {name(userData?.userrole ?? "")}
+                </CardTitleShd>
+                <CardDescriptionShd className="text-md">
+                  {userData?.userrole}
+                </CardDescriptionShd>
+              </div>
+            </CardHeaderShd>
+            <CardContentShd className="space-y-4">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div className="space-y-2">
+                  <Label htmlFor="phone">Phone Number</Label>
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="phone"
+                      value={
+                        userData?.pharmacy?.phonenumber ??
+                        userData?.clinicians?.phonenumber ??
+                        userData?.clinics?.phonenumber ??
+                        userData?.doctors?.phonenumber ??
+                        userData?.patients?.phonenumber ??
+                        userData?.nurse?.phonenumber
+                      }
+                      readOnly
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="specialty">Primary Area of Specialty</Label>
+                  <div className="flex items-center space-x-2">
+                    <Star className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="specialty"
+                      value={
+                        userData?.doctors?.primaryareaofspeciality ??
+                        userData?.clinicians?.primaryareaofspeciality
+                      }
+                      readOnly
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="county">County of Practice</Label>
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="county"
+                      value={
+                        userData?.pharmacy?.location ??
+                        userData?.clinics?.location ??
+                        userData?.doctors?.countyofpractice ??
+                        userData?.nurse?.countyofpractice ??
+                        userData?.clinicians?.countyofpractice
+                      }
+                      readOnly
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="license">Practice License Number</Label>
+                  <div className="flex items-center space-x-2">
+                    <Briefcase className="h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="license"
+                      value={
+                        `${userData?.nurse?.practice_license_number}` ??
+                        `${userData?.clinicians?.practiceLicenseNumber}` ??
+                        `${userData?.doctors?.practice_license_number}` ??
+                        `${userData?.clinics?.practice_license_number}` ??
+                        `${userData?.pharmacy?.license_number}`
+                      }
+                      readOnly
+                    />
+                  </div>
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="specialty">Primary Area of Specialty</Label>
-                <div className="flex items-center space-x-2">
-                  <Star className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="specialty"
-                    value={
-                      userDataQuery?.data?.[0]?.doctors
-                        ?.primaryareaofspeciality ??
-                      userDataQuery?.data?.[0]?.clinicians
-                        ?.primaryareaofspeciality
-                    }
-                    readOnly
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="county">County of Practice</Label>
-                <div className="flex items-center space-x-2">
-                  <MapPin className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="county"
-                    value={
-                      userDataQuery?.data?.[0]?.pharmacy?.location ??
-                      userDataQuery?.data?.[0]?.clinics?.location ??
-                      userDataQuery?.data?.[0]?.doctors?.countyofpractice ??
-                      userDataQuery?.data?.[0]?.nurse?.countyofpractice ??
-                      userDataQuery?.data?.[0]?.clinicians?.countyofpractice
-                    }
-                    readOnly
-                  />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="license">Practice License Number</Label>
-                <div className="flex items-center space-x-2">
-                  <Briefcase className="h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="license"
-                    value={
-                      `${userDataQuery?.data?.[0]?.nurse?.practiceLicenseNumber}` ??
-                      `${userDataQuery?.data?.[0]?.clinicians?.practiceLicenseNumber}` ??
-                      `${userDataQuery?.data?.[0]?.doctors?.practiceLicenseNumber}` ??
-                      `${userDataQuery?.data?.[0]?.clinics?.practiceLicenseNumber}` ??
-                      `${userDataQuery?.data?.[0]?.pharmacy?.licenseNumber}`
-                    }
-                    readOnly
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContentShd>
-          <CardFooterShd className="flex justify-between"></CardFooterShd>
-        </CardShd>
+            </CardContentShd>
+            <CardFooterShd className="flex justify-between"></CardFooterShd>
+          </CardShd>
           <div className="m-3">
             {bookingsQuery?.data?.length ?? new Array<Booking>().length > 0 ? (
               <Heading size="mb" m={6}>

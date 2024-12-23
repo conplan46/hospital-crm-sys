@@ -1,0 +1,230 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DB_CONNECTION")
+}
+
+model accounts {
+  id                Int     @id @default(autoincrement())
+  userId            Int
+  type              String  @db.VarChar(255)
+  provider          String  @db.VarChar(255)
+  providerAccountId String  @db.VarChar(255)
+  refresh_token     String?
+  access_token      String?
+  expires_at        BigInt?
+  id_token          String?
+  scope             String?
+  session_state     String?
+  token_type        String?
+}
+
+model ad_banners {
+  id          Int      @id(map: "ad_banner_pkey") @default(autoincrement())
+  image_url   String   @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.Timestamp(6)
+  product_url String   @db.VarChar(255)
+}
+
+model bookings {
+  id                     Int         @id @default(autoincrement())
+  clinic_handler         Int?
+  clinician_handler      Int?
+  doctor_handler         Int?
+  patient_id             Int?
+  nurse_visit            Boolean?
+  reason_for_appointment String?
+  prescription_request   Boolean?
+  medical_exam_request   Boolean?
+  lab_test_request       Boolean?
+  processed              Boolean?    @default(false)
+  created_at             DateTime    @default(now()) @db.Timestamp(6)
+  clinics                clinics?    @relation(fields: [clinic_handler], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookings_clinic_handler_clinics_id_fk")
+  clinicians             clinicians? @relation(fields: [clinician_handler], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookings_clinician_handler_clinicians_id_fk")
+  doctors                doctors?    @relation(fields: [doctor_handler], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookings_doctor_handler_doctors_id_fk")
+  patients               patients?   @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bookings_patient_id_patients_id_fk")
+}
+
+model clinicians {
+  id                      Int        @id @default(autoincrement())
+  firstname               String?    @db.VarChar(255)
+  lastname                String     @db.VarChar(255)
+  phonenumber             String     @db.VarChar(15)
+  primaryareaofspeciality String     @db.VarChar(255)
+  countyofpractice        String     @db.VarChar(255)
+  userid                  Int        @unique
+  verified                Boolean?   @default(false)
+  practiceLicenseNumber   String?    @db.VarChar
+  valid_till              DateTime?  @db.Date
+  bookings                bookings[]
+  users                   users      @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "clinicians_userid_users_id_fk")
+}
+
+model clinics {
+  id                      Int        @id @default(autoincrement())
+  estname                 String     @db.VarChar(255)
+  services                Json?
+  phonenumber             String     @db.VarChar(15)
+  location                String     @db.VarChar(255)
+  userid                  Int        @unique
+  verified                Boolean?   @default(false)
+  practice_license_number String     @db.VarChar(255)
+  valid_till              DateTime?  @db.Date
+  bookings                bookings[]
+  users                   users      @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "clinics_userid_users_id_fk")
+}
+
+model doctors {
+  id                      Int        @id @default(autoincrement())
+  firstname               String?    @db.VarChar(255)
+  lastname                String     @db.VarChar(255)
+  phonenumber             String     @db.VarChar(15)
+  primaryareaofspeciality String     @db.VarChar(255)
+  countyofpractice        String     @db.VarChar(255)
+  license_document_link   String     @db.VarChar(255)
+  userid                  Int        @unique
+  verified                Boolean?   @default(false)
+  practice_license_number String     @db.VarChar(255)
+  valid_till              DateTime?  @db.Date
+  bookings                bookings[]
+  users                   users      @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "doctors_userid_users_id_fk")
+}
+
+model inventory {
+  id              Int       @id @default(autoincrement())
+  product_id      Int
+  est_id          Int
+  inventory_count Int
+  top_product     Boolean?  @default(false)
+  price           Float     @db.Real
+  product_url     String?   @db.VarChar(255)
+  pharmacy        pharmacy? @relation(fields: [est_id], references: [id])
+  products        products  @relation(fields: [product_id], references: [product_id], onDelete: NoAction, onUpdate: NoAction, map: "inventory_product_id_products_product_id_fk")
+}
+
+model labs {
+  id                      Int       @id @default(autoincrement())
+  estname                 String    @db.VarChar(255)
+  services                Json?
+  phonenumber             String    @db.VarChar(15)
+  location                String    @db.VarChar(255)
+  userid                  Int       @unique
+  practice_license_number String    @db.VarChar(255)
+  verified                Boolean?  @default(false)
+  valid_till              DateTime? @db.Date
+  users                   users?    @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "labs_userid_users_id_fk")
+}
+
+model nurse {
+  id                      Int       @id @default(autoincrement())
+  firstname               String?   @db.VarChar(255)
+  lastname                String    @db.VarChar(255)
+  phonenumber             String    @db.VarChar(15)
+  countyofpractice        String    @db.VarChar(255)
+  practice_license_number String    @db.VarChar(255)
+  verified                Boolean?  @default(false)
+  userid                  Int       @unique
+  valid_till              DateTime? @db.Date
+  users                   users?    @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "nurse_userid_users_id_fk")
+}
+
+model patient_vitals_records {
+  id                       Int      @id @default(autoincrement())
+  patient_id               Int
+  height                   Float?   @db.Real
+  weight                   Float?   @db.Real
+  BMI                      Float?   @db.Real
+  temperature              Float?   @db.Real
+  blood_pressure           Float?   @db.Real
+  resp                     Float?   @db.Real
+  physician_notes          Json?
+  notes                    String?
+  allergies                String[]
+  medication               String[]
+  vaccinations             String[]
+  lifestyle_type_screening String?
+  created_at               DateTime @default(now()) @db.Timestamp(6)
+  patients                 patients @relation(fields: [patient_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patient_vitals_records_patient_id_patients_id_fk")
+}
+
+model patients {
+  id                     Int                      @id @default(autoincrement())
+  phonenumber            String                   @db.VarChar(15)
+  user_id                Int                      @unique
+  name                   String                   @db.VarChar(255)
+  number_of_visits       Int?                     @default(0)
+  bookings               bookings[]
+  patient_vitals_records patient_vitals_records[]
+  users                  users?                   @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "patients_user_id_users_id_fk")
+}
+
+model pharmacy {
+  id                           Int         @id @default(autoincrement())
+  estname                      String      @db.VarChar(255)
+  phonenumber                  String      @db.VarChar(15)
+  location                     String      @db.VarChar(255)
+  userid                       Int         @unique
+  verified                     Boolean?    @default(false)
+  facility_registration_number String?     @db.VarChar
+  license_number               String?     @db.VarChar
+  valid_till                   DateTime?   @db.Date
+  users                        users       @relation(fields: [userid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "pharmacy_userid_users_id_fk")
+  inventory                    inventory[]
+}
+
+model products {
+  product_id    Int         @id @default(autoincrement())
+  name          String      @unique
+  description   String
+  dosage        String[]
+  average_price Float       @db.Real
+  manufacturer  String
+  image_url     String      @db.VarChar(255)
+  inventory     inventory[]
+}
+
+model roles {
+  role  String  @id
+  users users[]
+}
+
+model schema_migrations {
+  version BigInt  @id
+  dirty   Boolean
+}
+
+model sessions {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  expires      DateTime @db.Timestamptz(6)
+  sessionToken String   @db.VarChar(255)
+}
+
+model users {
+  id            Int         @id @default(autoincrement())
+  name          String?     @db.VarChar(255)
+  email         String?     @unique @db.VarChar(255)
+  password      String?     @db.VarChar(255)
+  emailVerified DateTime?   @db.Timestamptz(6)
+  image         String?
+  userrole      String?
+  clinicians    clinicians?
+  clinics       clinics?
+  doctors       doctors?
+  labs          labs?
+  nurse         nurse?
+  patients      patients?
+  pharmacy      pharmacy?
+  roles         roles?      @relation(fields: [userrole], references: [role], onDelete: NoAction, onUpdate: NoAction, map: "users_userrole_roles_role_fk")
+}
+
+model verification_token {
+  identifier String
+  expires    DateTime @db.Timestamptz(6)
+  token      String
+
+  @@id([identifier, token])
+}

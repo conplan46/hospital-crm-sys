@@ -26,7 +26,7 @@ import { Badge } from "~/components/ui/badge";
 
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { type Clinician, type Doctor } from "utils/used-types";
+import { doctorsDataType, type Clinician, type Doctor } from "utils/used-types";
 import Loading from "../loading";
 import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
 import Image from "next/image";
@@ -47,10 +47,10 @@ export default function DoctorsPage() {
     queryKey: ["doctors"],
     queryFn: async function () {
       try {
-        const res = await fetch("/api/get-doctors");
+        const res = await fetch("/api/get-verified-doctors");
         const data = (await res.json()) as {
           status: string;
-          doctors: Array<Doctor>;
+          doctors: Array<doctorsDataType>;
         };
         return data?.doctors;
       } catch (e) {
@@ -75,7 +75,8 @@ export default function DoctorsPage() {
         className="h-screen w-screen"
         isLoaded={doctorsQuery?.isFetched}
       >
-        {doctorsQuery?.data?.length ?? new Array<Clinician>().length > 0 ? (
+        {doctorsQuery?.data?.length ??
+        new Array<doctorsDataType>().length > 0 ? (
           <Heading size="mb" m={6}>
             Registered Doctors
           </Heading>
@@ -150,74 +151,75 @@ function DoctorsComponent({
       return data;
     },
   });
-  if(isDoctorVerified?.data?.verified){
-  return (
-    <>
-      <Booking
-        role="doctor"
-        isOpen={isOpen}
-        onClose={onClose}
-        onOpen={onOpen}
-        handler={handler}
-      />
+  if (isDoctorVerified?.data?.verified) {
+    return (
+      <>
+        <Booking
+          role="doctor"
+          isOpen={isOpen}
+          onClose={onClose}
+          onOpen={onOpen}
+          handler={handler}
+        />
 
-      <Card className="mx-auto w-full max-w-md">
-        <CardHeader className="flex flex-row items-center gap-4">
-          <Avatar className="h-16 w-16">
-            <AvatarImage src={name} alt={name} />
-            <AvatarFallback>{name}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1">
-            <CardTitle>{name}</CardTitle>
-            <CardDescription>{areaOfSpeciality}</CardDescription>
-            <div className="mt-1 flex items-center">
-              <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
-              <span className="text-sm font-medium">{rating}</span>
+        <Card className="mx-auto w-full max-w-md">
+          <CardHeader className="flex flex-row items-center gap-4">
+            <Avatar className="h-16 w-16">
+              <AvatarImage src={name} alt={name} />
+              <AvatarFallback>{name}</AvatarFallback>
+            </Avatar>
+            <div className="flex-1">
+              <CardTitle>{name}</CardTitle>
+              <CardDescription>{areaOfSpeciality}</CardDescription>
+              <div className="mt-1 flex items-center">
+                <Star className="mr-1 h-4 w-4 fill-yellow-400 text-yellow-400" />
+                <span className="text-sm font-medium">{rating}</span>
+              </div>
             </div>
-          </div>
-        </CardHeader>
-        <CardContent>
-          <p className="mb-4 text-sm text-muted-foreground">{description}</p>
-          <div className="flex flex-col gap-2">
-            <Badge
-              variant="secondary"
-              className="flex w-fit items-center gap-1"
-            >
-              <Clock className="h-3 w-3" />
-              <span className="text-xs">{availability}</span>
-            </Badge>
-            <Badge
-              variant="secondary"
-              className="flex w-fit items-center gap-1"
-            >
-              <MapPin className="h-3 w-3" />
-              <span className="text-xs">{location}</span>
-            </Badge>
-          </div>
-        </CardContent>
-        <CardFooter>
-          <Button
-            className="w-full"
-            onClick={() => {
-              if (userDataAtomI?.[0]?.users?.userrole !== "patient") {
-                toast({
-                  description: "You account is not a patient account",
-                  status: "error",
-                });
-              } else {
-                if (status === "unauthenticated") {
-                  void signIn(undefined, { callbackUrl: pathName });
+          </CardHeader>
+          <CardContent>
+            <p className="mb-4 text-sm text-muted-foreground">{description}</p>
+            <div className="flex flex-col gap-2">
+              <Badge
+                variant="secondary"
+                className="flex w-fit items-center gap-1"
+              >
+                <Clock className="h-3 w-3" />
+                <span className="text-xs">{availability}</span>
+              </Badge>
+              <Badge
+                variant="secondary"
+                className="flex w-fit items-center gap-1"
+              >
+                <MapPin className="h-3 w-3" />
+                <span className="text-xs">{location}</span>
+              </Badge>
+            </div>
+          </CardContent>
+          <CardFooter>
+            <Button
+              className="w-full"
+              onClick={() => {
+                if (userDataAtomI?.userrole !== "patient") {
+                  toast({
+                    description: "You account is not a patient account",
+                    status: "error",
+                  });
+                } else {
+                  if (status === "unauthenticated") {
+                    void signIn(undefined, { callbackUrl: pathName });
+                  }
+                  if (status === "authenticated") {
+                    onOpen();
+                  }
                 }
-                if (status === "authenticated") {
-                  onOpen();
-                }
-              }
-            }}
-          >
-            Book Services
-          </Button>
-        </CardFooter>
-      </Card>
-    </>
-  )}
+              }}
+            >
+              Book Services
+            </Button>
+          </CardFooter>
+        </Card>
+      </>
+    );
+  }
 }

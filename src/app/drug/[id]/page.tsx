@@ -3,7 +3,11 @@ import { Skeleton, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { DrugPurchaseForm, IInventoryItem } from "utils/used-types";
+import {
+  DrugPurchaseForm,
+  IInventoryItem,
+  findProductDataType,
+} from "utils/used-types";
 import Loading from "~/app/loading";
 import {
   Card,
@@ -40,7 +44,7 @@ export default function DrugPage({ params }: { params: { id: string } }) {
         });
         const data = (await res.json()) as {
           status: string;
-          product: Array<typeof products.$inferSelect>;
+          product: findProductDataType;
         };
         return data.product;
       } catch (e) {
@@ -67,7 +71,7 @@ export default function DrugPage({ params }: { params: { id: string } }) {
         <Card>
           <CardHeader>
             <CardTitle className="text-2xl font-bold">
-              {productQuery?.data?.[0]?.name}
+              {productQuery?.data?.name}
             </CardTitle>
             <Badge variant="secondary">Over-the-Counter</Badge>
           </CardHeader>
@@ -76,25 +80,25 @@ export default function DrugPage({ params }: { params: { id: string } }) {
               <div>
                 <h3 className="mb-2 text-lg font-semibold">Drug Summary</h3>
                 <p className="mb-4 text-sm text-muted-foreground">
-                  {productQuery?.data?.[0]?.description}
+                  {productQuery?.data?.description}
                 </p>
                 <div className="space-y-2">
                   <div className="flex items-center">
                     <Pill className="mr-2 h-4 w-4 text-primary" />
                     <span className="text-sm">
-                      dosage: {productQuery?.data?.[0]?.dosage}
+                      dosage: {productQuery?.data?.dosage}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <DollarSign className="mr-2 h-4 w-4 text-primary" />
                     <span className="text-sm">
-                      Average Price: {productQuery?.data?.[0]?.averagePrice}
+                      Average Price: {productQuery?.data?.average_price}
                     </span>
                   </div>
                   <div className="flex items-center">
                     <Building2 className="mr-2 h-4 w-4 text-primary" />
                     <span className="text-sm">
-                      Manufacturer: {productQuery?.data?.[0]?.manufacturer}
+                      Manufacturer: {productQuery?.data?.manufacturer}
                     </span>
                   </div>
                 </div>
@@ -103,7 +107,7 @@ export default function DrugPage({ params }: { params: { id: string } }) {
                 <h3 className="mb-2 text-lg font-semibold">Packaging</h3>
                 <div className="relative aspect-square">
                   <Image
-                    src={productQuery?.data?.[0]?.imageUrl??""}
+                    src={productQuery?.data?.image_url ?? ""}
                     alt="Aspirin packaging"
                     layout="fill"
                     objectFit="cover"

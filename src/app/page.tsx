@@ -40,6 +40,7 @@ import { useQuery } from "@tanstack/react-query";
 import { adBanner, inventory, products } from "drizzle/schema";
 import Image from "next/image";
 import { InventoryPurchaseItem } from "~/components/inventory-item";
+import { topProductsWithInvDataType } from "utils/used-types";
 
 export default function HomePage() {
   const [isClient, setIsClient] = useState(false);
@@ -78,10 +79,7 @@ export default function HomePage() {
       try {
         const res = await fetch("/api/get-top-products");
         const data = (await res.json()) as {
-          topProducts: Array<{
-            inventory: typeof inventory.$inferSelect;
-            products: typeof products.$inferSelect;
-          }>;
+          topProducts: Array<topProductsWithInvDataType>;
         };
         console.log(data.topProducts);
         return data.topProducts;
@@ -177,26 +175,26 @@ export default function HomePage() {
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {topProductsQuery.data?.map((item, index) => (
               <Link
-                href={item.inventory.productUrl ?? "#"}
-                key={item.products.productId}
+                href={item.product_url ?? "#"}
+                key={item.product_id}
               >
-                <Card key={item.products.productId}>
+                <Card key={item.product_id}>
                   <CardContent className="p-4">
                     <Image
-                      src={item.products.imageUrl}
+                      src={item.products.image_url}
                       alt={item.products.name}
                       width={200}
                       height={200}
                     />
                     <h3 className="mb-2 text-lg font-semibold">
-                      {item.products.name}
+                      {item?.products?.name}
                     </h3>
                     <div className="mb-2 flex items-center">
                       <Star className="mr-1 h-4 w-4 text-yellow-400" />
                       <span>{2}</span>
                     </div>
                     <p className="font-bold">
-                      ${item.products.averagePrice.toFixed(2)}
+                      ${item?.products?.average_price.toFixed(2)}
                     </p>
                   </CardContent>
                   <CardFooter></CardFooter>

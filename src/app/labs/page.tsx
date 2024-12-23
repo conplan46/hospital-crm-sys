@@ -18,10 +18,11 @@ import {
 import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import type { Lab } from "utils/used-types";
+import type { Lab, labsDataType } from "utils/used-types";
 import Loading from "../loading";
 import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
 import Booking from "~/components/booking";
+import { Prisma } from "@prisma/client";
 export default function LabsPage() {
   const [isClient, setIsClient] = useState(false);
 
@@ -33,10 +34,10 @@ export default function LabsPage() {
     queryKey: ["labs"],
     queryFn: async function () {
       try {
-        const res = await fetch("/api/get-labs");
+        const res = await fetch("/api/get-verified-labs");
         const data = (await res.json()) as {
           status: string;
-          labs: Array<Lab>;
+          labs: Array<labsDataType>;
         };
         return data?.labs;
       } catch (e) {
@@ -57,10 +58,7 @@ export default function LabsPage() {
   }
   if (isClient) {
     return (
-      <Skeleton
-        className="h-screen w-screen"
-        isLoaded={labsQuery?.isFetched}
-      >
+      <Skeleton className="h-screen w-screen" isLoaded={labsQuery?.isFetched}>
         {labsQuery?.data?.length ?? new Array<Lab>().length > 0 ? (
           <Heading size="mb" m={6}>
             Registered Labs
@@ -77,7 +75,7 @@ export default function LabsPage() {
                 <LabComponent
                   handler={lab.id}
                   name={lab.estname}
-                  services={lab.services}
+                  services={lab?.services as Prisma.JsonArray}
                 />
               </WrapItem>
             );
@@ -93,8 +91,7 @@ function LabComponent({
   handler,
 }: {
   name: string;
-  services: Array<string>;
-
+  services: Prisma.JsonArray;
   handler: number | undefined;
 }) {
   const { isOpen, onClose, onOpen } = useDisclosure();
@@ -126,7 +123,7 @@ function LabComponent({
             <Text py="2">services</Text>
             <UnorderedList>
               {services.map((service, index) => {
-                return <ListItem key={index}>{service}</ListItem>;
+                return <ListItem key={index}>{service?.toString()}</ListItem>;
               })}
             </UnorderedList>
           </CardBody>

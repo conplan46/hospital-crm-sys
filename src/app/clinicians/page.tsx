@@ -26,7 +26,7 @@ import {
 import { Star, Clock, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
-import { type Clinician } from "utils/used-types";
+import { cliniciansDataType, type Clinician } from "utils/used-types";
 import Loading from "../loading";
 import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
 import Image from "next/image";
@@ -49,10 +49,7 @@ export default function CliniciansPage() {
       try {
         const res = await fetch("/api/get-verified-clinicians");
         const data = (await res.json()) as {
-          clinicians: Array<{
-            clinicians: typeof clinicians.$inferSelect;
-            users: typeof users.$inferSelect;
-          }>;
+          clinicians: Array<cliniciansDataType>;
         };
         return data?.clinicians;
       } catch (e) {
@@ -97,16 +94,14 @@ export default function CliniciansPage() {
                 <WrapItem>
                   <ClinicianComponent
                     key={index}
-                    handler={clinician?.clinicians?.id}
-                    name={`${clinician?.clinicians?.firstname} ${clinician?.clinicians?.lastname}`}
-                    areaOfSpeciality={
-                      clinician?.clinicians?.primaryareaofspeciality
-                    }
+                    handler={clinician?.id}
+                    name={`${clinician?.firstname} ${clinician?.lastname}`}
+                    areaOfSpeciality={clinician?.primaryareaofspeciality}
                     rating={0}
-                    location={clinician?.clinicians?.countyofpractice}
-                    description={`Experienced health practitioner. Specializes in ${clinician?.clinicians?.primaryareaofspeciality}`}
+                    location={clinician?.countyofpractice}
+                    description={`Experienced health practitioner. Specializes in ${clinician?.primaryareaofspeciality}`}
                     availability="available"
-                    clinicianId={clinician?.clinicians?.id}
+                    clinicianId={clinician?.id}
                   />
                 </WrapItem>
               </>
@@ -208,7 +203,7 @@ function ClinicianComponent({
             <Button
               className="w-full"
               onClick={() => {
-                if (userDataAtomI?.[0]?.users?.userrole !== "patient") {
+                if (userDataAtomI?.userrole !== "patient") {
                   toast({
                     description: "You account is not a patient account",
                     status: "error",
