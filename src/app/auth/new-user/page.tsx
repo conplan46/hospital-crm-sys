@@ -52,6 +52,7 @@ import type {
   DoctorDataForm,
   Lab,
   LabDataForm,
+  NurseDataForm,
   PatientRegistrationForm,
   PharmacyDataForm,
 } from "utils/used-types";
@@ -91,6 +92,7 @@ export default function NewUserPage() {
         <Tab>Doctor</Tab>
         <Tab>Lab</Tab>
         <Tab>Patient</Tab>
+        <Tab>Nurse</Tab>
       </TabList>
       <TabPanels>
         <TabPanel>
@@ -110,6 +112,9 @@ export default function NewUserPage() {
         </TabPanel>
         <TabPanel>
           <PatientComponent router={router} session={session} />
+        </TabPanel>
+        <TabPanel>
+          <NurseComponent router={router} session={session} />
         </TabPanel>
       </TabPanels>
     </Tabs>
@@ -152,53 +157,34 @@ function DoctorComponent({
       formData.append("phoneNumber", data.phoneNumber);
       formData.append("countyOfPractice", data.countyOfPractice);
       formData.append("primaryAreaOfSpeciality", data.primaryAreaOfSpeciality);
-      const storageRef = ref(
-        storage,
-        `licenses/${data?.practicingLicense?.[0]?.name}`,
-      );
+      formData.append("practicingLicense", data.practicingLicense);
+      fetch("/api/create-doctor", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((result: { status: string }) => {
+          if (result.status == "doctor added") {
+            setIsSubmitting(false);
+            toast({
+              title: "Data received.",
+              description: "We've created a Doctor account for you.",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            void router.push("/");
+            //if user was added successfully sign up with new use and redirect to new-user page
+          } else {
+            setIsSubmitting(false);
 
-      const snapshot = await uploadBytes(
-        storageRef,
-        data?.practicingLicense?.[0] as Blob,
-      );
-      const url = await getDownloadURL(snapshot.ref);
-      if (!url) {
-        toast({
-          description: "Error uploading practicing license",
-          status: "error",
-          duration: 9000,
-          isClosable: true,
-        });
-      } else {
-        formData.append("practicingLicense", url);
-        fetch("/api/create-doctor", { method: "POST", body: formData })
-          .then((data) => data.json())
-          .then((result: { status: string }) => {
-            if (result.status == "doctor added") {
-              setIsSubmitting(false);
-              toast({
-                title: "Data received.",
-                description: "We've created a Doctor account for you.",
-                status: "success",
-                duration: 9000,
-                isClosable: true,
-              });
-              void router.push("/");
-              //if user was added successfully sign up with new use and redirect to new-user page
-            } else {
-              setIsSubmitting(false);
-
-              toast({
-                title: "Error",
-                description: result.status,
-                status: "error",
-                duration: 9000,
-                isClosable: true,
-              });
-            }
-          })
-          .catch((err) => console.error(err));
-      }
+            toast({
+              title: "Error",
+              description: result.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+        })
+        .catch((err) => console.error(err));
     }
   };
 
@@ -313,15 +299,25 @@ function DoctorComponent({
                 {errors?.countyOfPractice?.message}
               </FormErrorMessage>
             </FormControl>
-            <label className="form-control m-4 w-full max-w-xs">
-              <div className="label">
-                <span className="label-text">Practicing license</span>
-              </div>
+            <FormControl
+              className="mb-4"
+              isInvalid={Boolean(errors.practicingLicense)}
+            >
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                Practicing license
+              </FormLabel>
               <input
+                {...register("practicingLicense", {
+                  required: "practicing license is required",
+                })}
                 type="file"
                 className="file-input file-input-bordered w-full max-w-xs"
               />
-            </label>
+
+              <FormErrorMessage>
+                {errors?.practicingLicense?.message}
+              </FormErrorMessage>
+            </FormControl>
 
             <Button
               m={4}
@@ -338,6 +334,220 @@ function DoctorComponent({
     </div>
   );
 }
+function NurseComponent({
+  session,
+  router,
+}: {
+  session: Session | null;
+  router: AppRouterInstance;
+}) {
+  const [residence, setResidence] = useState("");
+  const [areaCode, setAreaCode] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const toast = useToast();
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<NurseDataForm>();
+  const onSubmit: SubmitHandler<NurseDataForm> = async (data) => {
+    console.log(data);
+
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
+    //
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+    /*    if (session?.user?.email) {
+         data = { ...data, email: session?.us}
+       } */
+    const formData = new FormData();
+    const phoneNumber = areaCode + data.phoneNumber;
+    if (session?.user?.email) {
+      setIsSubmitting(true);
+
+      formData.append("email", session?.user?.email);
+      formData.append("firstName", data.firstName);
+      formData.append("lastName", data.lastName);
+      formData.append("phoneNumber", data.phoneNumber);
+      formData.append("countyOfPractice", data.countyOfPractice);
+      formData.append("primaryAreaOfSpeciality", data.primaryAreaOfSpeciality);
+      formData.append("practicingLicense", data.practicingLicenseNumber);
+      fetch("/api/create-nurse", { method: "POST", body: formData })
+        .then((data) => data.json())
+        .then((result: { status: string }) => {
+          if (result.status == "doctor added") {
+            setIsSubmitting(false);
+            toast({
+              title: "Data received.",
+              description: "We've created a Nurse account for you.",
+              status: "success",
+              duration: 9000,
+              isClosable: true,
+            });
+            void router.push("/");
+            //if user was added successfully sign up with new use and redirect to new-user page
+          } else {
+            setIsSubmitting(false);
+
+            toast({
+              title: "Error",
+              description: result.status,
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          }
+        })
+        .catch((err) => console.error(err));
+    }
+  };
+
+  return (
+    <div className="font-manrope p-2">
+      <div className="m-6 grid rounded-lg  bg-white sm:col-start-2">
+        <div className="m-3 flex flex-col items-center">
+          <h1 className="m-2 text-2xl font-bold text-black">
+            Create Nurse Account
+          </h1>
+        </div>
+        <Center>
+          <form onSubmit={handleSubmit(onSubmit)}>
+            <FormControl m={4} isInvalid={Boolean(errors.firstName)}>
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                First Name
+              </FormLabel>
+              <Input
+                className="w-full"
+                placeholder="Enter your first Name"
+                {...register("firstName", {
+                  required: "name is required",
+                })}
+              />
+              <FormErrorMessage>{errors?.firstName?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl m={4} isInvalid={Boolean(errors.lastName)}>
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                Last Name
+              </FormLabel>
+              <Input
+                className="w-full"
+                placeholder="Enter your last Name"
+                {...register("lastName", {
+                  required: "name is required",
+                })}
+              />
+              <FormErrorMessage>{errors?.lastName?.message}</FormErrorMessage>
+            </FormControl>
+            <FormControl m={4} isInvalid={Boolean(errors.phoneNumber)}>
+              <FormLabel htmlFor="name">Phone Number</FormLabel>
+              <div className="join">
+                <Select
+                  className="join-item"
+                  onChange={(e) => {
+                    setAreaCode(e.target.value);
+                    areaCodes.forEach(
+                      (val: { code: string; name: string }, index) => {
+                        if (val.code == e.target.value) {
+                          setResidence(val.name);
+                        }
+                      },
+                    );
+                  }}
+                >
+                  <option disabled selected>
+                    Area Code
+                  </option>
+                  {areaCodes.map(
+                    (val: { code: string; name: string }, index) => {
+                      return (
+                        <option key={index} value={val.code}>
+                          {val.name} {val.code}
+                        </option>
+                      );
+                    },
+                  )}
+                </Select>
+                <Input
+                  id="name"
+                  className="join-item"
+                  placeholder="phoneNumber"
+                  {...register("phoneNumber", {
+                    required: "Phone number is required",
+                  })}
+                />
+              </div>
+              <FormErrorMessage>
+                {errors?.phoneNumber?.message}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl
+              m={4}
+              isInvalid={Boolean(errors.primaryAreaOfSpeciality)}
+            >
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                Primary area of speciality
+              </FormLabel>
+              <Input
+                className="w-full"
+                placeholder="Primary area of speciality"
+                {...register("primaryAreaOfSpeciality", {
+                  required: "field is required",
+                })}
+              />
+              <FormErrorMessage>
+                {errors?.phoneNumber?.message}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl m={4} isInvalid={Boolean(errors.countyOfPractice)}>
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                County of practice
+              </FormLabel>
+              <Input
+                className="w-full"
+                placeholder="County of practice"
+                {...register("countyOfPractice", {
+                  required: "field is required",
+                })}
+              />
+              <FormErrorMessage>
+                {errors?.countyOfPractice?.message}
+              </FormErrorMessage>
+            </FormControl>
+            <FormControl
+              m={4}
+              isInvalid={Boolean(errors.practicingLicenseNumber)}
+            >
+              <FormLabel className="font-bold text-black" htmlFor="name">
+                Practice license number
+              </FormLabel>
+              <Input
+                className="w-full"
+                placeholder="practice license number"
+                {...register("practicingLicenseNumber", {
+                  required: "field is required",
+                })}
+              />
+              <FormErrorMessage>
+                {errors?.practicingLicenseNumber?.message}
+              </FormErrorMessage>
+            </FormControl>
+
+            <Button
+              m={4}
+              isLoading={isSubmitting}
+              loadingText="Submitting"
+              bgColor="#285430"
+              type="submit"
+            >
+              Submit
+            </Button>
+          </form>
+        </Center>
+      </div>
+    </div>
+  );
+}
+
 function PatientComponent({
   session,
   router,

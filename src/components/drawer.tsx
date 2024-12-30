@@ -196,14 +196,17 @@ export default function DrawerLayout({
               </nav>
             </div>
             <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">
-              <div className="w-full flex-1 md:w-auto md:flex-none">
-                <Button
-                  variant="outline"
-                  className="inline-flex items-center whitespace-nowrap px-3 md:hidden"
-                >
-                  <Heart className="mr-2 h-4 w-4" />
-                  MedDashboard
-                </Button>
+              <div className="border-t ">
+                <form className="p-4">
+                  <div className="relative">
+                    <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      type="search"
+                      placeholder="Search drugs..."
+                      className="w-full pl-8"
+                    />
+                  </div>
+                </form>
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -218,11 +221,14 @@ export default function DrawerLayout({
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent className="w-56" align="end" forceMount>
-                  <DropdownMenuItem onClick={()=>{
-      if(status=="unauthenticated"){
-    void signIn(undefined, { callbackUrl: path });
-                    }
-                  }} className="flex-col items-start">
+                  <DropdownMenuItem
+                    onClick={() => {
+                      if (status == "unauthenticated") {
+                        void signIn(undefined, { callbackUrl: path });
+                      }
+                    }}
+                    className="flex-col items-start"
+                  >
                     <div className="text-sm font-medium">
                       {status == "authenticated"
                         ? userDataAtomI[0]?.email ?? "Not logged in"

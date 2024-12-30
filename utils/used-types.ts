@@ -19,9 +19,25 @@ const userWithData = Prisma.validator<Prisma.usersDefaultArgs>()({
     labs: true,
   },
 });
+const pharmaciesInd = Prisma.validator<Prisma.pharmacyFindManyArgs>()({
+  include: { users: true },
+});
+
+const doctorsWithUsersInd = Prisma.validator<Prisma.doctorsFindManyArgs>()({
+  include: { users: true },
+});
 const labsInd = Prisma.validator<Prisma.labsFindManyArgs>()({});
+
+const labsWithUsersInd = Prisma.validator<Prisma.labsFindManyArgs>()({
+  include: { users: true },
+});
 const clinicsInd = Prisma.validator<Prisma.clinicsFindManyArgs>()({});
 const cliniciansInd = Prisma.validator<Prisma.cliniciansFindManyArgs>()({});
+
+const cliniciansWithUsersInd =
+  Prisma.validator<Prisma.cliniciansFindManyArgs>()({
+    include: { users: true },
+  });
 const doctorsInd = Prisma.validator<Prisma.doctorsFindManyArgs>()({});
 const productInd = Prisma.validator<Prisma.productsFindManyArgs>()({});
 const findProduct = Prisma.validator<Prisma.productsFindUniqueArgs>()({});
@@ -31,15 +47,30 @@ const topProductsWithInv = Prisma.validator<Prisma.inventoryFindManyArgs>()({
 export type topProductsWithInvDataType = Prisma.inventoryGetPayload<
   typeof topProductsWithInv
 >;
+export type getPharmaciesWithUsers = Prisma.pharmacyGetPayload<
+  typeof pharmaciesInd
+>;
 export type findProductDataType = Prisma.productsGetPayload<typeof findProduct>;
 export type productsDataType = Prisma.productsGetPayload<typeof productInd>;
 export type doctorsDataType = Prisma.doctorsGetPayload<typeof doctorsInd>;
+
+export type doctorsWithUsersDataType = Prisma.doctorsGetPayload<
+  typeof doctorsWithUsersInd
+>;
 export type cliniciansDataType = Prisma.cliniciansGetPayload<
   typeof cliniciansInd
+>;
+
+export type clinicianswithUsersDataType = Prisma.cliniciansGetPayload<
+  typeof cliniciansWithUsersInd
 >;
 export type clinicsDataType = Prisma.clinicsGetPayload<typeof clinicsInd>;
 export type UserWithDataType = Prisma.usersGetPayload<typeof userWithData>;
 export type labsDataType = Prisma.labsGetPayload<typeof labsInd>;
+
+export type labsWithUsersDataType = Prisma.labsGetPayload<
+  typeof labsWithUsersInd
+>;
 export type Clinicians = Array<Clinician>;
 export interface Clinician {
   id: number;
@@ -199,12 +230,22 @@ const doctorOnboardingDataSchema = z.object({
   primaryAreaOfSpeciality: z.string(),
   location: z.string(),
   countyOfPractice: z.string(),
-  practicingLicense: z.custom<FileList>().nullish(),
+  practicingLicense: z.string(),
 });
 
+const nurseOnboardingDataSchema = z.object({
+  firstName: z.string(),
+  lastName: z.string(),
+  phoneNumber: z.string(),
+  primaryAreaOfSpeciality: z.string(),
+  location: z.string(),
+  countyOfPractice: z.string(),
+  practicingLicenseNumber: z.string(),
+});
 const bannerObj = z.object({
   banner: z.custom<FileList>().nullish(),
 });
+export type NurseDataForm = z.infer<typeof nurseOnboardingDataSchema>;
 export type BannerForm = z.infer<typeof bannerObj>;
 export type DoctorDataForm = z.infer<typeof doctorOnboardingDataSchema>;
 export type PharmacyDataForm = z.infer<typeof pharmacyOnboardingDataSchema>;
