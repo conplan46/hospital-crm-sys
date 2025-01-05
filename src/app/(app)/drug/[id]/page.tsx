@@ -8,13 +8,8 @@ import {
   IInventoryItem,
   findProductDataType,
 } from "utils/used-types";
-import Loading from "~/app/(app)/loading";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "~/components/ui/card";
+import Loading from "~/components/loading";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Badge } from "~/components/ui/badge";
 import { Pill, DollarSign, Building2 } from "lucide-react";
 import Image from "next/image";

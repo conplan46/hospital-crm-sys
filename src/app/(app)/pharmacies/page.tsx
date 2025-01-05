@@ -20,7 +20,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { Clinic, type Clinician, type Pharmacy } from "utils/used-types";
-import Loading from "../loading";
+import Loading from "~/components/loading";
 import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
 import Image from "next/image";
 import { AppRouterInstance } from "next/dist/shared/lib/app-router-context.shared-runtime";

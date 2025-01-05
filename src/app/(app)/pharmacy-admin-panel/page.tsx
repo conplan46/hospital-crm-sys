@@ -74,7 +74,7 @@ import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
-import Loading from "../loading";
+import Loading from "~/components/loading";
 import { z } from "zod";
 import {
   AddInvItem,

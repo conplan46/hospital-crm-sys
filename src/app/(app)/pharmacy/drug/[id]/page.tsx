@@ -5,19 +5,19 @@ import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState, use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { DrugPurchaseForm, IInventoryItem } from "utils/used-types";
-import Loading from "~/app/loading";
+import Loading from "~/components/loading";
 import { Pill, DollarSign, Building2 } from "lucide-react";
-import { Badge } from "../../../../components/ui/badge";
-import { Input } from "../../../../components/ui/input";
-import { Button } from "../../../../components/ui/button";
-import { Label } from "../../../../components/ui/label";
+import { Badge } from "~/components/ui/badge";
+import { Input } from "~/components/ui/input";
+import { Button } from "~/components/ui/button";
+import { Label } from "~/components/ui/label";
 import {
   Card,
   CardFooter,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../../components/ui/card";
+} from "~/components/ui/card";
 import Image from "next/image";
 import { inventory, products } from "drizzle/schema";
 export default function PharmacyDrugPage(

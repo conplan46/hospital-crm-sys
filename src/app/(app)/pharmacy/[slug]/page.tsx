@@ -32,7 +32,7 @@ import { useEffect, useState, use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FaPlus } from "react-icons/fa6";
 import { AddInvItem, IInventoryItem } from "utils/used-types";
-import Loading from "~/app/(app)/loading";
+import Loading from "~/components/loading";
 import {
   InventoryItem,
   InventoryPurchaseItem,

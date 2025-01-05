@@ -51,16 +51,14 @@ import { useEffect, useState, use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FaPlus } from "react-icons/fa6";
 import { AddInvItem, IInventoryItem } from "utils/used-types";
-import Loading from "~/app/loading";
+import Loading from "~/components/loading";
 import { InventoryItem } from "~/components/inventory-item";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import { inventory, products } from "drizzle/schema";
 import NoPriv from "~/components/no-privilages";
-export default function PharmacyDashBoard(
-  props: {
-    params: Promise<{ slug: string }>;
-  }
-) {
+export default function PharmacyDashBoard(props: {
+  params: Promise<{ slug: string }>;
+}) {
   const params = use(props.params);
   const [isClient, setIsClient] = useState(false);
 

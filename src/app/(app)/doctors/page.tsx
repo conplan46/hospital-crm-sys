@@ -27,7 +27,7 @@ import { Badge } from "~/components/ui/badge";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { doctorsDataType, type Clinician, type Doctor } from "utils/used-types";
-import Loading from "../loading";
+import Loading from "~/components/loading";
 import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
 import Image from "next/image";
 import Booking from "~/components/booking";

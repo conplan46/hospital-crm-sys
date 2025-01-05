@@ -27,7 +27,7 @@ import { Star, Clock, MapPin } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { cliniciansDataType, type Clinician } from "utils/used-types";
-import Loading from "../loading";
+import Loading from "~/components/loading";
 import placeholder from "../../../public/98691529-default-placeholder-doctor-half-length-portrait-photo-avatar-gray-color.jpg";
 import Image from "next/image";
 import Booking from "~/components/booking";

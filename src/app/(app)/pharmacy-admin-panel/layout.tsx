@@ -4,7 +4,7 @@ import { signIn, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import NoPriv from "~/components/no-privilages";
-import Loading from "../loading";
+import Loading from "~/components/loading";
 
 export default function RootLayout({
   children,
@@ -43,13 +43,11 @@ export default function RootLayout({
         <Loading />
         <h1>Authenticating</h1>
       </>
-    )
+    );
   }
 
   if (isClient && isAdminQuery?.data && isAdminQuery?.isFetched) {
-    return (
-      <section>{children}</section>
-    );
+    return <section>{children}</section>;
   } else if (!isAdminQuery?.data && isClient && isAdminQuery.isFetched) {
     return <NoPriv />;
   }

@@ -34,7 +34,7 @@ import { signIn, useSession } from "next-auth/react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
-import Loading from "./loading";
+import Loading from "~/components/loading";
 import PatientsBooking from "~/components/patient-booking";
 import { useQuery } from "@tanstack/react-query";
 import { adBanner, inventory, products } from "drizzle/schema";
@@ -174,10 +174,7 @@ export default function HomePage() {
           <h2 className="mb-4 text-2xl font-bold">Top Products</h2>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
             {topProductsQuery.data?.map((item, index) => (
-              <Link
-                href={item.product_url ?? "#"}
-                key={item.product_id}
-              >
+              <Link href={item.product_url ?? "#"} key={item.product_id}>
                 <Card key={item.product_id}>
                   <CardContent className="p-4">
                     <Image

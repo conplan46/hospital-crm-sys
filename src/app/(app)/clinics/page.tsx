@@ -19,7 +19,7 @@ import Image from "next/image";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import type { Clinic, clinicsDataType } from "utils/used-types";
-import Loading from "../loading";
+import Loading from "~/components/loading";
 import placeholder from "../../../public/depositphotos_510753268-stock-illustration-hospital-web-icon-simple-illustration.jpg";
 import Booking from "~/components/booking";
 import { signIn, useSession } from "next-auth/react";

@@ -34,7 +34,7 @@ import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
 import { Briefcase, MapPin, Phone, Star, User as UserIcon } from "lucide-react";
 import { Booking } from "utils/used-types";
-import Loading from "../loading";
+import Loading from "~/components/loading";
 import { useQuery } from "@tanstack/react-query";
 import {
   bookings,
