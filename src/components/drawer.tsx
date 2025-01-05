@@ -36,6 +36,7 @@ import {
   Heart,
   Menu,
   Pill,
+  Rss,
   Stethoscope,
   User,
   X,
@@ -76,6 +77,7 @@ const navItems = [
   { name: "Labs", href: "/labs", icon: Flask },
   { name: "Clinicians", href: "/clinicians", icon: User },
   { name: "Doctors", href: "/doctors", icon: Stethoscope },
+  { name: "Blog", href: "https://hospitalcrm-blog.vercel.app/", icon: Rss  },
   { name: "Pharmaceutical Database", href: "/pharm-db", icon: Beaker },
 ];
 export const userDataAtom = atom<UserWithDataType | undefined>(undefined);
@@ -174,7 +176,7 @@ export default function DrawerLayout({
             <div className="mr-4 hidden md:flex">
               <Link href="/" className="mr-6 flex items-center space-x-2">
                 <Heart className="h-6 w-6" />
-                <span className="hidden font-bold sm:inline-block">
+                <span className="hidden font-bold text-black sm:inline-block">
                   MedDashboard
                 </span>
               </Link>
@@ -272,7 +274,10 @@ export default function DrawerLayout({
                   <DropdownMenuItem>
                     {isAdminQuery.data ? (
                       <li>
-                        <Link href="/admin" className="justify-between">
+                        <Link
+                          href="/pharmacy-admin-panel"
+                          className="justify-between"
+                        >
                           Admin Panel
                         </Link>
                       </li>

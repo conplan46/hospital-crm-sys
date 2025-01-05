@@ -2,7 +2,7 @@
 /* eslint-disable @typescript-eslint/non-nullable-type-assertion-style */
 import { Skeleton, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { DrugPurchaseForm, IInventoryItem } from "utils/used-types";
 import Loading from "~/app/loading";
@@ -20,11 +20,12 @@ import {
 } from "../../../../components/ui/card";
 import Image from "next/image";
 import { inventory, products } from "drizzle/schema";
-export default function PharmacyDrugPage({
-  params,
-}: {
-  params: { id: string };
-}) {
+export default function PharmacyDrugPage(
+  props: {
+    params: Promise<{ id: string }>;
+  }
+) {
+  const params = use(props.params);
   const {
     register,
     handleSubmit,

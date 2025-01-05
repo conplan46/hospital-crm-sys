@@ -6,7 +6,7 @@ import { Button, Skeleton, useToast } from "@chakra-ui/react";
 import { Clinic, Clinicians } from "utils/used-types";
 import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
-import Loading from "~/app/loading";
+import Loading from "~/app/(app)/loading";
 export default function CliniciansView() {
 	const callBackUrl = usePathname();
 	const { data: session, status } = useSession();

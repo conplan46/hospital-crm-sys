@@ -19,7 +19,7 @@ import {
   useDisclosure,
   useToast,
 } from "@chakra-ui/react";
-import { Card, CardContent, CardFooter } from "../components/ui/card";
+import { Card, CardContent, CardFooter } from "~/components/ui/card";
 import { Button } from "src/components/ui/button";
 import { ChevronLeft, ChevronRight, Star } from "lucide-react";
 import {

@@ -1,25 +1,26 @@
 "use client";
 import { Skeleton, useToast } from "@chakra-ui/react";
 import { useQuery } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import {
   DrugPurchaseForm,
   IInventoryItem,
   findProductDataType,
 } from "utils/used-types";
-import Loading from "~/app/loading";
+import Loading from "~/app/(app)/loading";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
-} from "../../../components/ui/card";
-import { Badge } from "../../../components/ui/badge";
+} from "~/components/ui/card";
+import { Badge } from "~/components/ui/badge";
 import { Pill, DollarSign, Building2 } from "lucide-react";
 import Image from "next/image";
 import { products } from "drizzle/schema";
-export default function DrugPage({ params }: { params: { id: string } }) {
+export default function DrugPage(props: { params: Promise<{ id: string }> }) {
+  const params = use(props.params);
   const {
     register,
     handleSubmit,

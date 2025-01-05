@@ -28,16 +28,17 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { products, inventory } from "drizzle/schema";
 import { signIn, useSession } from "next-auth/react";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useEffect, useState, use } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { FaPlus } from "react-icons/fa6";
 import { AddInvItem, IInventoryItem } from "utils/used-types";
-import Loading from "~/app/loading";
+import Loading from "~/app/(app)/loading";
 import {
   InventoryItem,
   InventoryPurchaseItem,
 } from "~/components/inventory-item";
-export default function PharmacyView({ params }: { params: { slug: string } }) {
+export default function PharmacyView(props: { params: Promise<{ slug: string }> }) {
+  const params = use(props.params);
   const [isClient, setIsClient] = useState(false);
 
   const { data: session, status } = useSession();
