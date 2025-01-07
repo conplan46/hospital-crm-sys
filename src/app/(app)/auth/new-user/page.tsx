@@ -375,7 +375,7 @@ function NurseComponent({
       fetch("/api/create-nurse", { method: "POST", body: formData })
         .then((data) => data.json())
         .then((result: { status: string }) => {
-          if (result.status == "doctor added") {
+          if (result.status == "nurse added") {
             setIsSubmitting(false);
             toast({
               title: "Data received.",
@@ -398,7 +398,19 @@ function NurseComponent({
             });
           }
         })
-        .catch((err) => console.error(err));
+        .catch((err) => {
+          console.error(err);
+
+          setIsSubmitting(false);
+
+          toast({
+            title: "Error",
+            description: "A critical error occured",
+            status: "error",
+            duration: 9000,
+            isClosable: true,
+          });
+        });
     }
   };
 
@@ -1454,7 +1466,16 @@ function LabComponent({
               });
             }
           })
-          .catch((err) => console.error(err));
+          .catch((err) => {
+            console.error(err);
+            toast({
+              title: "Error",
+              description: "An internal error occured",
+              status: "error",
+              duration: 9000,
+              isClosable: true,
+            });
+          });
       }
     }
   };
