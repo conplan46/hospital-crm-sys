@@ -80,7 +80,6 @@ const navItems = [
   { name: "Doctors", href: "/doctors", icon: Stethoscope },
   { name: "Blog", href: "https://hospitalcrm-blog.vercel.app/", icon: Rss  },
   { name: "Pharmaceutical Database", href: "/pharm-db", icon: Beaker },
-
   { name: "Register", href: "/auth/signup", icon: ClipboardList },
 ];
 export const userDataAtom = atom<UserWithDataType | undefined>(undefined);
